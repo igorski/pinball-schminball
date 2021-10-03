@@ -94,17 +94,18 @@ export const update = () => {
     if ( !gameActive ) {
         return;
     }
-    if ( leftFlipperUp ) {
+    if ( !leftFlipperUp ) {
         leftFlipper.angle = limit( leftFlipper.angle + 20, -30, 30 );
     } else {
         leftFlipper.angle = limit( leftFlipper.angle - 20, -30, 30 );
     }
 
-    if ( rightFlipperUp ) {
+    if ( !rightFlipperUp ) {
         rightFlipper.angle = limit( rightFlipper.angle - 20, -30, 30 );
     } else {
         rightFlipper.angle = limit( rightFlipper.angle + 20, -30, 30 );
     }
+
     updateBallPosition();
     runPhysics();
 
@@ -165,7 +166,7 @@ function runPhysics() {
         updateBallPosition();
     }
     let isColliding = checkBallCollisions();
-    let triesLeft   = 1024;
+    let triesLeft   = 256;
     while ( isColliding ) {
         ball.dir += inc;
         updateBallPosition();
@@ -188,7 +189,7 @@ function checkBallCollisions() {
 }
 
 function limit( value, minValue, maxValue ) {
-    return Math.max( Math.min( maxValue, value ), minValue );
+    return Math.max( minValue, Math.min( maxValue, value ));
 }
 
 function coordinateToIndex( x, y ) {

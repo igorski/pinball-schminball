@@ -41,8 +41,8 @@ export default class FlipperRenderer extends sprite {
         if ( rotate ) {
             const pivot = this.actor.getPivot();
             ctx.save();
-            const xD = pivot.x - width  / 2;
-            const yD = pivot.y - height / 2;
+            const xD = pivot.x;
+            const yD = pivot.y;
             ctx.translate( xD, yD );
             ctx.rotate( degToRad( angle ));
             ctx.translate( -xD, -yD );
