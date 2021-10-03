@@ -5,17 +5,22 @@
 npm install
 ```
 
-### Compiles and hot-reloads for development
+### Development
+
+Create a local development server with hot module reload:
+
 ```
-npm run serve
+npm run dev
 ```
 
-### Compiles and minifies for production
+Creating a production build (build output will reside in _./dist/_-folder):
+
 ```
 npm run build
 ```
 
-### Lints and fixes files
+Running unit tests:
+
 ```
-npm run lint
+npm run test
 ```

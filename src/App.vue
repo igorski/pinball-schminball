@@ -1,26 +1,36 @@
 <template>
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <p v-if="loading">Loading...</p>
+    <PinballTable v-else />
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import { preloadAssets } from "@/services/asset-preloader";
+import PinballTable from "./components/pinball-table/pinball-table";
 
 export default {
-  name: 'App',
-  components: {
-    HelloWorld
-  }
-}
+    components: {
+        PinballTable
+    },
+    data: () => ({
+        loading: true,
+    }),
+    async mounted() {
+        await preloadAssets();
+        this.loading = false;
+    }
+};
 </script>
 
 <style>
+body {
+    margin: 0;
+    padding: 0;
+}
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+    font-family: Avenir, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-align: center;
+    color: #2c3e50;
 }
 </style>
