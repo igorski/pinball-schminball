@@ -21,25 +21,27 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import { sprite } from "zcanvas";
-import { degToRad } from "@/utils/math-util";
+import { degToRad, rotateRectangle } from "@/utils/math-util";
 import SpriteCache from "@/utils/sprite-cache";
 
+const DEBUG = process.env.NODE_ENV !== "production";
+
 export default class FlipperRenderer extends sprite {
-    constructor( actor, direction = "left" ) {
+    constructor( flipperActor, direction = "left" ) {
         super({
             bitmap : direction === "left" ? SpriteCache.FLIPPER_LEFT : SpriteCache.FLIPPER_RIGHT,
-            width  : actor.width,
-            height : actor.height
+            width  : flipperActor.width,
+            height : flipperActor.height
         });
-        this.actor = actor;
+        this._flipperActor = flipperActor;
     }
 
     draw( ctx ) {
-        const { x, y, width, height, angle } = this.actor;
+        const { x, y, width, height, angle } = this._flipperActor;
         const rotate = angle !== 0;
 
         if ( rotate ) {
-            const pivot = this.actor.getPivot();
+            const pivot = this._flipperActor.getPivot();
             ctx.save();
             const xD = pivot.x;
             const yD = pivot.y;
@@ -53,6 +55,20 @@ export default class FlipperRenderer extends sprite {
         );
 
         if ( rotate ) {
+            ctx.restore();
+        }
+
+        if ( DEBUG ) {
+            ctx.save();
+            const vector = this._flipperActor.getVector();
+            ctx.strokeStyle = "red";
+            ctx.beginPath();
+            ctx.moveTo( vector[ 0 ], vector[ 1 ]);
+            for ( let i = 2; i < vector.length; i += 2 ) {
+                ctx.lineTo( vector[ i ], vector[ i + 1 ] );
+            }
+            ctx.closePath();
+            ctx.stroke();
             ctx.restore();
         }
     }

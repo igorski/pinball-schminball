@@ -26,7 +26,7 @@
 
 <script>
 import { canvas } from "zcanvas";
-import { init, setFlipperState, update } from "@/model/game";
+import { init, setFlipperState, setBallSpeed, update } from "@/model/game";
 
 export default {
     mounted() {
@@ -61,6 +61,11 @@ export default {
             const { type, keyCode } = event;
             switch ( keyCode ) {
                 default:
+                    if ( process.env.NODE_ENV !== "production" ) {
+                        if ( keyCode === 83 ) { // S
+                            setBallSpeed( 0.5 ); // slow down ball
+                        }
+                    }
                     return;
                 case 37:
                     setFlipperState( "left", type === "keydown" );

@@ -20,12 +20,12 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import { rectangleToVector, areVectorsIntersecting } from "@/utils/math-util";
+
 const pos = { x: 0, y: 0 };
 
 export default class Actor {
-    constructor({
-        x = 0, y = 0, width = 1, height = 1, angle = 0, speed = 0, dir = 0, pivotX = 0, pivotY = 0 } = {}
-    ) {
+    constructor({ x = 0, y = 0, width = 1, height = 1, angle = 0, speed = 0, dir = 0, init = true } = {}) {
         this.x      = x;
         this.y      = y;
         this.width  = width;
@@ -33,33 +33,40 @@ export default class Actor {
         this.angle  = angle;
         this.speed  = speed;
         this.dir    = dir; // direction in radians
-        this.pivotX = pivotX;
-        this.pivotY = pivotY;
 
-        // instance variables used by getters (prevents garbage collection)
-        this._pivot  = { x: pivotX, y: pivotY };
-        this._center = { x, y };
+        // instance variables used by getters (prevents garbage collector hit)
+        // invocation of cacheCoordinates() on position update will set this proper
+        this._center = { x: 0, y: 0 };
+        this._vector = [];
+
+        if ( init ) {
+            this.cacheCoordinates();
+        }
     }
 
-    getPivot() {
-        this._pivot.x = this.x + this.pivotX;
-        this._pivot.y = this.y + this.pivotY;
-
-        return this._pivot;
-    }
-
-    getCenter() {
+    cacheCoordinates() {
         this._center.x = Math.round( this.x + this.width  * 0.5 );
         this._center.y = Math.round( this.y + this.height * 0.5 );
 
+        this._vector = rectangleToVector( this );
+    }
+
+    getVector() {
+        return this._vector;
+    }
+
+    getCenter() {
         return this._center;
     }
 
-    collidesWith( otherActor ) {
-        const { x, y, width, height } = this;
+    collidesWith( otherActor,  ) {
+        if ( this.angle !== 0 ) {
+            return areVectorsIntersecting( this._vector, otherActor.getVector() );
+        }
+        let { x, y, width, height } = this;
 
-        pos.x = otherActor.x + ( otherActor.width  / 2 ); // default from center TODO: cache this in otherActor
-        pos.y = otherActor.y + ( otherActor.height / 2 );
+        pos.x = otherActor.x + ( otherActor.width  * 0.5 ); // default from center TODO: cache this in otherActor
+        pos.y = otherActor.y + ( otherActor.height * 0.5 );
 
         return pos.x >= x && pos.x < x + width &&
                pos.y >= y && pos.y < y + height;

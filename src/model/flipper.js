@@ -20,40 +20,50 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import { sprite } from "zcanvas";
-import { BALL_WIDTH, BALL_HEIGHT } from "@/model/game";
-import { rectangleToVector } from "@/utils/math-util";
-import SpriteCache from "@/utils/sprite-cache";
+import Actor from "@/model/actor";
+import { degToRad, clamp, rotateRectangle } from "@/utils/math-util";
 
-const DEBUG = process.env.NODE_ENV !== "production";
+export default class Flipper extends Actor {
+    /**
+     * Flipper is an Actor that can adjust its angle and
+     * rotate around a custom pivot point
+     */
+    constructor( opts ) {
+        super({ ...opts, init: false });
 
-export default class BallRenderer extends sprite {
-    constructor( actor ) {
-        super({ bitmap: SpriteCache.BALL, width: BALL_WIDTH, height: BALL_HEIGHT });
+        this.pivotX = opts.pivotX ?? 0;
+        this.pivotY = opts.pivotY ?? 0;
 
-        this.actor = actor;
+        // instance variables used by getters (prevents garbage collector hit)
+        this._pivot  = { x: 0, y: 0 };
+
+        this.cacheCoordinates();
     }
 
-    update() {
-        this.setX( this.actor.x );
-        this.setY( this.actor.y );
-    }
-
-    draw( ctx ) {
-        super.draw( ctx );
-
-        if ( DEBUG ) {
-            ctx.save();
-            const vector = this.actor.getVector();
-            ctx.strokeStyle = "red";
-            ctx.beginPath();
-            ctx.moveTo( vector[ 0 ], vector[ 1 ]);
-            for ( let i = 2; i < vector.length; i += 2 ) {
-                ctx.lineTo( vector[ i ], vector[ i + 1 ] );
-            }
-            ctx.closePath();
-            ctx.stroke();
-            ctx.restore();
+    setAngle( angle, minAngle, maxAngle ) {
+        angle = clamp( angle, minAngle, maxAngle );
+        if ( this.angle === angle ) {
+            return;
         }
+        this.angle = angle;
+        if ( angle !== 0 ) {
+            this.cacheCoordinates();
+        }
+    }
+
+    getPivot() {
+        return this._pivot;
+    }
+
+    /**
+     * @override
+     */
+    cacheCoordinates() {
+        super.cacheCoordinates();
+
+        this._pivot.x = this.x + this.pivotX;
+        this._pivot.y = this.y + this.pivotY;
+
+        this._vector = rotateRectangle( this, degToRad( this.angle ), this._pivot.x, this._pivot.y );
     }
 };
