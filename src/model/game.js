@@ -23,6 +23,7 @@
 import { sprite } from "zcanvas";
 import Levels from "@/definitions/levels";
 import Actor from "@/model/actor";
+import Ball from "@/model/ball";
 import Flipper from "@/model/flipper";
 import BallRenderer from "@/renderers/ball-renderer";
 import FlipperRenderer from "@/renderers/flipper-renderer";
@@ -59,7 +60,7 @@ export const init = async ( canvas, levelNum = 0 ) => {
 
     leftFlipper  = new Flipper({ ...flippers.left,  width: 132, height: 41, pivotX: 20,  pivotY: 20, angle: -30 });
     rightFlipper = new Flipper({ ...flippers.right, width: 132, height: 41, pivotX: 112, pivotY: 20, angle: 30 });
-    ball         = new Actor({ ...ballStartProps, width: 40, height: 40 });
+    ball         = new Ball({ ...ballStartProps, width: 40, height: 40 });
 
     // clear previous contents
     while ( canvas.numChildren() > 0 ) {

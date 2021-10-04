@@ -29,7 +29,7 @@ export const radToDeg = radians => radians * ONE_EIGHTY_OVER_PI;
 export const degToRad = degrees => degrees * PI_OVER_ONE_EIGHTY;
 export const clamp    = ( value, minValue, maxValue ) => max( minValue, min( maxValue, value ));
 
-export const rotateRectangle = ( rectangle, angleInRadians = 0, optPivotX = null, optPivotY = null ) => {
+export const rectangleToRotatedVector = ( rectangle, angleInRadians = 0, optPivotX = null, optPivotY = null ) => {
     const r = rectangleToVector( rectangle );
     const out = [];
     const xp = optPivotX === null ? rectangle.x + rectangle.width  * HALF : optPivotX;

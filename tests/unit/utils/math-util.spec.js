@@ -1,4 +1,4 @@
-import { degToRad, clamp, rotateRectangle, rectangleToVector } from "@/utils/math-util";
+import { degToRad, clamp, rectangleToRotatedVector, rectangleToVector } from "@/utils/math-util";
 
 describe( "Math utilities", () => {
     describe( "when clamping a value to remain within range", () => {
@@ -18,7 +18,7 @@ describe( "Math utilities", () => {
     it( "should be able to rotate a rectangle into a polygon vector", () => {
         const rect  = { x: 0, y: 0, width: 20, height: 20 };
         const angle = degToRad( 45 );
-        expect( rotateRectangle( rect, angle ).map( Math.round )).toEqual([
+        expect( rectangleToRotatedVector( rect, angle ).map( Math.round )).toEqual([
             9, -5, 24, 9, 10, 24, -5, 10
         ]);
     });

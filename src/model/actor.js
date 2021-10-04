@@ -35,8 +35,7 @@ export default class Actor {
         this.dir    = dir; // direction in radians
 
         // instance variables used by getters (prevents garbage collector hit)
-        // invocation of cacheCoordinates() on position update will set this proper
-        this._center = { x: 0, y: 0 };
+        // invocation of cacheCoordinates() on position update will set the values properly
         this._vector = [];
 
         if ( init ) {
@@ -45,9 +44,6 @@ export default class Actor {
     }
 
     cacheCoordinates() {
-        this._center.x = Math.round( this.x + this.width  * 0.5 );
-        this._center.y = Math.round( this.y + this.height * 0.5 );
-
         this._vector = rectangleToVector( this );
     }
 
@@ -55,11 +51,7 @@ export default class Actor {
         return this._vector;
     }
 
-    getCenter() {
-        return this._center;
-    }
-
-    collidesWith( otherActor,  ) {
+    collidesWith( otherActor ) {
         if ( this.angle !== 0 ) {
             return areVectorsIntersecting( this._vector, otherActor.getVector() );
         }

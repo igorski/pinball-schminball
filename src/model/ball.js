@@ -21,48 +21,29 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import Actor from "@/model/actor";
-import { degToRad, clamp, rectangleToRotatedVector } from "@/utils/math-util";
 
-export default class Flipper extends Actor {
-    /**
-     * Flipper is an Actor that can adjust its angle and
-     * rotate around a custom pivot point
-     */
+export default class Ball extends Actor {
     constructor( opts ) {
         super({ ...opts, init: false });
 
-        this.pivotX = opts.pivotX ?? 0;
-        this.pivotY = opts.pivotY ?? 0;
-
         // instance variables used by getters (prevents garbage collector hit)
         // invocation of cacheCoordinates() on position update will set the values properly
-        this._pivot  = { x: 0, y: 0 };
+        this._center = { x: 0, y: 0 };
 
         this.cacheCoordinates();
     }
 
-    setAngle( angle, minAngle, maxAngle ) {
-        angle = clamp( angle, minAngle, maxAngle );
-        if ( this.angle === angle ) {
-            return;
-        }
-        this.angle = angle;
-        if ( angle !== 0 ) {
-            this.cacheCoordinates();
-        }
-    }
-
-    getPivot() {
-        return this._pivot;
+    getCenter() {
+        return this._center;
     }
 
     /**
      * @override
      */
     cacheCoordinates() {
-        this._pivot.x = this.x + this.pivotX;
-        this._pivot.y = this.y + this.pivotY;
+        super.cacheCoordinates();
 
-        this._vector = rectangleToRotatedVector( this, degToRad( this.angle ), this._pivot.x, this._pivot.y );
+        this._center.x = Math.round( this.x + this.width  * 0.5 );
+        this._center.y = Math.round( this.y + this.height * 0.5 );
     }
-};
+}

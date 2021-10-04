@@ -21,7 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import { sprite } from "zcanvas";
-import { degToRad, rotateRectangle } from "@/utils/math-util";
+import { degToRad, rectangleToRotatedVector } from "@/utils/math-util";
 import SpriteCache from "@/utils/sprite-cache";
 
 const DEBUG = process.env.NODE_ENV !== "production";
