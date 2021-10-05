@@ -27,9 +27,9 @@ import SpriteCache from "@/utils/sprite-cache";
 const DEBUG = process.env.NODE_ENV !== "production";
 
 export default class FlipperRenderer extends sprite {
-    constructor( flipperActor, direction = "left" ) {
+    constructor( flipperActor ) {
         super({
-            bitmap : direction === "left" ? SpriteCache.FLIPPER_LEFT : SpriteCache.FLIPPER_RIGHT,
+            bitmap : flipperActor.type === "left" ? SpriteCache.FLIPPER_LEFT : SpriteCache.FLIPPER_RIGHT,
             width  : flipperActor.width,
             height : flipperActor.height
         });

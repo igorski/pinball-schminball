@@ -26,8 +26,8 @@ npm run test
 ```
 ## TODO
 
+* When moving purely on horizontal axis and speed is below max slowly rotate downwards
 * Launcher
 * Switches to toggle score multiplier ("x when lit")
 * Score counter
 * Multiball mode
-* Extra flippers

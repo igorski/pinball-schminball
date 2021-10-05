@@ -23,6 +23,9 @@
 import Actor from "@/model/actor";
 import { degToRad, clamp, rectangleToRotatedVector } from "@/utils/math-util";
 
+const MIN_ANGLE = -30;
+const MAX_ANGLE = 30;
+
 export default class Flipper extends Actor {
     /**
      * Flipper is an Actor that can adjust its angle and
@@ -31,8 +34,12 @@ export default class Flipper extends Actor {
     constructor( opts ) {
         super({ ...opts, init: false });
 
-        this.pivotX = opts.pivotX ?? 0;
-        this.pivotY = opts.pivotY ?? 0;
+        this.type   = opts.type;
+        this.width  = 132;
+        this.height = 41;
+        this.angle  = this.type === "left" ? MIN_ANGLE : MAX_ANGLE;
+        this.pivotX = this.type === "left" ? 20 : 112;
+        this.pivotY = 20;
 
         // instance variables used by getters (prevents garbage collector hit)
         // invocation of cacheCoordinates() on position update will set the values properly
@@ -41,8 +48,8 @@ export default class Flipper extends Actor {
         this.cacheCoordinates();
     }
 
-    setAngle( angle, minAngle, maxAngle ) {
-        angle = clamp( angle, minAngle, maxAngle );
+    setAngle( angle ) {
+        angle = clamp( angle, MIN_ANGLE, MAX_ANGLE );
         if ( this.angle === angle ) {
             return;
         }
