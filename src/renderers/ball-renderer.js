@@ -22,7 +22,7 @@
  */
 import { sprite } from "zcanvas";
 import { BALL_WIDTH, BALL_HEIGHT } from "@/model/game";
-import { rectangleToVector } from "@/utils/math-util";
+import { degToRad, rectangleToVector } from "@/utils/math-util";
 import SpriteCache from "@/utils/sprite-cache";
 
 const DEBUG = process.env.NODE_ENV !== "production";
@@ -32,15 +32,27 @@ export default class BallRenderer extends sprite {
         super({ bitmap: SpriteCache.BALL, width: BALL_WIDTH, height: BALL_HEIGHT });
 
         this.actor = actor;
+
+        this.spin = 0;
     }
 
     update() {
+        const isMovingLeft = this.actor.x < this._bounds.left;
         this.setX( this.actor.x );
         this.setY( this.actor.y );
+        this.spin = ( isMovingLeft ? this.spin - this.actor.speed : this.spin + this.actor.speed ) % 360;
     }
 
     draw( ctx, viewport ) {
+        // the ball spins while moving, rotate the canvas prior to rendering as usual
+        ctx.save();
+        const dx = ( this.actor.x - viewport.left ) + this.actor.width / 2;
+        const dy = ( this.actor.y - viewport.top )  + this.actor.height / 2;
+        ctx.translate( dx, dy );
+        ctx.rotate( degToRad( this.spin ));
+        ctx.translate( -dx, -dy );
         super.draw( ctx, viewport );
+        ctx.restore();
 
         if ( DEBUG ) {
             ctx.save();

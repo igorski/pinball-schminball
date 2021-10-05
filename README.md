@@ -26,6 +26,8 @@ npm run test
 ```
 ## TODO
 
+* Launcher
+* Switches to toggle score multiplier ("x when lit")
 * Score counter
 * Multiball mode
 * Extra flippers
