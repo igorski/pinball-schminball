@@ -26,7 +26,6 @@ npm run test
 ```
 ## TODO
 
-* Vertical scroll
 * Score counter
 * Multiball mode
 * Extra flippers

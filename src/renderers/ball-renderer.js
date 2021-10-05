@@ -39,15 +39,16 @@ export default class BallRenderer extends sprite {
         this.setY( this.actor.y );
     }
 
-    draw( ctx ) {
-        super.draw( ctx );
+    draw( ctx, viewport ) {
+        super.draw( ctx, viewport );
 
         if ( DEBUG ) {
             ctx.save();
             const vector = this.actor.getVector();
+            ctx.translate( -viewport.left, -viewport.top );
             ctx.strokeStyle = "red";
             ctx.beginPath();
-            ctx.moveTo( vector[ 0 ], vector[ 1 ]);
+            ctx.moveTo( vector[ 0 ], vector[ 1 ] );
             for ( let i = 2; i < vector.length; i += 2 ) {
                 ctx.lineTo( vector[ i ], vector[ i + 1 ] );
             }

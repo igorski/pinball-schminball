@@ -48,10 +48,13 @@ let score = 0, gameActive = false;
 let leftFlipperUp = false, rightFlipperUp = false;
 let collisionMap = null;
 
-let backgroundRenderer, ballRenderer, flipperLeftRenderer, flipperRightRenderer;
+let canvas, backgroundRenderer, ballRenderer, flipperLeftRenderer, flipperRightRenderer;
 const renderers = [];
+let panOffset = 0, viewportWidth = 0, viewportHeight = 0; // cached in scaleCanvas()
 
-export const init = async ( canvas, levelNum = 0 ) => {
+export const init = async ( canvasRef, levelNum = 0 ) => {
+    canvas = canvasRef;
+
     level = Levels[ levelNum ];
     const { background, width, height, ballStartProps, flippers } = level;
 
@@ -84,6 +87,29 @@ export const init = async ( canvas, levelNum = 0 ) => {
         canvas.addChild( renderer );
     }
     gameActive = true;
+};
+
+export const scaleCanvas = ( clientWidth, clientHeight ) => {
+    // TODO here we assume all levels are taller than wide
+    const ratio  = level.height / level.width;
+    const width  = Math.min( level.width, clientWidth );
+    const height = Math.min( clientHeight, Math.round( width * ratio ));
+
+    // by setting the dimensions we have set the "world size"
+    canvas.setDimensions( level.width, level.height );
+
+    // take into account that certain resolutions are lower than the level width
+    const zoom = clientWidth < level.width ? clientWidth / level.width : 1;
+
+    // the viewport however is local to the client window size
+    viewportWidth  = width / zoom;
+    viewportHeight = height / zoom;
+    canvas.setViewport( viewportWidth, viewportHeight );
+    // scale canvas to fit in the width
+    canvas.scale( zoom );
+
+    // the vertical offset at which the viewport should pan to follow the ball
+    panOffset = ( viewportHeight / 2 ) - ( BALL_WIDTH / 2 );
 };
 
 export const setFlipperState = ( flipper, up ) => {
@@ -119,6 +145,9 @@ export const update = () => {
     for ( const renderer of renderers ) {
         renderer.update();
     }
+
+    // keep ball within view
+    canvas.panViewport( 0, ball.y - panOffset );
 };
 
 /* internal methods */

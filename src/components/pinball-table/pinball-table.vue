@@ -21,12 +21,12 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 <template>
-    <div ref="canvasContainer"></div>
+    <div ref="canvasContainer" class="canvas-container"></div>
 </template>
 
 <script>
 import { canvas } from "zcanvas";
-import { init, setFlipperState, setBallSpeed, update } from "@/model/game";
+import { init, scaleCanvas, setFlipperState, setBallSpeed, update } from "@/model/game";
 
 export default {
     mounted() {
@@ -41,14 +41,18 @@ export default {
         this.canvas.insertInPage( this.$refs.canvasContainer );
 
         this.keyListener = this.handleKey.bind( this );
+
         window.addEventListener( "keydown", this.keyListener );
         window.addEventListener( "keyup",   this.keyListener );
+        window.addEventListener( "resize",  this.handleResize );
 
         this.initGame();
+        this.handleResize();
     },
     unmounted() {
         window.removeEventListener( "keydown", this.keyListener );
         window.removeEventListener( "keyup",   this.keyListener );
+        window.removeEventListener( "resize",  this.handleResize );
     },
     methods: {
         initGame() {
@@ -56,6 +60,10 @@ export default {
         },
         runGameTick() {
             update();
+        },
+        handleResize() {
+            const { clientWidth, clientHeight } = document.documentElement;
+            scaleCanvas( clientWidth, clientHeight );
         },
         handleKey( event ) {
             const { type, keyCode } = event;
@@ -80,3 +88,10 @@ export default {
     }
 };
 </script>
+
+<style scoped>
+.canvas-container {
+    overflow: hidden;
+    text-align: center;
+}
+</style>

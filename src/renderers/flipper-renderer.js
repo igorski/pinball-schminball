@@ -33,25 +33,30 @@ export default class FlipperRenderer extends sprite {
             width  : flipperActor.width,
             height : flipperActor.height
         });
-        this._flipperActor = flipperActor;
+        this.actor = flipperActor;
     }
 
-    draw( ctx ) {
-        const { x, y, width, height, angle } = this._flipperActor;
+    update() {
+        this.setX( this.actor.x );
+        this.setY( this.actor.y );
+    }
+
+    draw( ctx, { left, top }) {
+        const { x, y, width, height, angle } = this.actor;
         const rotate = angle !== 0;
 
         if ( rotate ) {
-            const pivot = this._flipperActor.getPivot();
+            const pivot = this.actor.getPivot();
             ctx.save();
-            const xD = pivot.x;
-            const yD = pivot.y;
+            const xD = pivot.x - left;
+            const yD = pivot.y - top;
             ctx.translate( xD, yD );
             ctx.rotate( degToRad( angle ));
             ctx.translate( -xD, -yD );
         }
 
         ctx.drawImage(
-            this._bitmap, 0, 0, width, height, x, y, width, height
+            this._bitmap, 0, 0, width, height, x - left, y - top, width, height
         );
 
         if ( rotate ) {
@@ -60,8 +65,9 @@ export default class FlipperRenderer extends sprite {
 
         if ( DEBUG ) {
             ctx.save();
-            const vector = this._flipperActor.getVector();
+            const vector = this.actor.getVector();
             ctx.strokeStyle = "red";
+            ctx.translate( -left, -top );
             ctx.beginPath();
             ctx.moveTo( vector[ 0 ], vector[ 1 ]);
             for ( let i = 2; i < vector.length; i += 2 ) {
