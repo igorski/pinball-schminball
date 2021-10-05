@@ -21,22 +21,29 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 <template>
-    <div ref="canvasContainer" class="canvas-container"></div>
+    <div
+        ref="canvasContainer"
+        class="canvas-container"
+        @touchstart="handleTouch"
+        @touchend="handleTouch"
+        @touchcancel="handleTouch"
+    ></div>
 </template>
 
 <script>
 import { canvas } from "zcanvas";
 import { init, scaleCanvas, setFlipperState, setBallSpeed, update } from "@/model/game";
 
+let leftTouchId = -1, rightTouchId = -1, touch;
+
 export default {
     mounted() {
         this.canvas = new canvas({
-            width  : 600,
-            height : 800,
-            backgroundColor: "#000",
-            onUpdate : this.runGameTick.bind( this ),
-            animate: true,
-            interactive: false
+            width       : 600,
+            height      : 800,
+            animate     : true,
+            interactive : false,
+            onUpdate    : this.runGameTick.bind( this )
         });
         this.canvas.insertInPage( this.$refs.canvasContainer );
 
@@ -64,6 +71,35 @@ export default {
         handleResize() {
             const { clientWidth, clientHeight } = document.documentElement;
             scaleCanvas( clientWidth, clientHeight );
+            this.halfWidth = clientWidth / 2;
+        },
+        handleTouch( event ) {
+            switch ( event.type ) {
+                // touch cancel, end
+                default:
+                    const eventTouches = [ ...event.touches ];
+                    if ( leftTouchId >= 0 && !eventTouches.includes( leftTouchId )) {
+                        setFlipperState( "left", false );
+                        leftTouchId = -1;
+                    }
+                    if ( rightTouchId >= 0 && !eventTouches.includes( rightTouchId )) {
+                        setFlipperState( "right", false );
+                        rightTouchId = -1;
+                    }
+                    break;
+                // touch start
+                case "touchstart":
+                    for ( touch of event.touches ) {
+                        if ( touch.pageX < this.halfWidth ) {
+                            setFlipperState( "left", true );
+                            leftTouchId = touch.identifier;
+                        } else {
+                            setFlipperState( "right", true );
+                            rightTouchId = touch.identifier;
+                        }
+                    }
+                    break;
+            }
         },
         handleKey( event ) {
             const { type, keyCode } = event;
