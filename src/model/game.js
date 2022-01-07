@@ -38,9 +38,13 @@ const BALL_COLLISION_BOUNDS = [
     { x: 0, y: -BALL_COLLISION_RADIUS }, { x: BALL_COLLISION_RADIUS,  y: 0 },
     { x: 0, y: BALL_COLLISION_RADIUS },  { x: -BALL_COLLISION_RADIUS, y: 0 }
 ];
-const MIN_BALL_SPEED = 0.35; // the speed at which gravity pulls harder than the ball moves
-const MAX_BALL_SPEED = 10;   // maximum ball speed
-const BALL_DIR_DOWN  = 0;
+const MIN_BALL_SPEED    = 0.35; // the speed at which gravity pulls the ball down instantly
+const BALL_ESCAPE_SPEED = 8;    // the speed at which the balls acceleration can resist gravity's pull
+const MAX_BALL_SPEED    = 10;   // maximum ball speed
+const BALL_DIR_LEFT     = 270;  // angle in degrees which is a pure left movement (4.71238898038469 in rad)
+const BALL_DIR_RIGHT    = 90;   // angle in degrees which is a pure right movement (1.57079633 in rad)
+const BALL_DIR_UP       = 180;  // angle in degrees which is a pure up movement (3.141592653589793 (PI) in rad)
+const BALL_DIR_DOWN     = 0;    // angle for pure downward movement, same in radians as degrees ;)
 
 let flippers, flipper, ball, level;
 let score = 0, gameActive = false;
@@ -120,8 +124,17 @@ export const setFlipperState = ( flipper, up ) => {
     }
 };
 
+export const bumpTable = () => {
+    //if ( !isBallColliding() ) {
+    //    return; // TODO this is always false outside of runPhysics()
+    //}
+    ball.dir   = degToRad( 180 - radToDeg( ball.dir ));
+    ball.speed = Math.min( MAX_BALL_SPEED, ball.speed + 4 );
+    console.warn("bump");
+};
+
 export const setBallSpeed = speed => {
-    const d = radToDeg( ball.dir ) % 360;
+    const d = radToDeg( ball.dir );
     const isMovingUp = d > 90 && d < 270;
     if ( speed < 0.75 && isMovingUp ) {
         ball.dir = degToRad( 180 - d );
@@ -168,29 +181,69 @@ function updateBallPosition() {
     ball.cacheCoordinates();
 }
 
+let logger;//QQQ
 function runPhysics() {
-    const d = radToDeg( ball.dir ) % 360;
+    let dt = ''; //QQQ
+    const d = radToDeg( ball.dir );
     let inc = -1.5;
 
-    // moving upwards
+    // moving upwards (between 90-270 degrees, 90 == right, 270 == left)
     if ( d > 90 && d < 270 ) {
         inc = 1.5;
-        ball.speed -= 0.03;
-        /*if ( ball.speed < 0 ) {
+        //if ( ball.speed >= 0 ) {
+            ball.speed -= 0.03;
+        //} else {
+        if ( ball.speed < 0 ) {
             ball.dir = BALL_DIR_DOWN;
-        }*/
+        }
     // moving downwards
     } else if ( ball.speed < MAX_BALL_SPEED ) {
         ball.speed += 0.04;
     }
 
-    if ( ball.speed < MIN_BALL_SPEED ) {
-        ball.dir = BALL_DIR_DOWN;
+    /*
+
+    90 = right, 45 = down right (0 is down) so DECREMENT
+    270 = left, 210 = up left (180 is up), 330 = down left so INCREMENT
+    */
+    const xSpeed = ball.speed * sin( ball.dir );
+    const ySpeed = ball.speed * cos( ball.dir );
+    if ( Math.round( d ) !== 0 && ySpeed < BALL_ESCAPE_SPEED ) {//ball.speed < MAX_BALL_SPEED ) {
+        const speed = 1;//ball.speed;
+        if ( d >= 180 ) {
+            dt = 'left';
+            ball.dir = degToRad( d + speed);//( speed * ( d - 180 ) / 180 ));
+        } else if ( d > 0 ) {
+            dt = 'right';
+            ball.dir = degToRad( d - speed);//( speed * ( d / 180 )));
+        }
     }
+
+if(!logger) {
+    logger = document.createElement('div');
+    logger.style.position = 'fixed';
+    logger.style.right = '16px';
+    logger.style.bottom ='16px';
+    logger.style.color = 'red';
+    document.body.appendChild(logger);
+}
+logger.innerHTML = d.toFixed(0) + ' @ ' + ball.speed.toFixed(0) + ' ' + dt;
 
     for ( flipper of flippers ) {
         if ( flipper.collidesWith( ball )) {
-            console.warn( `BALL HIT ${flipper.type === "left" ? "left" : "right"} FLIPPER` );
+            // TODO only when flipper is down
+            let isColliding = isBallColliding();
+            let triesLeft   = 256;
+            while ( flipper.collidesWith( ball ) ) {
+                ball.dir += inc;
+                updateBallPosition();
+                if ( --triesLeft === 0 ) {
+                    break;
+                }
+            }
+            return;
+            // E.O. TODO
+            console.warn( `BALL HIT ${flipper.type.toUpperCase()} FLIPPER` );
             // left
             if ( flipper.type === "left" ) {
                 ball.dir = 3 + ( flipper.angle / 50 );
@@ -209,10 +262,14 @@ function runPhysics() {
                 ball.dir = BALL_DIR_DOWN;
             }
             updateBallPosition();
+            return;
         }
     }
 
     let isColliding = isBallColliding();
+    if ( !isColliding ) {
+        return;
+    }
     let triesLeft   = 256;
     while ( isColliding ) {
         ball.dir += inc;

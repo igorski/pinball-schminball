@@ -1,6 +1,16 @@
-import { degToRad, clamp, rectangleToRotatedVector, rectangleToVector } from "@/utils/math-util";
+import { radToDeg, degToRad, clamp, rectangleToRotatedVector, rectangleToVector } from "@/utils/math-util";
 
 describe( "Math utilities", () => {
+    describe( "when converting radians to degrees", () => {
+        it( "should cap values at 360 degrees", () => {
+            expect( radToDeg( 6.981317007977318 )).toEqual( 40 );
+        });
+
+        it( "should sanitize negative values", () => {
+            expect( radToDeg( -1.5707963267948966 )).toEqual( 270 );
+        });
+    });
+
     describe( "when clamping a value to remain within range", () => {
         it( "should return the requested value if it is within the range", () => {
             expect( clamp( 5, 2, 10 )).toEqual( 5 );

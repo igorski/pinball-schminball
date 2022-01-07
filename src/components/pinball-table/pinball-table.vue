@@ -32,7 +32,7 @@
 
 <script>
 import { canvas } from "zcanvas";
-import { init, scaleCanvas, setFlipperState, setBallSpeed, update } from "@/model/game";
+import { init, scaleCanvas, setFlipperState, bumpTable, setBallSpeed, update } from "@/model/game";
 
 let leftTouchId = -1, rightTouchId = -1, touch;
 
@@ -111,6 +111,10 @@ export default {
                         }
                     }
                     return;
+                case 32:
+                    bumpTable();
+                    event.preventDefault();
+                    break;
                 case 37:
                     setFlipperState( "left", type === "keydown" );
                     event.preventDefault();

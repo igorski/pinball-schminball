@@ -26,8 +26,8 @@ export default [{
     background      : SpriteCache.BACKGROUND,
     width           : 800,
     height          : 1916,
-    ballStartProps  : { x: 650, y: 1100, dir: 4, speed: 8 },
-    chute           : { left: 350, right: 550, top: 1900 },
+    ballStartProps  : { x: 350, y: 1250, dir: 1.7802358370342162, speed: 6 },
+    chute           : { left: 350, right: 550, top: 1870 },
     flippers : [
         { type: "left",  x: 150, y: 900 },
         { type: "left",  x: 250, y: 1700 },
