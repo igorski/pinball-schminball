@@ -5,6 +5,10 @@ export const SHAPE_TYPES = {
 };
 
 export default class PhysicsShape {
+    constructor( type ) {
+        this.setType( type );
+    }
+    
     setType( type ) {
         this.type = type;
     }

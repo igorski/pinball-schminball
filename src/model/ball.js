@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021 - https://www.igorski.nl
+ * Igor Zinken 2021-2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -21,29 +21,20 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import Actor from "@/model/actor";
+import CirclePhys from "@/model/math/circlephys";
 
 export default class Ball extends Actor {
     constructor( opts ) {
-        super({ ...opts, init: false });
+        super({ ...opts });
 
-        // instance variables used by getters (prevents garbage collector hit)
-        // invocation of cacheCoordinates() on position update will set the values properly
-        this._center = { x: 0, y: 0 };
+        /* math */
 
-        this.cacheCoordinates();
-    }
+        this.shape = new CirclePhys( this.width );
 
-    getCenter() {
-        return this._center;
-    }
+        this.setAngleRad( opts.angle || 0 );
+        this.setRestitution( 1 );
+        this.setMass( 1 );
 
-    /**
-     * @override
-     */
-    cacheCoordinates() {
-        super.cacheCoordinates();
-
-        this._center.x = Math.round( this.x + this.width  * 0.5 );
-        this._center.y = Math.round( this.y + this.height * 0.5 );
+        this.velocity.y = opts.speed;
     }
 }

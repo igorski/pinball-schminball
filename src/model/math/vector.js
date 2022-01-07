@@ -62,7 +62,19 @@ export default class Vector {
         return new Vector( this.x + otherVector.x, this.y + otherVector.y );
     }
 
+    // operator+=
+    applyAdd( otherVector ) {
+        this.setXY( this.x + otherVector.x, this.y + otherVector.y );
+        return this;
+    }
+
+    // operator-
     subtract( otherVector ) {
+        return new Vector( this.x - otherVector.x, this.y - otherVector.y );
+    }
+
+    // operator-=
+    applySubtraction( otherVector ) {
         this.setXY( this.x - otherVector.x, this.y - otherVector.y );
         return this;
     }
@@ -72,6 +84,10 @@ export default class Vector {
     }
 
     divideScalar( kfScalar ) {
+        if ( kfScalar === 0 ) {
+            console.warn("DIVISION BY ZERO");
+            return this;
+        }
         return new Vector( this.x / kfScalar, this.y / kfScalar );
     }
 
@@ -87,27 +103,13 @@ export default class Vector {
     invert() {
         return new Vector( -this.x, -this.y );
     }
+
+    applyInvert() {
+        this.setXY( -this.x, -this.y );
+    }
+
+    // operator==
+    equals( otherVector ) {
+        return this.x === otherVector.x && this.y === otherVector.y;
+    }
 }
-
-/*
-
-
-
-
-Vector2D& Vector2D::operator+=(const Vector2D& otherVector)
-{
-    set(x()+otherVector.x(), y()+otherVector.y());
-    return *this;
-}
-
-Vector2D& Vector2D::operator= (const Vector2D& otherVector)
-{
-    set(otherVector.x(), otherVector.y());
-    return *this;
-}
-
-bool Vector2D::operator==(const Vector2D& otherVector) const
-{
-    return ((x() == otherVector.x()) && (y() == otherVector.y()));
-}
-*/

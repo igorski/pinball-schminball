@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021 - https://www.igorski.nl
+ * Igor Zinken 2021-2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -25,34 +25,28 @@ import Levels from "@/definitions/levels";
 import Actor from "@/model/actor";
 import Ball from "@/model/ball";
 import Flipper from "@/model/flipper";
+import Rect from "@/model/rect";
 import BallRenderer from "@/renderers/ball-renderer";
 import FlipperRenderer from "@/renderers/flipper-renderer";
+import RectRenderer from "@/renderers/rect-renderer";
+import Collision from "@/model/math/collision";
 import { radToDeg, degToRad } from "@/utils/math-util";
 import { getTransparentPixelsForImage } from "@/utils/canvas-helper";
 const { cos, sin, min, round } = Math;
 
 export const BALL_WIDTH     = 40;
 export const BALL_HEIGHT    = 40;
-const BALL_COLLISION_RADIUS = 22; // a little over half to provide lookahead
-const BALL_COLLISION_BOUNDS = [
-    { x: 0, y: -BALL_COLLISION_RADIUS }, { x: BALL_COLLISION_RADIUS,  y: 0 },
-    { x: 0, y: BALL_COLLISION_RADIUS },  { x: -BALL_COLLISION_RADIUS, y: 0 }
-];
 const MIN_BALL_SPEED    = 0.35; // the speed at which gravity pulls the ball down instantly
-const BALL_ESCAPE_SPEED = 8;    // the speed at which the balls acceleration can resist gravity's pull
 const MAX_BALL_SPEED    = 10;   // maximum ball speed
-const BALL_DIR_LEFT     = 270;  // angle in degrees which is a pure left movement (4.71238898038469 in rad)
-const BALL_DIR_RIGHT    = 90;   // angle in degrees which is a pure right movement (1.57079633 in rad)
-const BALL_DIR_UP       = 180;  // angle in degrees which is a pure up movement (3.141592653589793 (PI) in rad)
-const BALL_DIR_DOWN     = 0;    // angle for pure downward movement, same in radians as degrees ;)
 
-let flippers, flipper, ball, level;
+let flippers, flipper, balls, ball, rects, rect, otherBall, col, level;
 let score = 0, gameActive = false;
+let runTicks = 0;
 
 let leftFlipperUp = false, rightFlipperUp = false;
 let collisionMap = null;
 
-let canvas, backgroundRenderer, ballRenderer, renderer;
+let canvas, backgroundRenderer, renderer;
 const renderers = [];
 let panOffset = 0, viewportWidth = 0, viewportHeight = 0; // cached in scaleCanvas()
 
@@ -70,7 +64,7 @@ export const init = async ( canvasRef, levelNum = 0 ) => {
         acc.push( new Flipper( flipperOpts ) );
         return acc;
     }, [] );
-    ball = new Ball({ ...ballStartProps, width: 40, height: 40 });
+    balls = [ new Ball({ ...ballStartProps, width: BALL_WIDTH, height: BALL_HEIGHT }) ];
 
     // clear previous canvas contents
     while ( canvas.numChildren() > 0 ) {
@@ -84,13 +78,24 @@ export const init = async ( canvasRef, levelNum = 0 ) => {
 
     flippers.forEach( flipper => renderers.push( new FlipperRenderer( flipper )));
 
-    ballRenderer = new BallRenderer( ball );
-    renderers.push( ballRenderer );
+    for ( ball of balls ) {
+        ball.renderer = new BallRenderer( ball );
+        renderers.push( ball.renderer );
+    }
+
+    // QQQ
+    rects = [ new Rect({ x: 10, y: ballStartProps.y + 200, width: 700, height: 20, angle: degToRad( 20 ) }) ];
+    for ( rect of rects ) {
+        rect.renderer = new RectRenderer( rect );
+        renderers.push( rect.renderer );
+    }
 
     for ( const renderer of renderers ) {
         canvas.addChild( renderer );
     }
     gameActive = true;
+
+    runTicks = 0;
 };
 
 export const scaleCanvas = ( clientWidth, clientHeight ) => {
@@ -128,12 +133,14 @@ export const bumpTable = () => {
     //if ( !isBallColliding() ) {
     //    return; // TODO this is always false outside of runPhysics()
     //}
-    ball.dir   = degToRad( 180 - radToDeg( ball.dir ));
-    ball.speed = Math.min( MAX_BALL_SPEED, ball.speed + 4 );
-    console.warn("bump");
+    for ( ball of balls ) {
+        ball.setVelocity( ball.getVelocity().invert());
+        console.warn("bump");
+    }
 };
 
 export const setBallSpeed = speed => {
+    ball = balls[ 0 ]; // TODO
     const d = radToDeg( ball.dir );
     const isMovingUp = d > 90 && d < 270;
     if ( speed < 0.75 && isMovingUp ) {
@@ -145,78 +152,77 @@ export const setBallSpeed = speed => {
 /**
  * Should be called when zCanvas invokes update() prior to rendering
  */
-export const update = () => {
+export const update = timestamp => {
     if ( !gameActive ) {
         return;
     }
+    ++runTicks;
 
     for ( flipper of flippers ) {
         if ( flipper.type === "left" ) {
-            flipper.setAngle( leftFlipperUp  ? flipper.angle - 20 : flipper.angle + 20 );
+            flipper.setAngle( leftFlipperUp  ? flipper.getAngleDeg() - 20 : flipper.getAngleDeg() + 20 );
         } else {
-            flipper.setAngle( rightFlipperUp ? flipper.angle + 20 : flipper.angle - 20 );
+            flipper.setAngle( rightFlipperUp ? flipper.getAngleDeg() + 20 : flipper.getAngleDeg() - 20 );
         }
     }
-    updateBallPosition();
-    runPhysics();
+    runPhysics( runTicks );
 
     for ( renderer of renderers ) {
         renderer.update();
     }
-    // keep ball within view
-    canvas.panViewport( 0, ball.y - panOffset );
+    // keep main ball within view
+    canvas.panViewport( 0, balls[ 0 ].getPosition().y - panOffset );
 };
 
 /* internal methods */
 
-function updateBallPosition() {
-    ball.x += ball.speed * sin( ball.dir );
-    ball.y += ball.speed * cos( ball.dir );
-
-    if ( ball.y > level.chute.top && ball.x > level.chute.left && ball.x < level.chute.right ) {
-        console.warn( "whoops." );
-        ball.x = 200;
-        ball.y = 200;
-    }
-    ball.cacheCoordinates();
-}
-
 let logger;//QQQ
-function runPhysics() {
-    let dt = ''; //QQQ
-    const d = radToDeg( ball.dir );
-    let inc = -1.5;
+function runPhysics( gameTick ) {
+    for ( ball of balls ) {
 
-    // moving upwards (between 90-270 degrees, 90 == right, 270 == left)
-    if ( d > 90 && d < 270 ) {
-        inc = 1.5;
-        //if ( ball.speed >= 0 ) {
-            ball.speed -= 0.03;
-        //} else {
-        if ( ball.speed < 0 ) {
-            ball.dir = BALL_DIR_DOWN;
+        // 1. collision with other balls
+
+        for ( otherBall of balls ) {
+            if ( ball !== otherBall ) {
+                col = new Collision( ball, otherBall );
+                if ( col.CircleVsCircle()) {
+                    col.correctPosition();
+                    col.applyRotationalImpulse();
+                }
+            }
         }
-    // moving downwards
-    } else if ( ball.speed < MAX_BALL_SPEED ) {
-        ball.speed += 0.04;
+
+        // 2. collision with rectangles
+
+        for ( rect of rects ) {
+            col = new Collision( rect, ball );
+            if ( rect.fAngle === 0 ? col.CircleVsRect() : col.CircleVsOBB() ) {
+                col.correctPosition();
+                col.applyRotationalImpulse();
+            }
+        }
+
+        // 3. collision with flippers
+
+        for ( flipper of flippers ) {
+            col = new Collision( flipper, ball );
+            if ( col.CircleVsOBB()) {
+                col.correctPosition();
+                col.applyRotationalImpulse();
+            }
+        }
+        // 4. update ball actor
+        ball.update( gameTick );
     }
 
-    /*
+    // 5. update remaining actors
 
-    90 = right, 45 = down right (0 is down) so DECREMENT
-    270 = left, 210 = up left (180 is up), 330 = down left so INCREMENT
-    */
-    const xSpeed = ball.speed * sin( ball.dir );
-    const ySpeed = ball.speed * cos( ball.dir );
-    if ( Math.round( d ) !== 0 && ySpeed < BALL_ESCAPE_SPEED ) {//ball.speed < MAX_BALL_SPEED ) {
-        const speed = 1;//ball.speed;
-        if ( d >= 180 ) {
-            dt = 'left';
-            ball.dir = degToRad( d + speed);//( speed * ( d - 180 ) / 180 ));
-        } else if ( d > 0 ) {
-            dt = 'right';
-            ball.dir = degToRad( d - speed);//( speed * ( d / 180 )));
-        }
+    for ( rect of rects ) {
+        rect.update( gameTick );
+    }
+
+    for ( flipper of flippers ) {
+        flipper.update( gameTick );
     }
 
 if(!logger) {
@@ -227,71 +233,5 @@ if(!logger) {
     logger.style.color = 'red';
     document.body.appendChild(logger);
 }
-logger.innerHTML = d.toFixed(0) + ' @ ' + ball.speed.toFixed(0) + ' ' + dt;
-
-    for ( flipper of flippers ) {
-        if ( flipper.collidesWith( ball )) {
-            // TODO only when flipper is down
-            let isColliding = isBallColliding();
-            let triesLeft   = 256;
-            while ( flipper.collidesWith( ball ) ) {
-                ball.dir += inc;
-                updateBallPosition();
-                if ( --triesLeft === 0 ) {
-                    break;
-                }
-            }
-            return;
-            // E.O. TODO
-            console.warn( `BALL HIT ${flipper.type.toUpperCase()} FLIPPER` );
-            // left
-            if ( flipper.type === "left" ) {
-                ball.dir = 3 + ( flipper.angle / 50 );
-                if ( leftFlipperUp ) {
-                    ball.speed += 0.3;
-                    updateBallPosition();
-                }
-            } else {
-                ball.dir = 4 + ( flipper.angle / 50 );
-                if ( rightFlipperUp ) {
-                    ball.speed += 0.3;
-                    updateBallPosition();
-                }
-            }
-            if ( inc === 1.5 ) {
-                ball.dir = BALL_DIR_DOWN;
-            }
-            updateBallPosition();
-            return;
-        }
-    }
-
-    let isColliding = isBallColliding();
-    if ( !isColliding ) {
-        return;
-    }
-    let triesLeft   = 256;
-    while ( isColliding ) {
-        ball.dir += inc;
-        updateBallPosition();
-        if ( --triesLeft === 0 ) {
-            break;
-        }
-        isColliding = isBallColliding();
-    }
-}
-
-function isBallColliding() {
-    const { x, y } = ball.getCenter();
-    for ( const cb of BALL_COLLISION_BOUNDS ) {
-        const transparent = collisionMap[ coordinateToIndex( x + cb.x, y + cb.y )];
-        if ( !transparent ) {
-            return true;
-        }
-    }
-    return false;
-}
-
-function coordinateToIndex( x, y ) {
-    return x + ( level.width * y );
+logger.innerHTML = /*d.toFixed(0) + ' @ ' +*/ Math.round(ball.getPosition().x)  + ' x ' + Math.round(ball.getPosition().y) + ' @ ' + ball.getAngleDeg();
 }

@@ -1,68 +1,63 @@
-import Vector from "./math/vector";
-
-// TODO: bodyA and bodyB should be actors
+import RotationMatrix from "./rotationmat";
+import Vector from "./vector";
 
 /**
  * Collision manifold between two rigid bodies
  */
-export default class Manifold {
+export default class Collision {
     // create def for body (should eventually move to Actor)
-    constructor( first, second ) {
-        this.bodyA = first;
-        this.bodyB = second;
+    constructor( firstActor, secondActor ) {
+        this.bodyA = firstActor;
+        this.bodyB = secondActor;
 
         this.fPenetration = 0; // penetration depth
-        this.normal = null; // the collision normal (vector)
-        this.contact = null; // point of collision (vector)
+        this.normal = new Vector(); // the collision normal (vector)
+        this.contact = new Vector(); // point of collision (vector)
     }
 
-    /*
     CircleVsCircle() {
     	// Setting up pointers to two circles
-        CirclePhys* circleA = (CirclePhys*)bodyA->physicsShape;
-        CirclePhys* circleB = (CirclePhys*)bodyB->physicsShape;
+        const circleA = this.bodyA.shape; // CirclePhys
+        const circleB = this.bodyB.shape; // CirclePhys
 
         // Calculating vector between the two bodies
-        Vector2D difference = bodyB->getPosition() - bodyA->getPosition();
+        const difference = this.bodyB.getPosition().subtract( this.bodyA.getPosition()); // vector
 
     	// Sum of both radiuses
-        float fRadiusSum =  circleA->getRadius() + circleB->getRadius();
+        const fRadiusSum =  circleA.getRadius() + circleB.getRadius();
 
-        float fMag = difference.dotProduct(difference);
+        let fMag = difference.dotProduct(difference);
 
-        if ((fRadiusSum*fRadiusSum) < fMag)
+        if (( fRadiusSum * fRadiusSum) < fMag) {
             return false;
-
-
+        }
         fMag = Math.sqrt(fMag);
         // If distance between circles is not 0
         if (fMag != 0)
         {
             this.fPenetration = fMag - fRadiusSum; // Penetration distance
-            this.normal = difference/fMag; //
-            this.contact = bodyB->getPosition() - (this.normal * circleB->getRadius());
+            this.normal = difference.divideScalar( fMag );
+            this.contact = this.bodyB.getPosition().subtract(this.normal.multiplyScalar(circleB.getRadius()));
         }
         else
         {
-            this.fPenetration = circleA->getRadius();
-            this.normal = Vector2D(1,0);
-            this.contact = bodyA->getPosition();
+            this.fPenetration = circleA.getRadius();
+            this.normal = new Vector(1,0);
+            this.contact = this.bodyA.getPosition();
         }
         return true;
     }
-    */
 
     /**
      * Checks collision of circle and AABB (e.g. ball versus table)
-     * bodyA = rect Actor, bodyB = ball Actor
      */
-    CircleVsRect( bodyA, bodyB ) {
+    CircleVsRect() {
         /*!< Setting up pointers to a rectangle and a circle */
-        const rect = bodyA.physicsShape; // rectphys
-        const circle = bodyB.physicsShape; // circlephys
+        const rect = this.bodyA.shape; // rectphys
+        const circle = this.bodyB.shape; // circlephys
 
         // Vector between A and B
-        const difference = bodyB.getPosition().subtract( bodyA.getPosition() );
+        const difference = this.bodyB.getPosition().subtract( this.bodyA.getPosition() );
 
         // Clamping closest point to nearest edge
         const closest = getClampVector( rect.getHalfExtent(), difference );
@@ -70,7 +65,7 @@ export default class Manifold {
         let bInside = false;
 
         // Clamp circle to the closest edge
-        if ( difference === closest ) {
+        if ( difference.equals( closest )) {
     		bInside = true;
 
             // Find closest axis
@@ -91,8 +86,8 @@ export default class Manifold {
             }
 
         }
-    	const n = difference.subtract( closest );
-        const fDistance = n.dotProduct( n );
+    	let n = difference.subtract( closest ); // vector
+        let fDistance = n.dotProduct( n );
         const fRadius = circle.getRadius();
 
         // if circle isn't inside AABB
@@ -101,105 +96,115 @@ export default class Manifold {
         }
 
         fDistance = Math.sqrt( fDistance );
-        n = n / fDistance;
+        n = n.divideScalar( fDistance );
 
         // if circle is inside AABB
     	if ( bInside ) {
             this.normal = n.invert();
-            contact = bodyB.getPosition().subtract( this.normal.multiply( circle.getRadius()));
+            this.contact = this.bodyB.getPosition().subtract( this.normal.multiplyScalar( fRadius ));
     		this.fPenetration = fDistance - fRadius;
         } else {
             this.normal = n;
-            contact = bodyB.getPosition().subtract( this.normal.multiply( circle.getRadius()));
+            this.contact = this.bodyB.getPosition().subtract( this.normal.multiplyScalar( fRadius ));
     		this.fPenetration = fDistance - fRadius;
         }
         return true;
     }
-    /*
-    bool Manifold::CircleVsOBB()
+
+    CircleVsOBB()
     {
-        ObbPhys* obb = (ObbPhys*)bodyA->physicsShape;
-        CirclePhys* circle = (CirclePhys*)bodyB->physicsShape;
+        const obb = this.bodyA.shape; // ObbPhys
+        const circle = this.bodyB.shape; // CirclePhys
 
         // Vector between A and B
-        Vector2D difference = bodyB->getPosition() - bodyA->getPosition();
+        const difference = this.bodyB.getPosition().subtract( this.bodyA.getPosition());
 
-        RotationMat matrix = RotationMat(bodyA->getAngleRad());
+        const matrix = new RotationMatrix( this.bodyA.getAngleRad());
 
-        Vector2D transform = matrix.inverseRotateVector(difference);
+        const transform = matrix.inverseRotateVector( difference ); // Vector
 
         // Closest point on A to B
-        Vector2D closest = getClampVector(obb->getHalfExtent(), transform);
+        const closest = getClampVector( obb.getHalfExtent(), transform );
 
-        bool bInside = false;
+        let bInside = false;
 
         // Clamp circle to the closest edge
-        if (transform == closest){
+        if (transform.equals( closest )) {
             bInside = true;
             if (Math.abs(transform.x) >= Math.abs(transform.y)){
                 if (closest.x > 0){
-                    closest.setX(obb->getHalfExtent().x);
+                    closest.setX(obb.getHalfExtent().x);
                 } else{
-                    closest.setX(-obb->getHalfExtent().x);
+                    closest.setX(-obb.getHalfExtent().x);
                 }
-            }   else{
-                if (closest.y > 0){
-                    closest.setY(obb->getHalfExtent().y);
-                }else{
-                    closest.setY(-obb->getHalfExtent().y);
+            } else {
+                if ( closest.y > 0 ) {
+                    closest.setY(obb.getHalfExtent().y);
+                } else {
+                    closest.setY(-obb.getHalfExtent().y);
                 }
             }
         }
 
-        Vector2D n = transform - closest;
-        float fDistance = n.dotProduct(n);
-        float fRadius = circle->getRadius();
+        let n = transform.subtract( closest ); // Vector
+        let fDistance = n.dotProduct( n );
+        const fRadius = circle.getRadius();
 
-        if (fDistance > fRadius * fRadius && !bInside){
+        if ( fDistance > fRadius * fRadius && !bInside ){
             return false;
         }
 
-        fDistance = Math.sqrt(fDistance);
-        n = n/fDistance;
+        fDistance = Math.sqrt( fDistance );
+        n = n.divideScalar( fDistance );
 
         // if circle is inside AABB
-        if (bInside){
-            this.normal = -n;
-            this.contact = bodyB->getPosition() - matrix.rotateVector(this.normal * circle->getRadius());
+        if ( bInside ) {
+            this.normal.applyInvert( n );
+            this.contact = this.bodyB.getPosition()
+                .subtract(
+                    matrix.rotateVector( this.normal.multiplyScalar( circle.getRadius()))
+                );
             this.fPenetration = fDistance - fRadius;
-        }else {
+        } else {
             this.normal = n;
-            this.contact = bodyB->getPosition() - matrix.rotateVector(this.normal * circle->getRadius());
+            this.contact = this.bodyB.getPosition()
+                .subtract(
+                    matrix.rotateVector( this.normal.multiplyScalar( circle.getRadius()))
+                );
             this.fPenetration = fDistance - fRadius;
         }
         return true;
     }
-    */
+
     correctPosition() {
-        const kfPercent = 0.2;
-        const kfSlop =  0.01;
-    	const kfInvMassSum = bodyA.getInverseMass() + bodyB.getInverseMass();
-    	const kFScalarNum = Math.max( Math.abs( this.fPenetration ) - kfSlop, 0.0 ) / kfInvMassSum;
-    	const correction = this.normal.multiplyScalar( kFScalarNum * kfPercent );
-        // watch the operator magic here
-    	//bodyA.position -= correction * bodyA->getInverseMass();
-    	//bodyB.position += correction * bodyB->getInverseMass();
-        bodyA.position.subtract( correction.multiplayScalar( bodyA.getInverseMass() );
-    	bodyB.position.add( correction.multiplyScalar( bodyB.getInverseMass());
+        const kfPercent = 0.2; // 0.2
+        const kfSlop = 0.01; // 0.01
+        const kfInvMassSum = this.bodyA.getInverseMass() + this.bodyB.getInverseMass();
+    	const kFScalarNum = Math.max( Math.abs( this.fPenetration ) - kfSlop, 0 ) / kfInvMassSum;
+    	const correction = this.normal.multiplyScalar( kFScalarNum * kfPercent ); // Vector
+        //bodyA->position -= correction * bodyA->getInverseMass();
+        //bodyB->position += correction * bodyB->getInverseMass();
+        this.bodyA.position.applySubtraction( correction.multiplyScalar( this.bodyA.getInverseMass() ) );
+    	this.bodyB.position.applyAdd( correction.multiplyScalar( this.bodyB.getInverseMass() ) );
     }
 
     applyRotationalImpulse() {
     	/*!< Calculating contact points*/
-        const kBodyAContact = this.contact.subtract( bodyA.getPosition() );
-        const kBodyBContact = this.contact.subtract( bodyB.getPosition() );
+        const kBodyAContact = this.contact.subtract( this.bodyA.getPosition() );
+        const kBodyBContact = this.contact.subtract( this.bodyB.getPosition() );
 
     	/*!< Calculate the relative velocity */
-        // watch the operator magic here
 
-        //Vector2D rv = (bodyB->getVelocity() + kBodyBContact.vectorCrossScalar(-bodyB->getAngularVelocity())) - (bodyA->getVelocity() + kBodyAContact.vectorCrossScalar(-bodyA->getAngularVelocity()));
-        const rv = bodyB.getVelocity()
-            .add(kBodyBContact.vectorCrossScalar(-bodyB.getAngularVelocity()))
-            .subtract(bodyA.getVelocity().add(kBodyAContact.vectorCrossScalar(-bodyA.getAngularVelocity()));
+        /*
+        Vector2D rv =
+            (bodyB->getVelocity() + kBodyBContact.vectorCrossScalar(-bodyB->getAngularVelocity())) -
+            (bodyA->getVelocity() + kBodyAContact.vectorCrossScalar(-bodyA->getAngularVelocity()));
+        */
+        const rv =
+            this.bodyB.getVelocity().add( kBodyBContact.vectorCrossScalar( -this.bodyB.getAngularVelocity() ))
+            .subtract(
+                this.bodyA.getVelocity().add( kBodyAContact.vectorCrossScalar(-this.bodyA.getAngularVelocity() ))
+            );
 
     	/*!< Calculate relative velocity along the normal*/
         const fVelAlongNormal = rv.dotProduct( this.normal );
@@ -210,19 +215,19 @@ export default class Manifold {
         }
 
         /*!< Calculate restitution */
-        const fRestitution = Math.min( bodyA.getRestitution(), bodyB.getRestitution() );
+        const fRestitution = Math.min( this.bodyA.getRestitution(), this.bodyB.getRestitution() );
 
         const kfContactACrossNormal = kBodyAContact.crossProduct( this.normal ); // float
         const kfContactBCrossNormal = kBodyBContact.crossProduct( this.normal ); // float
 
         /*!< Calculate impulse scalar */
-    	const fImpulseScalar = -(1 + fRestitution) * fVelAlongNormal;
-        fImpulseScalar /= bodyA.getInverseMass() + bodyB.getInverseMass() + (kfContactACrossNormal * kfContactACrossNormal) * bodyA.getInverseInertia() + (kfContactBCrossNormal * kfContactBCrossNormal) * bodyB.getInverseInertia();
+    	let fImpulseScalar = -(1 + fRestitution) * fVelAlongNormal;
+        fImpulseScalar /= this.bodyA.getInverseMass() + this.bodyB.getInverseMass() + (kfContactACrossNormal * kfContactACrossNormal) * this.bodyA.getInverseInertia() + (kfContactBCrossNormal * kfContactBCrossNormal) * this.bodyB.getInverseInertia();
 
         /*!< Apply rotational impulse */
         const impulse = this.normal.multiplyScalar( fImpulseScalar );
-    	bodyA.applyImpulse( impulse.invert(), kBodyAContact );
-        bodyB.applyImpulse( impulse, kBodyBContact );
+    	this.bodyA.applyImpulse( impulse.invert(), kBodyAContact );
+        this.bodyB.applyImpulse( impulse, kBodyBContact );
     }
 };
 

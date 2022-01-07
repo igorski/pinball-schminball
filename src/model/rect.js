@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021-2022 - https://www.igorski.nl
+ * Igor Zinken 2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,15 +20,13 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Rect from "@/model/rect";
+import Actor from "@/model/actor";
+import { SHAPE_TYPES } from "@/model/math/physicsshape";
 import RectPhys from "@/model/math/rectphys";
 import Vector from "@/model/math/vector";
-import { degToRad, clamp } from "@/utils/math-util";
+import { rectangleToRotatedVector } from "@/utils/math-util";
 
-const MIN_ANGLE = -30;
-const MAX_ANGLE = 30;
-
-export default class Flipper extends Rect {
+export default class Rect extends Actor {
     /**
      * Flipper is an Actor that can adjust its angle and
      * rotate around a custom pivot point
@@ -36,27 +34,42 @@ export default class Flipper extends Rect {
     constructor( opts ) {
         super({ ...opts, init: false });
 
-        this.width  = 132;
-        this.height = 41;
-        this.setAngle( this.type === "left" ? MIN_ANGLE : MAX_ANGLE );
-        this.pivotX = this.type === "left" ? 20 : 112;
-        this.pivotY = 20;
+        this.shape = new RectPhys( new Vector( this.width / 2, this.height / 2 ));
 
-        this.cacheCoordinates();
-
-        /* math */
-
-        this.setRestitution( 0.2 );
-    }
-
-    setAngle( angle ) {
-        angle = degToRad( clamp( angle, MIN_ANGLE, MAX_ANGLE ));
-        if ( this.fAngle === angle ) {
-            return;
+        if ( opts.angle !== 0 ) {
+            this.shape.type = SHAPE_TYPES.OBB;
         }
-        this.setAngleRad( angle );
-        if ( angle !== 0 ) {
+
+        this.type   = opts.type;
+        this.width  = opts.width;
+        this.height = opts.height;
+        this.pivotX = this.width  / 2;
+        this.pivotY = this.height / 2;
+
+        // instance variables used by getters (prevents garbage collector hit)
+        // invocation of cacheCoordinates() on position update will set the values properly
+        this._pivot  = { x: 0, y: 0 };
+
+        if ( opts.init ) {
             this.cacheCoordinates();
         }
+    }
+
+    getPivot() {
+        return this._pivot;
+    }
+
+    /**
+     * @override
+     */
+    cacheCoordinates() {
+        const { x, y } = this.position;
+
+        this._pivot.x = x + this.pivotX;
+        this._pivot.y = y + this.pivotY;
+
+        this._boundingBox = rectangleToRotatedVector(
+            { x, y, width: this.width, height: this.height }, this.fAngle, x, y
+        );
     }
 };

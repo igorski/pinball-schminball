@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021 - https://www.igorski.nl
+ * Igor Zinken 2021-2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -37,17 +37,18 @@ export default class BallRenderer extends sprite {
     }
 
     update() {
-        const isMovingLeft = this.actor.x < this._bounds.left;
-        this.setX( this.actor.x );
-        this.setY( this.actor.y );
+        const { x, y } = this.actor.position;
+        const isMovingLeft = x < this._bounds.left;
+        this.setX( x );
+        this.setY( y );
         this.spin = ( isMovingLeft ? this.spin - this.actor.speed : this.spin + this.actor.speed ) % 360;
     }
 
     draw( ctx, viewport ) {
         // the ball spins while moving, rotate the canvas prior to rendering as usual
         ctx.save();
-        const dx = ( this.actor.x - viewport.left ) + this.actor.width / 2;
-        const dy = ( this.actor.y - viewport.top )  + this.actor.height / 2;
+        const dx = ( this.actor.position.x - viewport.left ) + this.actor.width / 2;
+        const dy = ( this.actor.position.y - viewport.top )  + this.actor.height / 2;
         ctx.translate( dx, dy );
         ctx.rotate( degToRad( this.spin ));
         ctx.translate( -dx, -dy );
@@ -56,13 +57,13 @@ export default class BallRenderer extends sprite {
 
         if ( DEBUG ) {
             ctx.save();
-            const vector = this.actor.getVector();
+            const bbox = this.actor.getBoundingBox();
             ctx.translate( -viewport.left, -viewport.top );
             ctx.strokeStyle = "red";
             ctx.beginPath();
-            ctx.moveTo( vector[ 0 ], vector[ 1 ] );
-            for ( let i = 2; i < vector.length; i += 2 ) {
-                ctx.lineTo( vector[ i ], vector[ i + 1 ] );
+            ctx.moveTo( bbox[ 0 ], bbox[ 1 ] );
+            for ( let i = 2; i < bbox.length; i += 2 ) {
+                ctx.lineTo( bbox[ i ], bbox[ i + 1 ] );
             }
             ctx.closePath();
             ctx.stroke();

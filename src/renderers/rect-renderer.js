@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021-2022 - https://www.igorski.nl
+ * Igor Zinken 2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -26,14 +26,13 @@ import SpriteCache from "@/utils/sprite-cache";
 
 const DEBUG = process.env.NODE_ENV !== "production";
 
-export default class FlipperRenderer extends sprite {
-    constructor( flipperActor ) {
+export default class RectRenderer extends sprite {
+    constructor( actor ) {
         super({
-            bitmap : flipperActor.type === "left" ? SpriteCache.FLIPPER_LEFT : SpriteCache.FLIPPER_RIGHT,
-            width  : flipperActor.width,
-            height : flipperActor.height
+            width  : actor.width,
+            height : actor.height
         });
-        this.actor = flipperActor;
+        this.actor = actor;
     }
 
     update() {
@@ -57,9 +56,8 @@ export default class FlipperRenderer extends sprite {
             ctx.translate( -xD, -yD );
         }
 
-        ctx.drawImage(
-            this._bitmap, 0, 0, width, height, x - left, y - top, width, height
-        );
+        ctx.fillStyle = "gray";
+        ctx.fillRect( x - left, y - top, width, height );
 
         if ( rotate ) {
             ctx.restore();

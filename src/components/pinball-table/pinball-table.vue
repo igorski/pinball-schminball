@@ -43,7 +43,7 @@ export default {
             height      : 800,
             animate     : true,
             interactive : false,
-            onUpdate    : this.runGameTick.bind( this )
+            onUpdate    : update,
         });
         this.canvas.insertInPage( this.$refs.canvasContainer );
 
@@ -64,9 +64,6 @@ export default {
     methods: {
         initGame() {
             init( this.canvas );
-        },
-        runGameTick() {
-            update();
         },
         handleResize() {
             const { clientWidth, clientHeight } = document.documentElement;

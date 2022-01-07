@@ -22,57 +22,41 @@
  */
 import { rectangleToVector, areVectorsIntersecting } from "@/utils/math-util";
 import Vector from "@/model/math/vector";
-
-const pos = { x: 0, y: 0 };
+import { degToRad, radToDeg } from "@/utils/math-util";
 
 export default class Actor {
-    constructor({ x = 0, y = 0, width = 1, height = 1, angle = 0, speed = 0, dir = 0, init = true } = {}) {
-        this.x      = x;
-        this.y      = y;
+    constructor({ x = 0, y = 0, width = 1, height = 1, angle = 0, init = true } = {}) {
         this.width  = width;
         this.height = height;
-        this.angle  = angle;
-        this.speed  = speed;
-        this.dir    = dir; // direction in radians
+
+        // TODO: math related properties
+        this.position = new Vector( x, y );
+        this.velocity = new Vector( 0, 0 );
+        this.acceleration = new Vector( 0, 0 );
+        this.setRestitution( 0 );
+        this.setMass( 0 );
+        this.setAngularVelocity( 0 );
+        this.setAngleRad( angle );
+        this.setInertia( 0 );
+        this.shape = null; // physics shape ("body")
+        // E.O. math
 
         // instance variables used by getters (prevents garbage collector hit)
         // invocation of cacheCoordinates() on position update will set the values properly
-        this._vector = [];
+        this._boundingBox = [];
 
         if ( init ) {
             this.cacheCoordinates();
         }
-
-        // TODO: math related properties
-        this.position = new Vector( this.x, this.y );
-        this.velocity = new Vector( this.speed, this.speed );
-        this.acceleration = new Vector( 0, 0 );
-        this.fRestitution = 0; // TODO
-        this.setMass(1);
-        this.setAngularVelocity(0);
-        this.setAngleRad(0);
-        this.setInertia(0);
     }
 
     cacheCoordinates() {
-        this._vector = rectangleToVector( this );
+        const { x, y } = this.position;
+        this._boundingBox = rectangleToVector({ x, y, width: this.width, height: this.height });
     }
 
-    getVector() {
-        return this._vector;
-    }
-
-    collidesWith( otherActor ) {
-        if ( this.angle !== 0 ) {
-            return areVectorsIntersecting( this._vector, otherActor.getVector() );
-        }
-        let { x, y, width, height } = this;
-
-        pos.x = otherActor.x + ( otherActor.width  * 0.5 ); // default from center TODO: cache this in otherActor
-        pos.y = otherActor.y + ( otherActor.height * 0.5 );
-
-        return pos.x >= x && pos.x < x + width &&
-               pos.y >= y && pos.y < y + height;
+    getBoundingBox() {
+        return this._boundingBox;
     }
 
     /* math additions, clean up to bare minimum, see if we can do without classes */
@@ -82,24 +66,30 @@ export default class Actor {
     }
 
     setPosition( vector ) {
-        this.position.setX( vector.x );
-        this.position.setY( vector.y );
+        this.position = vector;
+        //this.position.setX( vector.x );
+        //this.position.setY( vector.y );
+        this.cacheCoordinates(); // TODO
     }
 
     update( fTimestep ) { //!< Updates position of body using improved euler
         /*!< Intergrating using improved euler */
     	//Vector2D newPrimeVelocity(velocity + (acceleration * fTimestep));
-        const newPrimeVelocity = new Vector(this.velocity.add(this.acceleration.multiplyScalar(fTimestep)));
+        const newPrimeVelocity = this.velocity.add( this.acceleration.multiplyScalar( fTimestep ));
         //position += ((getVelocity() + newPrimeVelocity) / 2) * fTimestep;
-        this.setPosition( this.getPosition().add( this.velocity.add(newPrimeVelocity).divideScalar(2).multiplyScalar(fTimestep)));
+        this.getPosition().applyAdd(
+            this.velocity.add( newPrimeVelocity ).divideScalar( 2 ).multiplyScalar( fTimestep )
+        );
         this.velocity = newPrimeVelocity;
+        this.cacheCoordinates();
 
     	/*!< Intergrating angular velocity */
-    	const newAngle = fAngle + ( this.fAngularVelocity * fTimestep );
+    	const newAngle = this.fAngle + ( this.fAngularVelocity * fTimestep );
         this.setAngleRad( newAngle );
 
     	/*!< Cap the velocity at a specified limit*/
-        const MAX_VELOCITY_X = MAX_VELOCITY_Y = 20;
+        const MAX_VELOCITY_X = 1;
+        const MAX_VELOCITY_Y = 1;
     	if( this.velocity.x > MAX_VELOCITY_X ) {
     		this.velocity.setX( MAX_VELOCITY_X );
     	} else if( this.velocity.y > MAX_VELOCITY_Y ) {
@@ -109,7 +99,7 @@ export default class Actor {
 
     setRestitution(fRestIn) //!< Sets the restitution
     {
-        this.fRestitution  = fRestIn;
+        this.fRestitution = fRestIn;
     }
 
     setMass(kfMassIn) //!< Set the mass and inverse mass
@@ -170,20 +160,26 @@ export default class Actor {
 
     getAngleDeg()
     {
-        return this.fAngle*(180/Math.PI);
+        return radToDeg( this.fAngle );
     }
 
     setAngleRad(kfAngleIn)
     {
         const fFullRotation = 2 * Math.PI;
         let fNewAngle = kfAngleIn;
+        // TODO we ca n optimize this with a modulo, righto ?
         while (Math.abs(fNewAngle) > fFullRotation) {
-            if (fNewAngle > 0)
+            if (fNewAngle > 0) {
                 fNewAngle -= fFullRotation;
-            else
+            } else {
                 fNewAngle += fFullRotation;
+            }
         }
         this.fAngle = fNewAngle;
+    }
+
+    setAngleDeg( value ) {
+        this.setAngleRad( degToRad( value ));
     }
 
     setAcceleration(kAccVector) //!< Sets the acceleration of the body
@@ -206,9 +202,12 @@ export default class Actor {
         return this.velocity;
     }
 
-    applyImpulse(impulseInVector, contactInVector)
+    applyImpulse( impulseInVector, contactInVector )
     {
-        this.velocity += impulseInVector * this.getInverseMass();
-        this.fAngularVelocity.add(contactInVector.crossProduct(impulseInVector) * this.getInverseInertia());
+        this.velocity.add(impulseInVector.multiplyScalar(this.getInverseMass()));
+        this.fAngularVelocity += contactInVector.crossProduct(impulseInVector) * this.getInverseInertia();
+        if (this.fAngularVelocity !== 0) {
+            console.warn(this.fAngularVelocity);
+        }
     }
 };

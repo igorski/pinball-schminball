@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021 - https://www.igorski.nl
+ * Igor Zinken 2021-2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -26,11 +26,11 @@ export default [{
     background      : SpriteCache.BACKGROUND,
     width           : 800,
     height          : 1916,
-    ballStartProps  : { x: 350, y: 1250, dir: 1.7802358370342162, speed: 6 },
+    ballStartProps  : { x: 300, y: 1000, dir: 1.7802358370342162, speed: 0.1 },
     chute           : { left: 350, right: 550, top: 1870 },
     flippers : [
-        { type: "left",  x: 150, y: 900 },
+       { type: "left",  x: 150, y: 900 },
         { type: "left",  x: 250, y: 1700 },
-        { type: "right", x: 450, y: 1700 }
+       { type: "right", x: 450, y: 1700 }
     ]
 }];

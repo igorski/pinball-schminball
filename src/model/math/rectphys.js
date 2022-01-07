@@ -1,13 +1,16 @@
 import PhysicsShape, { SHAPE_TYPES } from "./physicsshape";
+import Vector from "./vector";
 
 export default class RectPhys extends PhysicsShape {
-    constructor( kHalfExtentsIn ) {
+    constructor( vectorHalfExtents = new Vector() ) {
+        super();
+
         this.setType( SHAPE_TYPES.AABB );
-        this.setHalfExtent( kHalfExtentsIn );
+        this.setHalfExtent( vectorHalfExtents );
     }
 
-    setHalfExtent( kHalfExtents ) {
-        this.halfExtent = kHalfExtents;
+    setHalfExtent( vectorHalfExtents ) {
+        this.halfExtent = vectorHalfExtents;
     }
 
     getHalfExtent() {
