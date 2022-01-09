@@ -32,8 +32,8 @@ export const radToDeg = radians => {
 export const degToRad = degrees => degrees * PI_OVER_ONE_EIGHTY;
 export const clamp    = ( value, minValue, maxValue ) => max( minValue, min( maxValue, value ));
 
-export const rectangleToRotatedVector = ( rectangle, angleInRadians = 0, optPivotX = null, optPivotY = null ) => {
-    const r = rectangleToVector( rectangle );
+export const rectangleToRotatedPolygon = ( rectangle, angleInRadians = 0, optPivotX = null, optPivotY = null ) => {
+    const r = rectangleToPolygon( rectangle );
     const out = [];
     const xp = optPivotX === null ? rectangle.x + rectangle.width  * HALF : optPivotX;
     const yp = optPivotY === null ? rectangle.y + rectangle.height * HALF : optPivotY;
@@ -46,13 +46,15 @@ export const rectangleToRotatedVector = ( rectangle, angleInRadians = 0, optPivo
     return out;
 };
 
-export const rectangleToVector = rectangle => {
+export const rectangleToPolygon = rectangle => {
+    const x = rectangle.x;
+    const y = rectangle.y;
     return [
-        rectangle.x, rectangle.y,
-        rectangle.x + rectangle.width, rectangle.y,
-        rectangle.x + rectangle.width, rectangle.y + rectangle.height,
-        rectangle.x, rectangle.y + rectangle.height,
-    //    rectangle.x, rectangle.y // is starting point
+        x, y,
+        x + rectangle.width, y,
+        x + rectangle.width, y + rectangle.height,
+        x, y + rectangle.height,
+    //    x, y // is starting point
     ];
 };
 

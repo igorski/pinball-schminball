@@ -21,7 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import { sprite } from "zcanvas";
-import { degToRad, rectangleToRotatedVector } from "@/utils/math-util";
+import { degToRad, rectangleToRotatedPolygon } from "@/utils/math-util";
 import SpriteCache from "@/utils/sprite-cache";
 
 const DEBUG = process.env.NODE_ENV !== "production";
@@ -35,22 +35,16 @@ export default class RectRenderer extends sprite {
         this.actor = actor;
     }
 
-    update() {
-        this.setX( this.actor.getPosition().x );
-        this.setY( this.actor.getPosition().y );
-    }
-
     draw( ctx, { left, top }) {
-        const { width, height } = this.actor;
-        const { x, y } = this.actor.position;
+        const { x, y, width, height } = this.actor.bounds;
         const angle = this.actor.getAngleRad();
         const rotate = angle !== 0;
 
         if ( rotate ) {
             const pivot = this.actor.getPivot();
             ctx.save();
-            const xD = x - left;
-            const yD = y - top;
+            const xD = pivot.x - left;
+            const yD = pivot.y - top;
             ctx.translate( xD, yD );
             ctx.rotate( angle );
             ctx.translate( -xD, -yD );
@@ -64,14 +58,14 @@ export default class RectRenderer extends sprite {
         }
 
         if ( DEBUG ) {
+            const bbox = this.actor.getOutline();
             ctx.save();
-            const vector = this.actor.getBoundingBox();
             ctx.strokeStyle = "red";
             ctx.translate( -left, -top );
             ctx.beginPath();
-            ctx.moveTo( vector[ 0 ], vector[ 1 ]);
-            for ( let i = 2; i < vector.length; i += 2 ) {
-                ctx.lineTo( vector[ i ], vector[ i + 1 ] );
+            ctx.moveTo( bbox[ 0 ], bbox[ 1 ] );
+            for ( let i = 2; i < bbox.length; i += 2 ) {
+                ctx.lineTo( bbox[ i ], bbox[ i + 1 ] );
             }
             ctx.closePath();
             ctx.stroke();

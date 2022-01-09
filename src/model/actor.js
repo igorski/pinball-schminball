@@ -20,14 +20,25 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import { rectangleToVector, areVectorsIntersecting } from "@/utils/math-util";
+import { rectangleToPolygon, areVectorsIntersecting } from "@/utils/math-util";
 import Vector from "@/model/math/vector";
 import { degToRad, radToDeg } from "@/utils/math-util";
+
+const DEBUG = process.env.NODE_ENV !== "production";
 
 export default class Actor {
     constructor({ x = 0, y = 0, width = 1, height = 1, angle = 0, init = true } = {}) {
         this.width  = width;
         this.height = height;
+
+        // TODO: do not store width, height separately but read from bounds Object
+        this.bounds = {
+            x: 0, y: 0, // will be updated by cacheCoordinates()
+            width,
+            height,
+            halfWidth  : width  / 2,
+            halfHeight : height / 2
+        };
 
         // TODO: math related properties
         this.position = new Vector( x, y );
@@ -44,20 +55,28 @@ export default class Actor {
 
         // instance variables used by getters (prevents garbage collector hit)
         // invocation of cacheCoordinates() on position update will set the values properly
-        this._boundingBox = [];
+        this._outline = [];
 
         if ( init ) {
             this.cacheCoordinates();
         }
     }
 
-    cacheCoordinates() {
-        const { x, y } = this.position;
-        this._boundingBox = rectangleToVector({ x, y, width: this.width, height: this.height });
+    cacheBounds() {
+        this.bounds.x = this.position.x - this.bounds.halfWidth;
+        this.bounds.y = this.position.y - this.bounds.halfHeight;
+        return this.bounds;
     }
 
-    getBoundingBox() {
-        return this._boundingBox;
+    cacheCoordinates() {
+        this.cacheBounds();
+        if ( DEBUG ) {
+            this._outline = rectangleToPolygon( this.cacheBounds() );
+        }
+    }
+
+    getOutline() {
+        return this._outline;
     }
 
     /* math additions, clean up to bare minimum, see if we can do without classes */
@@ -67,9 +86,7 @@ export default class Actor {
     }
 
     setPosition( vector ) {
-        this.position = vector;
-        //this.position.setX( vector.x );
-        //this.position.setY( vector.y );
+        this.position.set( vector );
         this.cacheCoordinates(); // TODO
     }
 

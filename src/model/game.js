@@ -86,7 +86,7 @@ export const init = async ( canvasRef, levelNum = 0 ) => {
     }
 
     // QQQ
-    rects = [];// new Rect({ x: 200, y: ballStartProps.y + 200, width: 300, height: 20, angle: degToRad( 20 ) }) ];
+    rects = [ new Rect({ x: 425, y: ballStartProps.y + 200, width: 300, height: 20, angle: degToRad( 45 ) }) ];
     rects.push( new Rect({ x: 700, y: 900, width: 100, height: 20, angle: degToRad( 45 ) }));
     for ( rect of rects ) {
         rect.renderer = new RectRenderer( rect );

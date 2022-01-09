@@ -1,4 +1,4 @@
-import { radToDeg, degToRad, clamp, rectangleToRotatedVector, rectangleToVector } from "@/utils/math-util";
+import { radToDeg, degToRad, clamp, rectangleToRotatedPolygon, rectangleToPolygon } from "@/utils/math-util";
 
 describe( "Math utilities", () => {
     describe( "when converting radians to degrees", () => {
@@ -28,14 +28,14 @@ describe( "Math utilities", () => {
     it( "should be able to rotate a rectangle into a polygon vector", () => {
         const rect  = { x: 0, y: 0, width: 20, height: 20 };
         const angle = degToRad( 45 );
-        expect( rectangleToRotatedVector( rect, angle ).map( Math.round )).toEqual([
+        expect( rectangleToRotatedPolygon( rect, angle ).map( Math.round )).toEqual([
             9, -5, 24, 9, 10, 24, -5, 10
         ]);
     });
 
     it( "should be able to convert a rectangle to a point vector", () => {
         const rect = { x: 10, y: 15, width: 20, height: 20 };
-        expect( rectangleToVector( rect )).toEqual([
+        expect( rectangleToPolygon( rect )).toEqual([
             10, 15, // top left coordinate
             30, 15, // top right coordinate
             30, 35, // bottom right coordinate

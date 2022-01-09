@@ -22,7 +22,7 @@
  */
 import { sprite } from "zcanvas";
 import { BALL_WIDTH, BALL_HEIGHT } from "@/model/game";
-import { degToRad, rectangleToVector } from "@/utils/math-util";
+import { degToRad, rectangleToPolygon } from "@/utils/math-util";
 import SpriteCache from "@/utils/sprite-cache";
 
 const DEBUG = process.env.NODE_ENV !== "production";
@@ -45,19 +45,24 @@ export default class BallRenderer extends sprite {
     }
 
     draw( ctx, viewport ) {
+        const { x, y, width, height, halfWidth, halfHeight } = this.actor.bounds;
+
         // the ball spins while moving, rotate the canvas prior to rendering as usual
         ctx.save();
-        const dx = ( this.actor.position.x - viewport.left ) + this.actor.width / 2;
-        const dy = ( this.actor.position.y - viewport.top )  + this.actor.height / 2;
+        const dx = ( x - viewport.left ) + halfWidth;
+        const dy = ( y - viewport.top )  + halfHeight;
         ctx.translate( dx, dy );
         ctx.rotate( degToRad( this.spin ));
         ctx.translate( -dx, -dy );
-        super.draw( ctx, viewport );
+
+        ctx.drawImage(
+            this._bitmap, 0, 0, width, height, x - viewport.left, y - viewport.top, width, height
+        );
         ctx.restore();
 
         if ( DEBUG ) {
             ctx.save();
-            const bbox = this.actor.getBoundingBox();
+            const bbox = this.actor.getOutline();
             ctx.translate( -viewport.left, -viewport.top );
             ctx.strokeStyle = "red";
             ctx.beginPath();

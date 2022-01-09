@@ -103,13 +103,12 @@ export default class Collision {
         // if circle is inside AABB
     	if ( bInside ) {
             this.normal = n.invert();
-            this.contact = this.bodyB.getPosition().subtract( this.normal.multiplyScalar( fRadius ));
-    		this.fPenetration = fDistance - fRadius;
         } else {
             this.normal = n;
-            this.contact = this.bodyB.getPosition().subtract( this.normal.multiplyScalar( fRadius ));
-    		this.fPenetration = fDistance - fRadius;
         }
+        // contact = bodyB->getPosition() - (normal * circle->getRadius());
+        this.contact = this.bodyB.getPosition().subtract( this.normal.multiplyScalar( fRadius ));
+        this.fPenetration = fDistance - fRadius;
         return true;
     }
 
@@ -161,20 +160,17 @@ export default class Collision {
 
         // if circle is inside AABB
         if ( bInside ) {
-            this.normal = this.normal.invert( n );
-            this.contact = this.bodyB.getPosition()
-                .subtract(
-                    matrix.rotateVector( this.normal.multiplyScalar( circle.getRadius()))
-                );
-            this.fPenetration = fDistance - fRadius;
+            this.normal = n.invert();
         } else {
             this.normal = n;
-            this.contact = this.bodyB.getPosition()
-                .subtract(
-                    matrix.rotateVector( this.normal.multiplyScalar( circle.getRadius()))
-                );
-            this.fPenetration = fDistance - fRadius;
         }
+        // contact = bodyB->getPosition() - matrix.rotateVector(normal * circle->getRadius());
+        this.contact = this.bodyB.getPosition()
+            .subtract(
+                matrix.rotateVector( this.normal.multiplyScalar( fRadius ))
+            );
+        this.fPenetration = fDistance - fRadius;
+        
         return true;
     }
 
@@ -214,7 +210,7 @@ export default class Collision {
             .subtract(
                 this.bodyA.getVelocity().add( kBodyAContact.vectorCrossScalar( -this.bodyA.getAngularVelocity() ))
             );
-            
+
     	/*!< Calculate relative velocity along the normal*/
         const fVelAlongNormal = rv.dotProduct( this.normal );
 

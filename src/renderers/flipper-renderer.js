@@ -21,7 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import { sprite } from "zcanvas";
-import { degToRad, rectangleToRotatedVector } from "@/utils/math-util";
+import { degToRad, rectangleToRotatedPolygon } from "@/utils/math-util";
 import SpriteCache from "@/utils/sprite-cache";
 
 const DEBUG = process.env.NODE_ENV !== "production";
@@ -37,16 +37,15 @@ export default class FlipperRenderer extends sprite {
     }
 
     draw( ctx, { left, top }) {
-        const { width, height } = this.actor;
-        const { x, y } = this.actor.position;
+        const { x, y, width, height } = this.actor.bounds;
         const angle = this.actor.getAngleRad();
         const rotate = angle !== 0;
 
         if ( rotate ) {
             const pivot = this.actor.getPivot();
             ctx.save();
-            const xD = x - left;
-            const yD = y - top;
+            const xD = pivot.x - left;
+            const yD = pivot.y - top;
             ctx.translate( xD, yD );
             ctx.rotate( angle );
             ctx.translate( -xD, -yD );
@@ -62,7 +61,7 @@ export default class FlipperRenderer extends sprite {
 
         if ( DEBUG ) {
             ctx.save();
-            const vector = this.actor.getBoundingBox();
+            const vector = this.actor.getOutline();
             ctx.strokeStyle = "red";
             ctx.translate( -left, -top );
             ctx.beginPath();

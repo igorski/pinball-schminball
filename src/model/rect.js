@@ -24,7 +24,9 @@ import Actor from "@/model/actor";
 import { SHAPE_TYPES } from "@/model/math/physicsshape";
 import RectPhys from "@/model/math/rectphys";
 import Vector from "@/model/math/vector";
-import { rectangleToRotatedVector } from "@/utils/math-util";
+import { rectangleToPolygon, rectangleToRotatedPolygon } from "@/utils/math-util";
+
+const DEBUG = process.env.NODE_ENV !== "production";
 
 export default class Rect extends Actor {
     /**
@@ -41,7 +43,7 @@ export default class Rect extends Actor {
         if ( opts.angle !== 0 ) {
             this.shape.type = SHAPE_TYPES.OBB;
         }
-        this.pivotX = opts.width  / 2;
+        this.pivotX = opts.width / 2;
         this.pivotY = opts.height / 2;
 
         // instance variables used by getters (prevents garbage collector hit)
@@ -61,13 +63,17 @@ export default class Rect extends Actor {
      * @override
      */
     cacheCoordinates() {
-        const { x, y } = this.position;
+        const { x, y } = this.cacheBounds();
 
         this._pivot.x = x + this.pivotX;
         this._pivot.y = y + this.pivotY;
 
-        this._boundingBox = rectangleToRotatedVector(
-            { x, y, width: this.width, height: this.height }, this.fAngle, x, y
-        );
+        if ( DEBUG ) {
+            if ( this.fAngle === 0 ) {
+                this._outline = rectangleToPolygon( this.bounds );
+            } else {
+                this._outline = rectangleToRotatedPolygon( this.bounds, this.fAngle, this._pivot.x, this._pivot.y );
+            }
+        }
     }
 };

@@ -25,7 +25,7 @@ import RectPhys from "@/model/math/rectphys";
 import Vector from "@/model/math/vector";
 import { degToRad, clamp } from "@/utils/math-util";
 
-const FLIP_SPEED = 0.005; // TODO to constants along with ball speed
+const FLIP_SPEED = 0.0008; // TODO to constants along with ball speed
 const MIN_ANGLE  = -30;
 const MAX_ANGLE  = 30;
 
@@ -47,6 +47,9 @@ export default class Flipper extends Rect {
     }
 
     trigger( up ) {
+        if ( up === this.isUp ) {
+            return;
+        }
         if ( up && !this.isUp ) {
             this.applyAngularImpulse( this.type === "left" ? FLIP_SPEED : -FLIP_SPEED );
             //this.setAngleDeg( clamp( this.type === "left" ? this.getAngleDeg() - 20 : this.getAngleDeg() + 20, MIN_ANGLE, MAX_ANGLE ));
@@ -54,6 +57,7 @@ export default class Flipper extends Rect {
             this.applyAngularImpulse( this.type === "left" ? -FLIP_SPEED : FLIP_SPEED );
         }
         this.isUp = up;
+        console.warn("trigger, up:" + up);
     }
 
     clamp() {

@@ -20,7 +20,7 @@ export default class Vector {
         this.y = y;
     }
 
-    setXY( x, y ) {
+    set( x, y ) {
         this.x = x;
         this.y = y;
     }
@@ -64,7 +64,7 @@ export default class Vector {
 
     // operator+=
     applyAdd( otherVector ) {
-        this.setXY( this.x + otherVector.x, this.y + otherVector.y );
+        this.set( this.x + otherVector.x, this.y + otherVector.y );
         return this;
     }
 
@@ -75,7 +75,7 @@ export default class Vector {
 
     // operator-=
     applySubtraction( otherVector ) {
-        this.setXY( this.x - otherVector.x, this.y - otherVector.y );
+        this.set( this.x - otherVector.x, this.y - otherVector.y );
         return this;
     }
 
