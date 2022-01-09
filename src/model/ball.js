@@ -25,16 +25,19 @@ import CirclePhys from "@/model/math/circlephys";
 
 export default class Ball extends Actor {
     constructor( opts ) {
-        super({ ...opts });
+        super( opts );
 
         /* math */
 
-        this.shape = new CirclePhys( this.width );
+        this.shape = new CirclePhys( this.width / 2 );
 
-        this.setAngleRad( opts.angle || 0 );
         this.setRestitution( 1 );
         this.setMass( 1 );
 
-        this.velocity.y = opts.speed;
+        this.acceleration.y = 0.0001; // gravity
+
+        if ( typeof opts.speed === "number" ) {
+            this.velocity.y = -opts.speed;
+        }
     }
 }

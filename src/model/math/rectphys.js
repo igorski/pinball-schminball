@@ -2,7 +2,7 @@ import PhysicsShape, { SHAPE_TYPES } from "./physicsshape";
 import Vector from "./vector";
 
 export default class RectPhys extends PhysicsShape {
-    constructor( vectorHalfExtents = new Vector() ) {
+    constructor( vectorHalfExtents ) {
         super();
 
         this.setType( SHAPE_TYPES.AABB );

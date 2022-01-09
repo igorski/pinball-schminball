@@ -7,7 +7,7 @@
 //
 
 export default class Vector {
-    constructor( x = 0, y = 0 ) {
+    constructor( x = 0, y = x ) {
         this.x = x;
         this.y = y;
     }
@@ -102,10 +102,6 @@ export default class Vector {
     // operator-()
     invert() {
         return new Vector( -this.x, -this.y );
-    }
-
-    applyInvert() {
-        this.setXY( -this.x, -this.y );
     }
 
     // operator==

@@ -24,11 +24,11 @@ export default class Collision {
         const difference = this.bodyB.getPosition().subtract( this.bodyA.getPosition()); // vector
 
     	// Sum of both radiuses
-        const fRadiusSum =  circleA.getRadius() + circleB.getRadius();
+        const fRadiusSum = circleA.getRadius() + circleB.getRadius();
 
         let fMag = difference.dotProduct(difference);
 
-        if (( fRadiusSum * fRadiusSum) < fMag) {
+        if (( fRadiusSum * fRadiusSum) < fMag ) {
             return false;
         }
         fMag = Math.sqrt(fMag);
@@ -42,7 +42,7 @@ export default class Collision {
         else
         {
             this.fPenetration = circleA.getRadius();
-            this.normal = new Vector(1,0);
+            this.normal = new Vector( 1, 0 );
             this.contact = this.bodyA.getPosition();
         }
         return true;
@@ -68,20 +68,22 @@ export default class Collision {
         if ( difference.equals( closest )) {
     		bInside = true;
 
+            const { x, y } = rect.getHalfExtent();
+
             // Find closest axis
-            if ( Math.abs( difference.x ) > Math.abs( difference.y )){
+            if ( Math.abs( difference.x ) > Math.abs( difference.y )) {
 
                 // Clamp to closest extent
                 if ( closest.x > 0 ) {
-                    closest.setX( rect.getHalfExtent().x );
+                    closest.setX( x );
                 } else{
-                    closest.setX( -rect.getHalfExtent().x );
+                    closest.setX( -x );
                 }
             } else {
                 if ( closest.y > 0 ){
-                    closest.setY( rect.getHalfExtent().y );
+                    closest.setY( y );
                 } else {
-                    closest.setY( -rect.getHalfExtent().y );
+                    closest.setY( -y );
                 }
             }
 
@@ -129,19 +131,19 @@ export default class Collision {
         let bInside = false;
 
         // Clamp circle to the closest edge
-        if (transform.equals( closest )) {
+        if ( transform.equals( closest )) {
             bInside = true;
-            if (Math.abs(transform.x) >= Math.abs(transform.y)){
-                if (closest.x > 0){
-                    closest.setX(obb.getHalfExtent().x);
+            if ( Math.abs( transform.x ) >= Math.abs( transform.y )){
+                if ( closest.x > 0 ) {
+                    closest.setX( obb.getHalfExtent().x );
                 } else{
-                    closest.setX(-obb.getHalfExtent().x);
+                    closest.setX( -obb.getHalfExtent().x );
                 }
             } else {
                 if ( closest.y > 0 ) {
-                    closest.setY(obb.getHalfExtent().y);
+                    closest.setY( obb.getHalfExtent().y );
                 } else {
-                    closest.setY(-obb.getHalfExtent().y);
+                    closest.setY( -obb.getHalfExtent().y );
                 }
             }
         }
@@ -159,7 +161,7 @@ export default class Collision {
 
         // if circle is inside AABB
         if ( bInside ) {
-            this.normal.applyInvert( n );
+            this.normal = this.normal.invert( n );
             this.contact = this.bodyB.getPosition()
                 .subtract(
                     matrix.rotateVector( this.normal.multiplyScalar( circle.getRadius()))
@@ -177,10 +179,13 @@ export default class Collision {
     }
 
     correctPosition() {
-        const kfPercent = 0.2; // 0.2
-        const kfSlop = 0.01; // 0.01
+        //const float kfPercent = 0.2;
+        //const float kfSlop =  0.01;
+        const kfPercent = 0.2;
+        const kfSlop = 0.01;
         const kfInvMassSum = this.bodyA.getInverseMass() + this.bodyB.getInverseMass();
     	const kFScalarNum = Math.max( Math.abs( this.fPenetration ) - kfSlop, 0 ) / kfInvMassSum;
+        // Vector2D correction = normal * kFScalarNum * kfPercent;
     	const correction = this.normal.multiplyScalar( kFScalarNum * kfPercent ); // Vector
         //bodyA->position -= correction * bodyA->getInverseMass();
         //bodyB->position += correction * bodyB->getInverseMass();
@@ -190,6 +195,10 @@ export default class Collision {
 
     applyRotationalImpulse() {
     	/*!< Calculating contact points*/
+        /*
+        const Vector2D kBodyAContact(contact - bodyA->getPosition());
+        const Vector2D kBodyBContact(contact - bodyB->getPosition());
+        */
         const kBodyAContact = this.contact.subtract( this.bodyA.getPosition() );
         const kBodyBContact = this.contact.subtract( this.bodyB.getPosition() );
 
@@ -203,14 +212,14 @@ export default class Collision {
         const rv =
             this.bodyB.getVelocity().add( kBodyBContact.vectorCrossScalar( -this.bodyB.getAngularVelocity() ))
             .subtract(
-                this.bodyA.getVelocity().add( kBodyAContact.vectorCrossScalar(-this.bodyA.getAngularVelocity() ))
+                this.bodyA.getVelocity().add( kBodyAContact.vectorCrossScalar( -this.bodyA.getAngularVelocity() ))
             );
-
+            
     	/*!< Calculate relative velocity along the normal*/
         const fVelAlongNormal = rv.dotProduct( this.normal );
 
     	/*!< Do not apply impulse if velocities are separating*/
-    	if (fVelAlongNormal > 0){
+    	if ( fVelAlongNormal > 0 ) {
              return;
         }
 
@@ -221,7 +230,7 @@ export default class Collision {
         const kfContactBCrossNormal = kBodyBContact.crossProduct( this.normal ); // float
 
         /*!< Calculate impulse scalar */
-    	let fImpulseScalar = -(1 + fRestitution) * fVelAlongNormal;
+    	let fImpulseScalar = -( 1 + fRestitution ) * fVelAlongNormal;
         fImpulseScalar /= this.bodyA.getInverseMass() + this.bodyB.getInverseMass() + (kfContactACrossNormal * kfContactACrossNormal) * this.bodyA.getInverseInertia() + (kfContactBCrossNormal * kfContactBCrossNormal) * this.bodyB.getInverseInertia();
 
         /*!< Apply rotational impulse */

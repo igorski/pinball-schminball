@@ -34,10 +34,10 @@ import { radToDeg, degToRad } from "@/utils/math-util";
 import { getTransparentPixelsForImage } from "@/utils/canvas-helper";
 const { cos, sin, min, round } = Math;
 
-export const BALL_WIDTH     = 40;
-export const BALL_HEIGHT    = 40;
-const MIN_BALL_SPEED    = 0.35; // the speed at which gravity pulls the ball down instantly
-const MAX_BALL_SPEED    = 10;   // maximum ball speed
+export const BALL_WIDTH  = 40;
+export const BALL_HEIGHT = 40;
+const MIN_BALL_SPEED     = 0.35; // the speed at which gravity pulls the ball down instantly
+const MAX_BALL_SPEED     = 10;   // maximum ball speed
 
 let flippers, flipper, balls, ball, rects, rect, otherBall, col, level;
 let score = 0, gameActive = false;
@@ -65,6 +65,8 @@ export const init = async ( canvasRef, levelNum = 0 ) => {
         return acc;
     }, [] );
     balls = [ new Ball({ ...ballStartProps, width: BALL_WIDTH, height: BALL_HEIGHT }) ];
+    // QQQ multi ball
+//    balls.push(new Ball({speed: 0.2, x: ballStartProps.x + 20, y: ballStartProps.y - 20, width: BALL_WIDTH, height: BALL_HEIGHT }));
 
     // clear previous canvas contents
     while ( canvas.numChildren() > 0 ) {
@@ -84,7 +86,8 @@ export const init = async ( canvasRef, levelNum = 0 ) => {
     }
 
     // QQQ
-    rects = [ new Rect({ x: 10, y: ballStartProps.y + 200, width: 700, height: 20, angle: degToRad( 20 ) }) ];
+    rects = [];// new Rect({ x: 200, y: ballStartProps.y + 200, width: 300, height: 20, angle: degToRad( 20 ) }) ];
+    rects.push( new Rect({ x: 700, y: 900, width: 100, height: 20, angle: degToRad( 45 ) }));
     for ( rect of rects ) {
         rect.renderer = new RectRenderer( rect );
         renderers.push( rect.renderer );
@@ -121,18 +124,15 @@ export const scaleCanvas = ( clientWidth, clientHeight ) => {
     panOffset = ( viewportHeight / 2 ) - ( BALL_WIDTH / 2 );
 };
 
-export const setFlipperState = ( flipper, up ) => {
-    if ( flipper === "left" ) {
-        leftFlipperUp = up;
-    } else if ( flipper === "right" ) {
-        rightFlipperUp = up;
-    }
+export const setFlipperState = ( type, up ) => {
+    flippers.forEach( flipper => {
+        if ( flipper.type === type ) {
+            flipper.trigger( up );
+        }
+    });
 };
 
 export const bumpTable = () => {
-    //if ( !isBallColliding() ) {
-    //    return; // TODO this is always false outside of runPhysics()
-    //}
     for ( ball of balls ) {
         ball.setVelocity( ball.getVelocity().invert());
         console.warn("bump");
@@ -158,13 +158,6 @@ export const update = timestamp => {
     }
     ++runTicks;
 
-    for ( flipper of flippers ) {
-        if ( flipper.type === "left" ) {
-            flipper.setAngle( leftFlipperUp  ? flipper.getAngleDeg() - 20 : flipper.getAngleDeg() + 20 );
-        } else {
-            flipper.setAngle( rightFlipperUp ? flipper.getAngleDeg() + 20 : flipper.getAngleDeg() - 20 );
-        }
-    }
     runPhysics( runTicks );
 
     for ( renderer of renderers ) {
@@ -223,6 +216,7 @@ function runPhysics( gameTick ) {
 
     for ( flipper of flippers ) {
         flipper.update( gameTick );
+        flipper.clamp();
     }
 
 if(!logger) {

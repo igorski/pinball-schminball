@@ -28,27 +28,25 @@ import { rectangleToRotatedVector } from "@/utils/math-util";
 
 export default class Rect extends Actor {
     /**
-     * Flipper is an Actor that can adjust its angle and
+     * a Rect is an Actor that can adjust its angle and
      * rotate around a custom pivot point
      */
     constructor( opts ) {
         super({ ...opts, init: false });
 
-        this.shape = new RectPhys( new Vector( this.width / 2, this.height / 2 ));
+        this.setRestitution( 0.5 );
+
+        this.shape = new RectPhys( new Vector( opts.width / 2, opts.height / 2 ));
 
         if ( opts.angle !== 0 ) {
             this.shape.type = SHAPE_TYPES.OBB;
         }
-
-        this.type   = opts.type;
-        this.width  = opts.width;
-        this.height = opts.height;
-        this.pivotX = this.width  / 2;
-        this.pivotY = this.height / 2;
+        this.pivotX = opts.width  / 2;
+        this.pivotY = opts.height / 2;
 
         // instance variables used by getters (prevents garbage collector hit)
         // invocation of cacheCoordinates() on position update will set the values properly
-        this._pivot  = { x: 0, y: 0 };
+        this._pivot = { x: 0, y: 0 };
 
         if ( opts.init ) {
             this.cacheCoordinates();

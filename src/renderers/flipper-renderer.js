@@ -36,11 +36,6 @@ export default class FlipperRenderer extends sprite {
         this.actor = flipperActor;
     }
 
-    update() {
-        this.setX( this.actor.getPosition().x );
-        this.setY( this.actor.getPosition().y );
-    }
-
     draw( ctx, { left, top }) {
         const { width, height } = this.actor;
         const { x, y } = this.actor.position;
