@@ -66,8 +66,10 @@ export const init = async ( canvasRef, levelNum = 0 ) => {
     }, [] );
     balls = [ new Ball({ ...ballStartProps, width: BALL_WIDTH, height: BALL_HEIGHT }) ];
     // QQQ multi ball
-//    balls.push(new Ball({speed: 0.2, x: ballStartProps.x + 20, y: ballStartProps.y - 20, width: BALL_WIDTH, height: BALL_HEIGHT }));
-
+    for (let i = 0; i < 5; ++i) {
+        const m = ( i + 1 ) * BALL_WIDTH;
+        balls.push(new Ball({speed: -0.4, x: ballStartProps.x - m, y: ballStartProps.y - m, width: BALL_WIDTH, height: BALL_HEIGHT }));
+    }
     // clear previous canvas contents
     while ( canvas.numChildren() > 0 ) {
         canvas.removeChildAt( 0 );
@@ -76,7 +78,7 @@ export const init = async ( canvasRef, levelNum = 0 ) => {
 
     // generate sprites
     backgroundRenderer = new sprite({ width, height, bitmap: background });
-    renderers.push( backgroundRenderer );
+    //renderers.push( backgroundRenderer ); // QQQ
 
     flippers.forEach( flipper => renderers.push( new FlipperRenderer( flipper )));
 
@@ -86,8 +88,10 @@ export const init = async ( canvasRef, levelNum = 0 ) => {
     }
 
     // QQQ
-    rects = [ new Rect({ x: 425, y: ballStartProps.y + 200, width: 300, height: 20, angle: degToRad( 45 ) }) ];
-    rects.push( new Rect({ x: 700, y: 900, width: 100, height: 20, angle: degToRad( 45 ) }));
+    rects = [ new Rect({ x: 425, y: ballStartProps.y + 200, width: 300, height: 20, angle: degToRad( 40 ) }) ];
+    rects.push( new Rect({ x: 770, y: 350, width: 100, height: 20, angle: degToRad( 45 ) }));
+    rects.push( new Rect({ x: 20, y: 350, width: 20, height: 1916 })); // left wall
+    rects.push( new Rect({ x: 780, y: 350, width: 20, height: 1916 })); // right wall
     for ( rect of rects ) {
         rect.renderer = new RectRenderer( rect );
         renderers.push( rect.renderer );
@@ -134,19 +138,12 @@ export const setFlipperState = ( type, up ) => {
 
 export const bumpTable = () => {
     for ( ball of balls ) {
-        ball.setVelocity( ball.getVelocity().invert());
+    //    ball.setVelocity( ball.getVelocity().invert());
+
+        ball.velocity.x += 0.01;
+        ball.applyAngularImpulse( -0.001 );
         console.warn("bump");
     }
-};
-
-export const setBallSpeed = speed => {
-    ball = balls[ 0 ]; // TODO
-    const d = radToDeg( ball.dir );
-    const isMovingUp = d > 90 && d < 270;
-    if ( speed < 0.75 && isMovingUp ) {
-        ball.dir = degToRad( 180 - d );
-    }
-    ball.speed = speed;
 };
 
 /**
@@ -164,16 +161,23 @@ export const update = timestamp => {
         renderer.update();
     }
     // keep main ball within view
-    canvas.panViewport( 0, balls[ 0 ].getPosition().y - panOffset );
+    ball = balls[ 0 ];
+    if ( ball ) {
+        canvas.panViewport( 0, balls[ 0 ].getPosition().y - panOffset );
+    }
 };
 
 /* internal methods */
 
-let logger;//QQQ
 function runPhysics( gameTick ) {
-    for ( ball of balls ) {
 
-        // 1. collision with other balls
+    // 1. perform collision detection for all balls
+
+    let i = balls.length;
+    while ( i-- ) {
+        ball = balls[ i ]; // reverse loop allows us to remove balls at runtime
+
+        // 1.1 collision with other balls
 
         for ( otherBall of balls ) {
             if ( ball !== otherBall ) {
@@ -185,7 +189,7 @@ function runPhysics( gameTick ) {
             }
         }
 
-        // 2. collision with rectangles
+        // 1.2. collision with rectangles
 
         for ( rect of rects ) {
             col = new Collision( rect, ball );
@@ -195,7 +199,7 @@ function runPhysics( gameTick ) {
             }
         }
 
-        // 3. collision with flippers
+        // 1.3. collision with flippers
 
         for ( flipper of flippers ) {
             col = new Collision( flipper, ball );
@@ -204,11 +208,16 @@ function runPhysics( gameTick ) {
                 col.applyRotationalImpulse();
             }
         }
-        // 4. update ball actor
+        // 1.4. update ball actor
         ball.update( gameTick );
+
+        if ( ball.bounds.y > level.height ) {
+            console.warn("DAG BAL " + i + " @ " + ball.bounds.y + " in " + level.height );
+            balls.splice( i, 1 );
+        }
     }
 
-    // 5. update remaining actors
+    // 2. update actors
 
     for ( rect of rects ) {
         rect.update( gameTick );
@@ -216,16 +225,5 @@ function runPhysics( gameTick ) {
 
     for ( flipper of flippers ) {
         flipper.update( gameTick );
-        flipper.clamp();
     }
-
-if(!logger) {
-    logger = document.createElement('div');
-    logger.style.position = 'fixed';
-    logger.style.right = '16px';
-    logger.style.bottom ='16px';
-    logger.style.color = 'red';
-    document.body.appendChild(logger);
-}
-logger.innerHTML = /*d.toFixed(0) + ' @ ' +*/ Math.round(ball.getPosition().x)  + ' x ' + Math.round(ball.getPosition().y) + ' @ ' + ball.getAngleDeg();
 }

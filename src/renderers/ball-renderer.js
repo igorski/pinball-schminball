@@ -25,6 +25,8 @@ import { BALL_WIDTH, BALL_HEIGHT } from "@/model/game";
 import { degToRad, rectangleToPolygon } from "@/utils/math-util";
 import SpriteCache from "@/utils/sprite-cache";
 
+const SPIN_SPEED = 30;
+
 const DEBUG = process.env.NODE_ENV !== "production";
 
 export default class BallRenderer extends sprite {
@@ -37,11 +39,12 @@ export default class BallRenderer extends sprite {
     }
 
     update() {
-        const { x, y } = this.actor.position;
-        const isMovingLeft = x < this._bounds.left;
-        this.setX( x );
-        this.setY( y );
-        this.spin = ( isMovingLeft ? this.spin - this.actor.speed : this.spin + this.actor.speed ) % 360;
+        let { x } = this.actor.velocity;
+        const isMovingLeft = x < 0;
+        if ( x === 0 ) {
+            x = 0.2; // ball should always spin, even when moving solely on vertical axis
+        }
+        this.spin = ( isMovingLeft ? this.spin + ( x * SPIN_SPEED ): this.spin - ( x * SPIN_SPEED )) % 360;
     }
 
     draw( ctx, viewport ) {

@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021 - https://www.igorski.nl
+ * Igor Zinken 2021-2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -32,7 +32,7 @@
 
 <script>
 import { canvas } from "zcanvas";
-import { init, scaleCanvas, setFlipperState, bumpTable, setBallSpeed, update } from "@/model/game";
+import { init, scaleCanvas, setFlipperState, bumpTable, update } from "@/model/game";
 
 let leftTouchId = -1, rightTouchId = -1, touch;
 
@@ -44,6 +44,7 @@ export default {
             animate     : true,
             interactive : false,
             onUpdate    : update,
+            backgroundColor: "#000" // TODO can be removed when sprite is used for bg
         });
         this.canvas.insertInPage( this.$refs.canvasContainer );
 
@@ -102,11 +103,6 @@ export default {
             const { type, keyCode } = event;
             switch ( keyCode ) {
                 default:
-                    if ( process.env.NODE_ENV !== "production" ) {
-                        if ( keyCode === 83 ) { // S
-                            setBallSpeed( 0.5 ); // slow down ball
-                        }
-                    }
                     return;
                 case 32:
                     bumpTable();

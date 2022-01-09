@@ -170,7 +170,7 @@ export default class Collision {
                 matrix.rotateVector( this.normal.multiplyScalar( fRadius ))
             );
         this.fPenetration = fDistance - fRadius;
-        
+
         return true;
     }
 

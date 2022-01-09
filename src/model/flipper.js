@@ -25,9 +25,9 @@ import RectPhys from "@/model/math/rectphys";
 import Vector from "@/model/math/vector";
 import { degToRad, clamp } from "@/utils/math-util";
 
-const FLIP_SPEED = 0.0008; // TODO to constants along with ball speed
-const MIN_ANGLE  = -30;
-const MAX_ANGLE  = 30;
+const FLIP_SPEED = 0.01; // TODO to constants along with ball speed
+const MIN_ANGLE_RAD = -0.4;///degToRad( -45 );
+const MAX_ANGLE_RAD = 0.6;//degToRad( 30 );
 
 export default class Flipper extends Rect {
     constructor( opts ) {
@@ -38,7 +38,7 @@ export default class Flipper extends Rect {
         this.pivotX = this.type === "left" ? 20 : 112;
         this.pivotY = 20;
 
-        this.setAngleDeg( this.type === "left" ? MIN_ANGLE : MAX_ANGLE );
+        this.setAngleRad( this.type === "left" ? MAX_ANGLE_RAD : MIN_ANGLE_RAD );
         this.cacheCoordinates();
 
         /* math */
@@ -51,51 +51,36 @@ export default class Flipper extends Rect {
             return;
         }
         if ( up && !this.isUp ) {
-            this.applyAngularImpulse( this.type === "left" ? FLIP_SPEED : -FLIP_SPEED );
-            //this.setAngleDeg( clamp( this.type === "left" ? this.getAngleDeg() - 20 : this.getAngleDeg() + 20, MIN_ANGLE, MAX_ANGLE ));
-        } else if ( !up && this.isUp ) {
             this.applyAngularImpulse( this.type === "left" ? -FLIP_SPEED : FLIP_SPEED );
+        } else if ( !up && this.isUp ) {
+            this.applyAngularImpulse( this.type === "left" ? FLIP_SPEED : -FLIP_SPEED );
         }
         this.isUp = up;
-        console.warn("trigger, up:" + up);
     }
 
-    clamp() {
-        const angle = this.getAngleDeg();
-        if (this.type === "left") {
-            if ( angle > MAX_ANGLE ) {
-                this.setAngleDeg( MAX_ANGLE );
+    update( fTimestep ) {
+        super.update( fTimestep );
+
+        const angle = this.getAngleRad();
+
+        if ( this.type === "left" ) {
+            if ( angle > MAX_ANGLE_RAD ) {
+                this.setAngleRad( MAX_ANGLE_RAD );
                 this.setAngularVelocity( 0 );
             }
-            if ( angle < MIN_ANGLE ) {
-                this.setAngleDeg( MIN_ANGLE );
+            if ( angle < MIN_ANGLE_RAD ) {
+                this.setAngleRad( MIN_ANGLE_RAD );
                 this.setAngularVelocity( 0 );
             }
         } else {
-            if ( angle < -MAX_ANGLE) {
-                this.setAngleDeg( -MAX_ANGLE );
+            if ( angle < -MAX_ANGLE_RAD ) {
+                this.setAngleRad( -MAX_ANGLE_RAD );
                 this.setAngularVelocity( 0 );
             }
-            if ( angle > -MIN_ANGLE ) {
-                this.setAngleDeg( -MIN_ANGLE );
+            if ( angle > -MIN_ANGLE_RAD ) {
+                this.setAngleRad( -MIN_ANGLE_RAD );
                 this.setAngularVelocity( 0 );
             }
-        }
-    }
-
-    updatePosition() {
-        const currentAngle = this.getAngleDeg();
-        const angle = clamp( this.isUp ? currentAngle - 2 : currentAngle /*+ 2*/, MIN_ANGLE, MAX_ANGLE );
-if (angle !== 30) {
-    //    console.warn(angle);
-    }
-        const angleRad = degToRad( angle );
-        if ( this.fAngle === angleRad ) {
-            return;
-        }
-        this.setAngleRad( angleRad );
-        if ( angleRad !== 0 ) {
-            this.cacheCoordinates();
         }
     }
 };

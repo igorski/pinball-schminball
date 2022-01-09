@@ -96,7 +96,10 @@ export default class Actor {
         const newPrimeVelocity = this.velocity.add( this.acceleration.multiplyScalar( fTimestep ));
         //position += ((getVelocity() + newPrimeVelocity) / 2) * fTimestep;
         this.position.applyAdd(
-            this.velocity.add( newPrimeVelocity ).divideScalar( 2 ).multiplyScalar( fTimestep )
+            this.velocity
+                .add( newPrimeVelocity )
+                .divideScalar( 5 ) // 2
+                .multiplyScalar( fTimestep )
         );
         this.velocity = newPrimeVelocity;
         this.cacheCoordinates();
@@ -106,8 +109,8 @@ export default class Actor {
         this.setAngleRad( newAngle );
 
     	/*!< Cap the velocity at a specified limit*/
-        const MAX_VELOCITY_X = 1;
-        const MAX_VELOCITY_Y = 1;
+        const MAX_VELOCITY_X = 30;
+        const MAX_VELOCITY_Y = 30;
     	if( this.velocity.x > MAX_VELOCITY_X ) {
     		this.velocity.setX( MAX_VELOCITY_X );
     	} else if ( this.velocity.y > MAX_VELOCITY_Y ) {
@@ -124,10 +127,10 @@ export default class Actor {
     {
     	/* Checking to see if mass is 0 and preventing division by 0 */
         this.fMass = kfMassIn;
-    	if (kfMassIn == 0.0) {
-            this.fInverseMass = 0.0;
+    	if (kfMassIn === 0) {
+            this.fInverseMass = 0;
     	} else {
-    		this.fInverseMass = 1.0 /kfMassIn;
+    		this.fInverseMass = 1 /kfMassIn;
     	}
     }
 
@@ -184,6 +187,18 @@ export default class Actor {
     setAngleRad(kfAngleIn)
     {
         this.fAngle = kfAngleIn % 360;
+        /*
+        const fFullRotation = 2 * Math.PI;
+        let fNewAngle = kfAngleIn;
+        while (Math.abs(fNewAngle) > fFullRotation) {
+            if (fNewAngle > 0) {
+                fNewAngle -= fFullRotation;
+            } else {
+                fNewAngle += fFullRotation;
+            }
+        }
+        this.fAngle = fNewAngle;
+        */
     }
 
     setAngleDeg( value ) {
@@ -212,7 +227,9 @@ export default class Actor {
 
     applyImpulse( impulseInVector, contactInVector )
     {
-        this.velocity.applyAdd(impulseInVector.multiplyScalar(this.getInverseMass()));
+        // velocity += impulseIn * getInverseMass();
+        this.velocity.applyAdd( impulseInVector.multiplyScalar( this.getInverseMass() ));
+        //fAngularVelocity += contactIn.crossProduct(impulseIn) * getInverseInertia();
         this.fAngularVelocity += contactInVector.crossProduct( impulseInVector ) * this.getInverseInertia();
     }
 };
