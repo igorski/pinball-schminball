@@ -26,7 +26,7 @@ import RectPhys from "@/model/math/rectphys";
 import Vector from "@/model/math/vector";
 import { rectangleToPolygon, rectangleToRotatedPolygon } from "@/utils/math-util";
 
-const DEBUG = process.env.NODE_ENV !== "production";
+const DEBUG = import.meta.env.MODE !== "production";
 
 export default class Rect extends Actor {
     /**

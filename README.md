@@ -10,7 +10,7 @@ npm install
 Create a local development server with hot module reload:
 
 ```
-npm run serve
+npm run dev
 ```
 
 Creating a production build (build output will reside in _./dist/_-folder):

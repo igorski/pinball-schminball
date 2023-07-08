@@ -24,7 +24,7 @@ import { sprite } from "zcanvas";
 import { degToRad, rectangleToRotatedPolygon } from "@/utils/math-util";
 import SpriteCache from "@/utils/sprite-cache";
 
-const DEBUG = process.env.NODE_ENV !== "production";
+const DEBUG = import.meta.env.MODE !== "production";
 
 export default class RectRenderer extends sprite {
     constructor( actor ) {

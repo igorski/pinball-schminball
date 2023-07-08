@@ -5,7 +5,7 @@
 
 <script>
 import { preloadAssets } from "@/services/asset-preloader";
-import PinballTable from "./components/pinball-table/pinball-table";
+import PinballTable from "./components/pinball-table/pinball-table.vue";
 
 export default {
     components: {

@@ -27,7 +27,7 @@ import SpriteCache from "@/utils/sprite-cache";
 
 const SPIN_SPEED = 30;
 
-const DEBUG = process.env.NODE_ENV !== "production";
+const DEBUG = import.meta.env.MODE !== "production";
 
 export default class BallRenderer extends sprite {
     constructor( actor ) {

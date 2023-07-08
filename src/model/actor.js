@@ -24,7 +24,7 @@ import { rectangleToPolygon, areVectorsIntersecting } from "@/utils/math-util";
 import Vector from "@/model/math/vector";
 import { degToRad, radToDeg } from "@/utils/math-util";
 
-const DEBUG = process.env.NODE_ENV !== "production";
+const DEBUG = import.meta.env.MODE !== "production";
 
 export default class Actor {
     constructor({ x = 0, y = 0, width = 1, height = 1, angle = 0, init = true } = {}) {
