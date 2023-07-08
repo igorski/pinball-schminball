@@ -1,3 +1,4 @@
+import { describe, it, expect } from "vitest";
 import Actor from "@/model/actor";
 
 describe( "Actor", () => {

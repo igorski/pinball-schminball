@@ -1,3 +1,4 @@
+import { describe, it, expect } from "vitest";
 import { radToDeg, degToRad, clamp, rectangleToRotatedPolygon, rectangleToPolygon } from "@/utils/math-util";
 
 describe( "Math utilities", () => {
