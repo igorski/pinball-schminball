@@ -68,7 +68,7 @@ export const init = async ( canvasRef, levelNum = 0 ) => {
     // QQQ multi ball
     for (let i = 0; i < 5; ++i) {
         const m = ( i + 1 ) * BALL_WIDTH;
-        balls.push(new Ball({speed: -0.4, x: ballStartProps.x - m, y: ballStartProps.y - m, width: BALL_WIDTH, height: BALL_HEIGHT }));
+//        balls.push(new Ball({speed: -0.4, x: ballStartProps.x - m, y: ballStartProps.y - m, width: BALL_WIDTH, height: BALL_HEIGHT }));
     }
     // clear previous canvas contents
     while ( canvas.numChildren() > 0 ) {
@@ -92,6 +92,7 @@ export const init = async ( canvasRef, levelNum = 0 ) => {
     rects.push( new Rect({ x: 770, y: 350, width: 100, height: 20, angle: degToRad( 45 ) }));
     rects.push( new Rect({ x: 20, y: 350, width: 20, height: 1916 })); // left wall
     rects.push( new Rect({ x: 780, y: 350, width: 20, height: 1916 })); // right wall
+    rects.push( new Rect({ x: 700, y: 900, width: 200, height: 20, angle: degToRad( -45 ) })); // by right flipper
     for ( rect of rects ) {
         rect.renderer = new RectRenderer( rect );
         renderers.push( rect.renderer );

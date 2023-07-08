@@ -32,6 +32,6 @@ export default [{
     flippers : [
        { type: "left",  x: 140, y: 600 },
        { type: "left",  x: 250, y: 1100 },
-       { type: "right", x: 650, y: 950 }
+       { type: "right", x: 600, y: 950 }
     ]
 }];
