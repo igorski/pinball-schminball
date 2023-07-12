@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021-2022 - https://www.igorski.nl
+ * Igor Zinken 2021-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -21,25 +21,28 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import { sprite } from "zcanvas";
+import type { Viewport } from "zcanvas";
+import type Actor from "@/model/actor";
 import { BALL_WIDTH, BALL_HEIGHT } from "@/model/game";
-import { degToRad, rectangleToPolygon } from "@/utils/math-util";
+import { degToRad } from "@/utils/math-util";
 import SpriteCache from "@/utils/sprite-cache";
 
 const SPIN_SPEED = 30;
 
+// @ts-expect-error Property 'env' does not exist on type 'ImportMeta', Vite takes care of it
 const DEBUG = import.meta.env.MODE !== "production";
 
 export default class BallRenderer extends sprite {
-    constructor( actor ) {
-        super({ bitmap: SpriteCache.BALL, width: BALL_WIDTH, height: BALL_HEIGHT });
+    private spin: number = 0;
 
-        this.actor = actor;
+    constructor( private actor: Actor ) {
+        super({ bitmap: SpriteCache.BALL, width: BALL_WIDTH, height: BALL_HEIGHT });
 
         this.spin = 0;
     }
 
-    update() {
-        let { x } = 0; // this.actor.velocity; // TODO get speed
+    update(): void {
+        let { x } = this.actor.body.velocity;
         const isMovingLeft = x < 0;
         if ( x === 0 ) {
             x = 0.2; // ball should always spin, even when moving solely on vertical axis
@@ -47,19 +50,21 @@ export default class BallRenderer extends sprite {
         this.spin = ( isMovingLeft ? this.spin + ( x * SPIN_SPEED ): this.spin - ( x * SPIN_SPEED )) % 360;
     }
 
-    draw( ctx, viewport ) {
-        const { x, y, width, height, halfWidth, halfHeight } = this.actor.bounds;
+    draw( ctx: CanvasRenderingContext2D, viewport: Viewport ): void {
+        this.actor.update();
+
+        const { left, top, width, height } = this.actor.bounds;
 
         // the ball spins while moving, rotate the canvas prior to rendering as usual
         ctx.save();
-        const dx = ( x - viewport.left ) + halfWidth;
-        const dy = ( y - viewport.top )  + halfHeight;
+        const dx = ( left - viewport.left ) + this.actor.halfWidth;
+        const dy = ( top - viewport.top )  + this.actor.halfHeight;
         ctx.translate( dx, dy );
         ctx.rotate( degToRad( this.spin ));
         ctx.translate( -dx, -dy );
 
         ctx.drawImage(
-            this._bitmap, 0, 0, width, height, x - viewport.left, y - viewport.top, width, height
+            this._bitmap, 0, 0, width, height, left - viewport.left, top - viewport.top, width, height
         );
         ctx.restore();
 

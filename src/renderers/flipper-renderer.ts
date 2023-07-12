@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2022 - https://www.igorski.nl
+ * Igor Zinken 2021-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -21,51 +21,54 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import { sprite } from "zcanvas";
-import { degToRad, rectangleToRotatedPolygon } from "@/utils/math-util";
+import type { Viewport } from "zcanvas";
+import type Flipper from "@/model/flipper";
 import SpriteCache from "@/utils/sprite-cache";
 
+// @ts-expect-error Property 'env' does not exist on type 'ImportMeta', Vite takes care of it
 const DEBUG = import.meta.env.MODE !== "production";
 
-export default class RectRenderer extends sprite {
-    constructor( actor ) {
+export default class FlipperRenderer extends sprite {
+    constructor( private actor: Flipper ) {
         super({
-            width  : actor.width,
-            height : actor.height
+            bitmap : actor.type === "left" ? SpriteCache.FLIPPER_LEFT : SpriteCache.FLIPPER_RIGHT,
+            width  : actor.bounds.width,
+            height : actor.bounds.height
         });
-        this.actor = actor;
     }
 
-    draw( ctx, { left, top }) {
-        const { x, y, width, height } = this.actor.bounds;
+    draw( ctx: CanvasRenderingContext2D, viewport: Viewport ): void {
+        const { left, top, width, height } = this.actor.bounds;
         const angle = this.actor.getAngleRad();
         const rotate = angle !== 0;
 
         if ( rotate ) {
             const pivot = this.actor.getPivot();
             ctx.save();
-            const xD = pivot.x - left;
-            const yD = pivot.y - top;
+            const xD = pivot.x - viewport.left;
+            const yD = pivot.y - viewport.top;
             ctx.translate( xD, yD );
             ctx.rotate( angle );
             ctx.translate( -xD, -yD );
         }
 
-        ctx.fillStyle = "gray";
-        ctx.fillRect( x - left, y - top, width, height );
+        ctx.drawImage(
+            this._bitmap, 0, 0, width, height, left - viewport.left, top - viewport.top, width, height
+        );
 
         if ( rotate ) {
             ctx.restore();
         }
 
         if ( DEBUG ) {
-            const bbox = this.actor.getOutline();
             ctx.save();
+            const vector = this.actor.getOutline();
             ctx.strokeStyle = "red";
-            ctx.translate( -left, -top );
+            ctx.translate( -viewport.left, -viewport.top );
             ctx.beginPath();
-            ctx.moveTo( bbox[ 0 ], bbox[ 1 ] );
-            for ( let i = 2; i < bbox.length; i += 2 ) {
-                ctx.lineTo( bbox[ i ], bbox[ i + 1 ] );
+            ctx.moveTo( vector[ 0 ], vector[ 1 ]);
+            for ( let i = 2; i < vector.length; i += 2 ) {
+                ctx.lineTo( vector[ i ], vector[ i + 1 ] );
             }
             ctx.closePath();
             ctx.stroke();

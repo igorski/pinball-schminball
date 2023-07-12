@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021-2022 - https://www.igorski.nl
+ * Igor Zinken 2021-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -24,17 +24,16 @@ import { sprite } from "zcanvas";
 import type { canvas as zCanvas } from "zcanvas";
 import Levels from "@/definitions/levels";
 import type { LevelDef } from "@/definitions/levels";
-import { CollisionDetector } from "@/model/math/collision";
 import Actor from "@/model/actor";
 import Ball from "@/model/ball";
 import Flipper from "@/model/flipper";
 import Rect from "@/model/rect";
+import { createEngine } from "@/model/physics/engine";
+import type { IPhysicsEngine } from "@/model/physics/engine";
 import BallRenderer from "@/renderers/ball-renderer";
 import FlipperRenderer from "@/renderers/flipper-renderer";
 import RectRenderer from "@/renderers/rect-renderer";
-import Collision from "@/model/math/collision";
 import { radToDeg, degToRad } from "@/utils/math-util";
-import { getTransparentPixelsForImage } from "@/utils/canvas-helper";
 const { cos, sin, min, round } = Math;
 
 export const BALL_WIDTH  = 40;
@@ -42,6 +41,8 @@ export const BALL_HEIGHT = BALL_WIDTH;
 const MIN_BALL_SPEED     = 0.35; // the speed at which gravity pulls the ball down instantly
 const MAX_BALL_SPEED     = 10;   // maximum ball speed
 
+let engine: IPhysicsEngine;
+let engineStep: number = 1000 / 60;
 let flippers: Flipper[];
 let flipper: Flipper;
 let balls: Ball[];
@@ -52,11 +53,9 @@ let rect: Rect;
 let level: LevelDef;
 let score = 0;
 let gameActive = false;
-let runTicks = 0;
 
 let leftFlipperUp = false;
 let rightFlipperUp = false;
-let collisionMap = null;
 
 let canvas: zCanvas;
 let backgroundRenderer: sprite;
@@ -68,24 +67,23 @@ let viewportHeight = 0; // cached in scaleCanvas()
 
 export const init = async ( canvasRef: zCanvas, levelNum = 0 ): Promise<void> => {
     canvas = canvasRef;
+    engineStep = 1000 / canvas.getFrameRate();
 
     level = Levels[ levelNum ];
     const { background, width, height, ballStartProps } = level;
 
-    // precache the collision map for this level
-    collisionMap = await getTransparentPixelsForImage( background );
+    engine = createEngine( level.width, level.height );
 
     // generate Actors
-    flippers = [];/*level.flippers.reduce(( acc, flipperOpts ) => {
-        acc.push( new Flipper( flipperOpts ) );
+    flippers = level.flippers.reduce(( acc, flipperOpts ) => {
+        acc.push( new Flipper( engine, flipperOpts ) );
         return acc;
-    }, [] );*/
-    balls = [ new Ball({ ...ballStartProps, width: BALL_WIDTH, height: BALL_HEIGHT }) ];
+    }, [] );
+    balls = [ new Ball( engine, { ...ballStartProps, width: BALL_WIDTH, height: BALL_HEIGHT }) ];
     // QQQ multi ball
     for (let i = 0; i < 5; ++i) {
         const m = ( i + 1 ) * BALL_WIDTH;
-//        balls.push(new Ball({speed: -0.4, x: ballStartProps.x, y: ballStartProps.y - (m * 2), width: BALL_WIDTH, height: BALL_HEIGHT }));
-       //balls.push(new Ball({speed: -0.4, x: ballStartProps.x - m, y: ballStartProps.y - m, width: BALL_WIDTH, height: BALL_HEIGHT }));
+        balls.push(new Ball( engine, { speed: -0.4, left: ballStartProps.left - m, top: ballStartProps.top - m, width: BALL_WIDTH, height: BALL_HEIGHT }));
     }
     // clear previous canvas contents
     while ( canvas.numChildren() > 0 ) {
@@ -105,11 +103,11 @@ export const init = async ( canvasRef: zCanvas, levelNum = 0 ): Promise<void> =>
     }
 
     // QQQ
-    rects = [new Rect({ x: 425, y: ballStartProps.y + 200, width: 300, height: 20, angle: 0})];//degToRad( 40 ) }) ];
-    // rects.push( new Rect({ x: 770, y: 350, width: 100, height: 20, angle: degToRad( 45 ) }));
-    // rects.push( new Rect({ x: 20, y: 350, width: 20, height: 1916 })); // left wall
-    // rects.push( new Rect({ x: 780, y: 350, width: 20, height: 1916 })); // right wall
-    // rects.push( new Rect({ x: 700, y: 900, width: 200, height: 20, angle: degToRad( -45 ) })); // by right flipper
+    rects = [ new Rect( engine, { left: 475, top: ballStartProps.top + 200, width: 300, height: 20, angle: degToRad( 40 ) }) ];
+    rects.push( new Rect( engine, { left: 770, top: 350, width: 100, height: 20, angle: degToRad( 45 ) }));
+    rects.push( new Rect( engine, { left: 20, top: 350, width: 20, height: 1916 })); // left wall
+    rects.push( new Rect( engine, { left: 780, top: 350, width: 20, height: 1916 })); // right wall
+    rects.push( new Rect( engine, { left: 700, top: 900, width: 200, height: 20, angle: degToRad( -45 ) })); // by right flipper
 
     for ( rect of rects ) {
         rect.renderer = new RectRenderer( rect );
@@ -120,8 +118,6 @@ export const init = async ( canvasRef: zCanvas, levelNum = 0 ): Promise<void> =>
         canvas.addChild( renderer );
     }
     gameActive = true;
-
-    runTicks = 0;
 };
 
 export const scaleCanvas = ( clientWidth: number, clientHeight: number ): void => {
@@ -157,12 +153,9 @@ export const setFlipperState = ( type: string, up: boolean ): void => {
 
 export const bumpTable = (): void => {
     for ( ball of balls ) {
-    //    ball.setVelocity( ball.getVelocity().invert());
-
-    //    ball.velocity.x += 0.01;
-        //ball.applyAngularImpulse( 0.005 );
-        console.warn("bump TO DO implement");
+        engine.applyForce( ball.body, Math.random() * 0.5, 10 );
     }
+    console.warn( "TODO: not too much bumpin'!" );
 };
 
 /**
@@ -172,96 +165,43 @@ export const update = ( timestamp: DOMHighResTimeStamp ): void => {
     if ( !gameActive ) {
         return;
     }
-    ++runTicks;
 
-    runPhysics( timestamp * 1000 );
+    // update physics engine
+    engine.update( engineStep );
 
+    // render content
     for ( renderer of renderers ) {
         renderer.update( timestamp, 0 );
     }
+
+    // update ball actors
+
+    for ( const ball of balls ) {
+        if ( ball.bounds.top > level.height ) {
+            console.warn( `DAG BAL ! ( ${ball.bounds.top} vs ${level.height} )` );
+            disposeActor( ball, balls );
+        }
+    }
+
     // keep main ball within view
     ball = balls[ 0 ];
     if ( ball ) {
-       canvas.panViewport( 0, balls[ 0 ].getPosition().y - panOffset );
+       canvas.panViewport( 0, balls[ 0 ].bounds.top - panOffset );
     }
 };
 
 /* internal methods */
 
-function runPhysics( gameTick: number ): void {
-
-    let current: Actor;
-
-    // 1. update all Actors
-
-    for ( ball of balls ) {
-        ball.update( gameTick );
+function disposeActor( actor: Actor, actorList: Actor[] ): void {
+    // TODO: maintain linked lists instead for higher performance
+    let index = actorList.indexOf( actor );
+    if ( index >= 0 ) {
+        actorList.splice( index, 1 );
     }
-
-    for ( rect of rects ) {
-        rect.update( gameTick );
+    index = renderers.indexOf( actor.renderer );
+    if ( index >= 0 ) {
+        renderers.splice( index, 1 );
     }
-
-    for ( flipper of flippers ) {
-        flipper.update( gameTick );
-    }
-
-    // 2. perform collision detection
-
-    // TODO use this linked list pattern
-    // let current0: Actor = particles;
-    // let current1: Actor;
-    //
-    // while ( current0 !== null ) {
-    //     current1 = current0.next;
-    //     while ( current1 !== null ) {
-    //         CollisionDetector.test(current0,current1);
-    //         current1 = current1.next;
-    //     }
-    //     /*
-    //     for (int n = 0; n < size1; n++) {
-    //         //MvdA TODO was dead code
-    //     //					if (constraints.get(n) instanceof AngularConstraint) continue;
-    //         SpringConstraint c = (SpringConstraint)constraints.get(n);
-    //         if (current0.collidable && c.collidable && ! c.isConnectedTo(current0)) {
-    //             CollisionDetector.test(current0,c.getCollisionRect());
-    //         }
-    //     }*/
-    //     current0.isColliding = false;
-    //
-    //     current0 = current0.next;
-    // }
-
-// ---
-
-    let i = balls.length;
-    while ( i-- ) {
-        ball = balls[ i ]; // reverse loop allows us to remove balls at runtime
-
-        // 1.1 collision with other balls
-
-        for ( otherBall of balls ) {
-            if ( ball !== otherBall ) {
-                CollisionDetector.test( ball, otherBall );
-            }
-        }
-
-        // 1.2. collision with rectangles
-
-        for ( rect of rects ) {
-            CollisionDetector.test( ball, rect );
-        }
-
-        // 1.3. collision with flippers
-
-        for ( flipper of flippers ) {
-            CollisionDetector.test( ball, flipper );
-        }
-        ball.isColliding = false;
-
-        if ( ball.bounds.y > level.height ) {
-            console.warn("DAG BAL " + i + " @ " + ball.bounds.y + " in " + level.height );
-            balls.splice( i, 1 );
-        }
-    }
+    actor.renderer.dispose();
+    actor.unregister( engine );
 }

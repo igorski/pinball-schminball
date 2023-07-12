@@ -21,9 +21,9 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import type { FlipperType } from "@/definitions/levels";
+import type { IPhysicsEngine } from "@/model/physics/engine";
 import type { ActorOpts } from "@/model/actor";
 import Rect from "@/model/rect";
-import Vector from "@/model/math/vector";
 import { degToRad, clamp } from "@/utils/math-util";
 
 const FLIP_SPEED = 0.05; // TODO to constants along with ball speed
@@ -34,8 +34,8 @@ export default class Flipper extends Rect {
     public type : FlipperType;
     private isUp: boolean;
 
-    constructor( opts: ActorOpts & { type: FlipperType } ) {
-        super({ ...opts, width: 132, height: 41, init: false });
+    constructor( engine: IPhysicsEngine, opts: ActorOpts & { type: FlipperType } ) {
+        super( engine, { ...opts, width: 132, height: 41 });
 
         this.isUp   = false;
         this.type   = opts.type;
@@ -47,7 +47,7 @@ export default class Flipper extends Rect {
 
         /* math */
 
-        this.setElasticity( 0.2 );
+        //this.setElasticity( 0.2 );
     }
 
     trigger( up: boolean ): void {
@@ -62,38 +62,7 @@ export default class Flipper extends Rect {
         this.isUp = up;
     }
 
-    update( fTimestep: number ): void {
-        super.update( fTimestep );
-
-        const angle = this.getAngleRad();
-
-        if ( this.type === "left" ) {
-            if ( angle > MAX_ANGLE_RAD ) {
-                this.setAngleRad( MAX_ANGLE_RAD );
-                this.setAngularVelocity( 0 );
-            }
-            if ( angle < MIN_ANGLE_RAD ) {
-                this.setAngleRad( MIN_ANGLE_RAD );
-                this.setAngularVelocity( 0 );
-            }
-        } else {
-            if ( angle < -MAX_ANGLE_RAD ) {
-                this.setAngleRad( -MAX_ANGLE_RAD );
-                this.setAngularVelocity( 0 );
-            }
-            if ( angle > -MIN_ANGLE_RAD ) {
-                this.setAngleRad( -MIN_ANGLE_RAD );
-                this.setAngularVelocity( 0 );
-            }
-        }
-    }
-
     applyAngularImpulse( value: number ): void {
         console.warn( "implement applyAngularImpulse()", value );
-    }
-
-    setAngularVelocity( value: number ): void {
-        this.setVelocity([ value, value ]);
-        console.warn( "implement setAngularVelocity()", value );
     }
 };

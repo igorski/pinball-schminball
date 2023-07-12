@@ -20,56 +20,15 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Actor from "@/model/actor";
+import Actor, { ActorShapes } from "@/model/actor";
 import type { ActorOpts } from "@/model/actor";
-import FP from "@/model/math/fp";
-import { ActorShapes } from "@/model/math/shape";
-import type Interval from "@/model/math/interval";
-import Vector from "@/model/math/vector";
+import type { IPhysicsEngine } from "@/model/physics/engine";
 
 export default class Circle extends Actor {
     public currTemp: number[] = new Array( 2 );
 	public radius: number;
 
-    constructor( opts: ActorOpts ) {
-        super( opts );
-
-        this.shape = ActorShapes.CIRCLE;
-
-        /* APE */
-
-		this.setRadius( FP.fromFloat( opts.width / 2 ));
+    constructor( engine: IPhysicsEngine, opts: ActorOpts ) {
+        super( engine, { ...opts, shape: ActorShapes.CIRCLE });
     }
-
-    /* APE */
-
-    public setRadius( radius: number ): void {
-        this.radius = radius;
-    }
-
-    public getProjection( axis: number[] ): Interval {
-		this.currTemp[0] = this.curr[0];
-		this.currTemp[1] = this.curr[1];
-
-        const c = Vector.dot( this.currTemp, axis );
-
-        this.interval.min = c - this.radius;
-		this.interval.max = c + this.radius;
-
-    	return this.interval;
-	}
-
-	public getIntervalX(): Interval {
-		this.interval.min = this.curr[0] - this.radius;
-		this.interval.max = this.curr[0] + this.radius;
-
-		return this.interval;
-	}
-
-	public getIntervalY(): Interval {
-		this.interval.min = this.curr[1] - this.radius;
-		this.interval.max = this.curr[1] + this.radius;
-
-		return this.interval;
-	}
 }
