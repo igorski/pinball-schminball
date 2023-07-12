@@ -20,17 +20,21 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import type { FlipperType } from "@/definitions/levels";
+import type { ActorOpts } from "@/model/actor";
 import Rect from "@/model/rect";
-import RectPhys from "@/model/math/rectphys";
 import Vector from "@/model/math/vector";
 import { degToRad, clamp } from "@/utils/math-util";
 
-const FLIP_SPEED = 0.01; // TODO to constants along with ball speed
+const FLIP_SPEED = 0.05; // TODO to constants along with ball speed
 const MIN_ANGLE_RAD = -0.4;///degToRad( -45 );
 const MAX_ANGLE_RAD = 0.6;//degToRad( 30 );
 
 export default class Flipper extends Rect {
-    constructor( opts ) {
+    public type : FlipperType;
+    private isUp: boolean;
+
+    constructor( opts: ActorOpts & { type: FlipperType } ) {
         super({ ...opts, width: 132, height: 41, init: false });
 
         this.isUp   = false;
@@ -43,10 +47,10 @@ export default class Flipper extends Rect {
 
         /* math */
 
-        this.setRestitution( 0.2 );
+        this.setElasticity( 0.2 );
     }
 
-    trigger( up ) {
+    trigger( up: boolean ): void {
         if ( up === this.isUp ) {
             return;
         }
@@ -58,7 +62,7 @@ export default class Flipper extends Rect {
         this.isUp = up;
     }
 
-    update( fTimestep ) {
+    update( fTimestep: number ): void {
         super.update( fTimestep );
 
         const angle = this.getAngleRad();
@@ -82,5 +86,14 @@ export default class Flipper extends Rect {
                 this.setAngularVelocity( 0 );
             }
         }
+    }
+
+    applyAngularImpulse( value: number ): void {
+        console.warn( "implement applyAngularImpulse()", value );
+    }
+
+    setAngularVelocity( value: number ): void {
+        this.setVelocity([ value, value ]);
+        console.warn( "implement setAngularVelocity()", value );
     }
 };

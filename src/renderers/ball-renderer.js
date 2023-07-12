@@ -39,7 +39,7 @@ export default class BallRenderer extends sprite {
     }
 
     update() {
-        let { x } = this.actor.velocity;
+        let { x } = 0; // this.actor.velocity; // TODO get speed
         const isMovingLeft = x < 0;
         if ( x === 0 ) {
             x = 0.2; // ball should always spin, even when moving solely on vertical axis

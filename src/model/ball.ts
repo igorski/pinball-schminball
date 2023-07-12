@@ -20,24 +20,23 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Actor from "@/model/actor";
-import CirclePhys from "@/model/math/circlephys";
+import type { ActorOpts } from "@/model/actor";
+import Circle from "@/model/circle";
 
-export default class Ball extends Actor {
-    constructor( opts ) {
-        super( opts );
+export default class Ball extends Circle {
+    constructor( opts: ActorOpts & { speed?: number } ) {
+        super({ ...opts, fixed: false });
 
         /* math */
 
-        this.shape = new CirclePhys( this.width / 2 );
+        //this.shape = new CirclePhys( this.width / 2 );
 
-        this.setRestitution( 1 );
-        this.setMass( 1 );
-
-        this.acceleration.y = 0.0001; // gravity
+        this.setElasticity( 1 );
+        this.setFriction( 0 );
+        this.setMass( 0.5 * this.radius );
 
         if ( typeof opts.speed === "number" ) {
-            this.velocity.y = -opts.speed;
+        //    this.velocity.y = -opts.speed;
         }
     }
 }

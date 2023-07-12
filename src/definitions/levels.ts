@@ -22,16 +22,32 @@
  */
 import SpriteCache from "@/utils/sprite-cache";
 
+export type FlipperType = "left" | "right";
+export type FlipperDef = {
+    type: FlipperType;
+    x: number;
+    y: number;
+};
+
+export type LevelDef = {
+    background: Image,
+    width: number;
+    height: number;
+    // TODO align coordinate definitions ( x or left ??)
+    ballStartProps: { x: number, y: number, speed: number };
+    chute: { left: number, right: number, top: number };
+    flippers: FlipperDef[];
+};
+
 export default [{
     background      : SpriteCache.BACKGROUND,
     width           : 800,
     height          : 1916,
     ballStartProps  : { x: 720, y: 600, speed: 1 },
-    //ballStartProps  : { x: 450, y: 1000, speed: -0.6 },
     chute           : { left: 350, right: 550, top: 1870 },
     flippers : [
        { type: "left",  x: 140, y: 600 },
-       { type: "left",  x: 250, y: 1100 },
-       { type: "right", x: 600, y: 950 }
+       { type: "left",  x: 325, y: 1100 },
+       { type: "right", x: 600, y: 960 }
     ]
-}];
+}] as LevelDef[];
