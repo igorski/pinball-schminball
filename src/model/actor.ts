@@ -23,11 +23,12 @@
 import type { Point, Rectangle, sprite } from "zcanvas";
 import type { IPhysicsEngine } from "@/model/physics/engine";
 import { rectangleToPolygon } from "@/utils/math-util";
-import { degToRad, radToDeg } from "@/utils/math-util";
 
-export enum ActorShapes {
-    CIRCLE,
-    RECT
+export enum ActorTypes {
+    CIRCULAR,
+    RECTANGULAR,
+    LEFT_FLIPPER,
+    RIGHT_FLIPPER,
 };
 
 // @ts-expect-error Property 'env' does not exist on type 'ImportMeta', Vite takes care of it
@@ -38,15 +39,15 @@ export type ActorOpts = {
     top?: number;
     width?: number;
     height?: number;
-    angle?: number;
-    shape?: ActorShapes;
+    angle?: number; // in radians
+    type?: ActorTypes;
     fixed?: boolean;
 };
 
 export default class Actor {
     public bounds: Rectangle;
     public renderer: sprite;
-    public shape: ActorShapes;
+    public type: ActorTypes;
     public fixed: boolean;
     public angle: number;
 
@@ -57,12 +58,12 @@ export default class Actor {
     protected _outline: number[];
 
     constructor( engine: IPhysicsEngine, {
-        left = 0, top = 0, width = 1, height = 1, angle = 0, fixed = true, shape = ActorShapes.RECT
-    }: ActorOpts = {} )
-    {
-        this.fixed  = fixed;
-        this.angle  = angle;
-        this.shape  = shape;
+        left = 0, top = 0, width = 1, height = 1,
+        angle = 0, fixed = true, type = ActorTypes.RECTANGULAR
+    }: ActorOpts = {} ) {
+        this.fixed = fixed;
+        this.angle = angle;
+        this.type  = type;
 
         this.bounds = { left, top, width, height };
 
@@ -96,14 +97,6 @@ export default class Actor {
         return this._outline;
     }
 
-    getAngleRad(): number {
-        return this.angle;
-    }
-
-    setAngleRad( angle: number ): void {
-        this.angle = angle;
-    }
-
     register( engine: IPhysicsEngine ): void {
         this.body = engine.addBody( this );
     }
@@ -113,6 +106,7 @@ export default class Actor {
     }
 
     update(): void {
+        this.angle = this.body.angle;
         this.cacheCoordinates(); // TODO: how expensive is this
     }
 }

@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021-2022 - https://www.igorski.nl
+ * Igor Zinken 2021-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -25,20 +25,11 @@ import Circle from "@/model/circle";
 import type { IPhysicsEngine } from "@/model/physics/engine";
 
 export default class Ball extends Circle {
-    constructor( engine: IPhysicsEngine, opts: ActorOpts & { speed?: number } ) {
+    constructor( engine: IPhysicsEngine, opts: ActorOpts ) {
         super( engine, opts );
-
-        /* math */
-
-        //this.shape = new CirclePhys( this.width / 2 );
 
         //this.setElasticity( 1 );
         //this.setFriction( 0 );
         //this.setMass( 0.5 * this.radius );
-
-        if ( typeof opts.speed === "number" ) {
-            console.warn('o o',this.body);
-        //    this.velocity.y = -opts.speed;
-        }
     }
 }

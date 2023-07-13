@@ -22,6 +22,7 @@
  */
 import { sprite } from "zcanvas";
 import type { Viewport } from "zcanvas";
+import { ActorTypes } from "@/model/actor";
 import type Flipper from "@/model/flipper";
 import SpriteCache from "@/utils/sprite-cache";
 
@@ -31,15 +32,17 @@ const DEBUG = import.meta.env.MODE !== "production";
 export default class FlipperRenderer extends sprite {
     constructor( private actor: Flipper ) {
         super({
-            bitmap : actor.type === "left" ? SpriteCache.FLIPPER_LEFT : SpriteCache.FLIPPER_RIGHT,
+            bitmap : actor.type === ActorTypes.LEFT_FLIPPER ? SpriteCache.FLIPPER_LEFT : SpriteCache.FLIPPER_RIGHT,
             width  : actor.bounds.width,
             height : actor.bounds.height
         });
     }
 
     draw( ctx: CanvasRenderingContext2D, viewport: Viewport ): void {
+        this.actor.update();
+
         const { left, top, width, height } = this.actor.bounds;
-        const angle = this.actor.getAngleRad();
+        const angle = this.actor.angle;
         const rotate = angle !== 0;
 
         if ( rotate ) {

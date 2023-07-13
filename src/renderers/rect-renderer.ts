@@ -37,8 +37,10 @@ export default class RectRenderer extends sprite {
     }
 
     draw( ctx: CanvasRenderingContext2D, viewport: Viewport ): void {
+        this.actor.update();
+
         const { left, top, width, height } = this.actor.bounds;
-        const angle = this.actor.getAngleRad();
+        const angle = this.actor.angle;
         const rotate = angle !== 0;
 
         if ( rotate ) {

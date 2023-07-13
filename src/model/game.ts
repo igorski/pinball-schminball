@@ -23,7 +23,7 @@
 import { sprite } from "zcanvas";
 import type { canvas as zCanvas } from "zcanvas";
 import Levels from "@/definitions/levels";
-import type { LevelDef } from "@/definitions/levels";
+import type { LevelDef, FlipperType } from "@/definitions/levels";
 import Actor from "@/model/actor";
 import Ball from "@/model/ball";
 import Flipper from "@/model/flipper";
@@ -109,6 +109,9 @@ export const init = async ( canvasRef: zCanvas, levelNum = 0 ): Promise<void> =>
     rects.push( new Rect( engine, { left: 780, top: 350, width: 20, height: 1916 })); // right wall
     rects.push( new Rect( engine, { left: 700, top: 900, width: 200, height: 20, angle: degToRad( -45 ) })); // by right flipper
 
+    rects.push( new Rect( engine, { left: 0, top: 1500, width: 450, height: 20, angle: degToRad( 45 ) }));
+    rects.push( new Rect( engine, { left: 800, top: 1500, width: 400, height: 20, angle: degToRad( -45 ) }));
+
     for ( rect of rects ) {
         rect.renderer = new RectRenderer( rect );
         renderers.push( rect.renderer );
@@ -143,7 +146,7 @@ export const scaleCanvas = ( clientWidth: number, clientHeight: number ): void =
     panOffset = ( viewportHeight / 2 ) - ( BALL_WIDTH / 2 );
 };
 
-export const setFlipperState = ( type: string, up: boolean ): void => {
+export const setFlipperState = ( type: FlipperType, up: boolean ): void => {
     flippers.forEach( flipper => {
         if ( flipper.type === type ) {
             flipper.trigger( up );

@@ -22,7 +22,7 @@
  */
 import type { Point } from "zcanvas";
 import type { IPhysicsEngine } from "@/model/physics/engine";
-import Actor, { ActorShapes } from "@/model/actor";
+import Actor, { ActorTypes } from "@/model/actor";
 import type { ActorOpts } from "@/model/actor";
 import { rectangleToPolygon, rectangleToRotatedPolygon } from "@/utils/math-util";
 
@@ -39,7 +39,7 @@ export default class Rect extends Actor {
      * rotate around a custom pivot point
      */
     constructor( engine: IPhysicsEngine, opts: ActorOpts ) {
-        super( engine, { ...opts, shape: ActorShapes.RECT });
+        super( engine, { ...opts, type: opts.type ?? ActorTypes.RECTANGULAR });
 
         this.body.restitution = 0.5;
 

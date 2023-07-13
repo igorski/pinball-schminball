@@ -22,17 +22,13 @@
  */
 import Matter from "matter-js";
 import type { Point } from "zcanvas";
-// @ts-expect-error no typings available for this package
-import MatterAttractors from "matter-attractors";
 import type Actor from "@/model/actor";
-import { ActorShapes } from "@/model/actor";
+import { ActorTypes } from "@/model/actor";
 
 const GRAVITY = 0.75;
 const BUMPER_BOUNCE = 1.5;
 const PADDLE_PULL = 0.002;
 const MAX_VELOCITY = 50;
-
-Matter.use( MatterAttractors );
 
 export interface IPhysicsEngine {
     engine: Matter.Engine;
@@ -40,15 +36,35 @@ export interface IPhysicsEngine {
     applyForce: ( body: Matter.Body, xImpulse: number, yImpulse: number ) => void;
     addBody: ( actor: Actor ) => Matter.Body;
     removeBody: ( body: Matter.Body ) => void;
+    applyImpulse: ( body: Matter.Body, upwards: boolean ) => void;
 };
 
 export const createEngine = ( width: number, height: number ): IPhysicsEngine => {
     const engine = Matter.Engine.create();
 
+    // @ts-expect-error Property 'env' does not exist on type 'ImportMeta', Vite takes care of it
+    if ( import.meta.env.MODE !== "production" ) {
+        renderBodies( engine );
+    }
     engine.world.gravity.y = GRAVITY;
     engine.world.bounds = {
         min: { x: 0, y: 0 },
         max: { x: width, y: height }
+    };
+
+    // collision group to be ignored by ball Actors
+    const ignoreGroup = Matter.Body.nextGroup( true );
+
+    const createIgnorable = ( x: number, y: number, radius: number ): Matter.Body => {
+        return Matter.Bodies.circle( x, y, radius, {
+            isStatic: true,
+            render: {
+                visible: true,//false,
+            },
+            collisionFilter: {
+                group: ignoreGroup
+            },
+        });
     };
 
     return {
@@ -62,31 +78,115 @@ export const createEngine = ( width: number, height: number ): IPhysicsEngine =>
         addBody( actor: Actor ): Matter.Body {
             const { left, top, width, height } = actor.bounds;
             let body: Matter.Body;
-            switch ( actor.shape ) {
+            switch ( actor.type ) {
                 default:
-                case ActorShapes.RECT:
+                case ActorTypes.RECTANGULAR:
                     body = Matter.Bodies.rectangle( left, top, width, height, {
-                        label: "rect",
+                        //label: "rect",
                         angle: actor.angle,
                         isStatic: actor.fixed,
                         chamfer: { radius: 10 }
                     })
                     break;
-                case ActorShapes.CIRCLE:
+                case ActorTypes.CIRCULAR:
+                    // TODO: below code is ball specific (see collisionFilter), make a bit more agnostic
                     body = Matter.Bodies.circle( left, top, width / 2, {
-                        label: "circle",/*
+                        //label: "circle",
                         collisionFilter: {
-                            group: stopperGroup
-                        },*/
+                            group: ignoreGroup
+                        },
                     });
+                    break;
+                case ActorTypes.LEFT_FLIPPER:
+                case ActorTypes.RIGHT_FLIPPER:
+                    body = Matter.Bodies.rectangle(
+                        left, top, width, height, {
+                            frictionAir: 0,
+                            angle: actor.angle,
+                            chamfer: {},
+                        }
+                    );
+                    const pivotX = left - width / 2;
+                    const pivotY = top;
+                    const pivot  = Matter.Bodies.circle( pivotX, pivotY, 5, { isStatic: true });
+
+                    const constraint = Matter.Constraint.create({
+                        pointA: { x: pivotX, y: pivotY },
+                        bodyB: body,
+                        pointB: { x: -( width / 2 ), y: 0 },
+                        stiffness: 0
+                    });
+
+                    // we restrict the area of movement by using non-visible circles that cannot collide with the balls
+                    Matter.World.add( engine.world, createIgnorable( pivotX + 30, pivotY + width * 0.8, height ));
+                    Matter.World.add( engine.world, createIgnorable( pivotX + 30, pivotY - width * 1, height ));
+
+                    Matter.World.add( engine.world, [ body, pivot, constraint ]);
+                    return body;
                     break;
             }
             Matter.World.add( engine.world, body );
 
             return body;
         },
+        applyImpulse( body: Matter.Body, isUp: boolean ): void {
+            // TODO: provide via arguments
+            var MIN = 0.558505361;//Phaser.Math.DegToRad(32);
+            var MAX = -0.261799388;//Phaser.Math.DegToRad(-15);
+
+            const target = isUp ? MIN : MAX;
+
+            const force = body.type === ActorTypes.FLIPPER_LEFT ? 1 : -0.5; // Adjust the force applied as needed
+
+            Matter.Body.setVelocity( body, { x: 0, y: 0 });
+
+            // Apply a force to rotate the rectangle
+            /*
+            Matter.Body.applyForce(body, body.position, {
+                x: force * Math.cos(target),
+                y: force * Math.sin(target)
+            });*/
+            // Matter.Body.rotate( body, target, { ...body.position }, true );
+            Matter.Body.setAngularSpeed( body, force );
+            Matter.Body.applyForce( body, body.position, {
+                x: 0,
+                y: 1
+            })
+        },
         removeBody( body: Matter.Body ): void {
             Matter.World.remove( engine.world, body );
         },
     };
 };
+
+/* internal methods */
+
+/**
+ * Debug method to view the bodies as visualised by the Matter JS renderer
+ */
+function renderBodies( engine: Matter.Engine, width = 800, height = 1900 ): void {
+    const render = Matter.Render.create({
+        element: document.body,
+        engine,
+        options: {
+            width,
+            height,
+            showAngleIndicator: true,
+            showCollisions: true,
+            showVelocity: true
+        }
+    });
+    const scale = window.innerHeight / height;
+    Object.assign(
+        render.canvas.style, {
+            position: "absolute",
+            zIndex: 1,
+            top: "50%",
+            left: "50%",
+            opacity: 0.75,
+            transform: `scale(${scale}) translate(-50%, -50%)`,
+            [ "transform-origin" ]: "0 0"
+        }
+    );
+    Matter.Render.run(render);
+}

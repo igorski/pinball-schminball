@@ -20,7 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Actor, { ActorShapes } from "@/model/actor";
+import Actor, { ActorTypes } from "@/model/actor";
 import type { ActorOpts } from "@/model/actor";
 import type { IPhysicsEngine } from "@/model/physics/engine";
 
@@ -29,6 +29,6 @@ export default class Circle extends Actor {
 	public radius: number;
 
     constructor( engine: IPhysicsEngine, opts: ActorOpts ) {
-        super( engine, { ...opts, shape: ActorShapes.CIRCLE });
+        super( engine, { ...opts, type: ActorTypes.CIRCULAR });
     }
 }

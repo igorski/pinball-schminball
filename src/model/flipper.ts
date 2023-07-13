@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021-2022 - https://www.igorski.nl
+ * Igor Zinken 2021-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,49 +20,44 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import type { FlipperType } from "@/definitions/levels";
 import type { IPhysicsEngine } from "@/model/physics/engine";
+import { ActorTypes } from "@/model/actor";
 import type { ActorOpts } from "@/model/actor";
 import Rect from "@/model/rect";
-import { degToRad, clamp } from "@/utils/math-util";
+import { degToRad, radToDeg } from "@/utils/math-util";
 
-const FLIP_SPEED = 0.05; // TODO to constants along with ball speed
-const MIN_ANGLE_RAD = -0.4;///degToRad( -45 );
-const MAX_ANGLE_RAD = 0.6;//degToRad( 30 );
+const MIN_ANGLE_RAD = degToRad( -45 );
+const MAX_ANGLE_RAD = degToRad( 30 );
 
 export default class Flipper extends Rect {
-    public type : FlipperType;
     private isUp: boolean;
 
-    constructor( engine: IPhysicsEngine, opts: ActorOpts & { type: FlipperType } ) {
-        super( engine, { ...opts, width: 132, height: 41 });
+    constructor( engine: IPhysicsEngine, opts: ActorOpts ) {
+        super( engine, {
+            ...opts,
+            width: 132,
+            height: 41,
+            angle: opts.type === ActorTypes.LEFT_FLIPPER ? MAX_ANGLE_RAD : MIN_ANGLE_RAD
+        });
+this.e = engine; // QQQ
+        this.isUp = false;
 
-        this.isUp   = false;
-        this.type   = opts.type;
-        this.pivotX = this.type === "left" ? 20 : 112;
-        this.pivotY = 20;
-
-        this.setAngleRad( this.type === "left" ? MAX_ANGLE_RAD : MIN_ANGLE_RAD );
         this.cacheCoordinates();
-
-        /* math */
-
-        //this.setElasticity( 0.2 );
     }
 
     trigger( up: boolean ): void {
         if ( up === this.isUp ) {
             return;
         }
-        if ( up && !this.isUp ) {
-            this.applyAngularImpulse( this.type === "left" ? -FLIP_SPEED : FLIP_SPEED );
-        } else if ( !up && this.isUp ) {
-            this.applyAngularImpulse( this.type === "left" ? FLIP_SPEED : -FLIP_SPEED );
-        }
         this.isUp = up;
+
+        if ( up ) {
+            console.warn('appply');
+            this.e.applyImpulse( this.body, this.isUp );
+        }
     }
 
     applyAngularImpulse( value: number ): void {
-        console.warn( "implement applyAngularImpulse()", value );
+        //console.warn( "implement applyAngularImpulse()", value );
     }
 };

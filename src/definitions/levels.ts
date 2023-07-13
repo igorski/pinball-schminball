@@ -21,8 +21,9 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import SpriteCache from "@/utils/sprite-cache";
+import { ActorTypes } from "@/model/actor";
 
-export type FlipperType = "left" | "right";
+export type FlipperType = ActorTypes.LEFT_FLIPPER | ActorTypes.RIGHT_FLIPPER;
 export type FlipperDef = {
     type: FlipperType;
     left: number;
@@ -33,7 +34,7 @@ export type LevelDef = {
     background: typeof Image,
     width: number;
     height: number;
-    ballStartProps: { left: number, top: number, speed: number };
+    ballStartProps: { left: number, top: number };
     chute: { left: number, right: number, top: number };
     flippers: FlipperDef[];
 };
@@ -45,8 +46,10 @@ export default [{
     ballStartProps  : { left: 720, top: 600 },
     chute           : { left: 350, right: 550, top: 1870 },
     flippers : [
-       { type: "left",  left: 140, top: 600 },
-       { type: "left",  left: 325, top: 1100 },
-       { type: "right", left: 600, top: 960 }
+       { type: ActorTypes.LEFT_FLIPPER,  left: 140, top: 600 },
+       { type: ActorTypes.LEFT_FLIPPER,  left: 325, top: 1100 },
+       { type: ActorTypes.RIGHT_FLIPPER, left: 570, top: 1000 },
+       { type: ActorTypes.LEFT_FLIPPER,  left: 300, top: 1750 },
+       { type: ActorTypes.RIGHT_FLIPPER, left: 500, top: 1750 },
     ]
 }] as LevelDef[];
