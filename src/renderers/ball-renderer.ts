@@ -53,6 +53,10 @@ export default class BallRenderer extends sprite {
     draw( ctx: CanvasRenderingContext2D, viewport: Viewport ): void {
         this.actor.update();
 
+        if ( !this._bitmapReady ) {
+            return;
+        }
+
         const { left, top, width, height } = this.actor.bounds;
 
         // the ball spins while moving, rotate the canvas prior to rendering as usual

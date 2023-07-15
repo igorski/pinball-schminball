@@ -32,6 +32,7 @@ export type FlipperDef = {
 
 export type LevelDef = {
     background: typeof Image,
+    body: string;
     width: number;
     height: number;
     ballStartProps: { left: number, top: number };
@@ -41,6 +42,7 @@ export type LevelDef = {
 
 export default [{
     background      : SpriteCache.BACKGROUND,
+    body : './assets/sprites/shape.svg',
     width           : 800,
     height          : 1916,
     ballStartProps  : { left: 720, top: 600 },

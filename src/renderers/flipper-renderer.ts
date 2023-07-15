@@ -41,6 +41,10 @@ export default class FlipperRenderer extends sprite {
     draw( ctx: CanvasRenderingContext2D, viewport: Viewport ): void {
         this.actor.update();
 
+        if ( !this._bitmapReady ) {
+            return;
+        }
+
         const { left, top, width, height } = this.actor.bounds;
         const angle = this.actor.angle;
         const rotate = angle !== 0;

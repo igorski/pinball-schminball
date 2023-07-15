@@ -27,9 +27,5 @@ import type { IPhysicsEngine } from "@/model/physics/engine";
 export default class Ball extends Circle {
     constructor( engine: IPhysicsEngine, opts: ActorOpts ) {
         super( engine, opts );
-
-        //this.setElasticity( 1 );
-        //this.setFriction( 0 );
-        //this.setMass( 0.5 * this.radius );
     }
 }

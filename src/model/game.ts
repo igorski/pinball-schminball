@@ -72,7 +72,7 @@ export const init = async ( canvasRef: zCanvas, levelNum = 0 ): Promise<void> =>
     level = Levels[ levelNum ];
     const { background, width, height, ballStartProps } = level;
 
-    engine = createEngine( level.width, level.height );
+    engine = await createEngine( level );
 
     // generate Actors
     flippers = level.flippers.reduce(( acc, flipperOpts ) => {
@@ -177,7 +177,7 @@ export const update = ( timestamp: DOMHighResTimeStamp ): void => {
 
     for ( const ball of balls ) {
         if ( ball.bounds.top > level.height ) {
-            console.warn( `DAG BAL ! ( ${ball.bounds.top} vs ${level.height} )` );
+            console.warn( `BYE BYE BALL ! ( ${ball.bounds.top} vs ${level.height} )` );
             disposeActor( ball, balls );
         }
     }
@@ -185,7 +185,7 @@ export const update = ( timestamp: DOMHighResTimeStamp ): void => {
     // keep main ball within view
     ball = balls[ 0 ];
     if ( ball ) {
-       canvas.panViewport( 0, balls[ 0 ].bounds.top - panOffset );
+       canvas.panViewport( 0, ball.bounds.top - panOffset );
     }
 };
 
@@ -205,13 +205,12 @@ function disposeActor( actor: Actor, actorList: Actor[] ): void {
     actor.unregister( engine );
 }
 
-function multiball( amount = 5 ): void {
+function multiball( amount = 5, x = 0, y = 0 ): void {
     for ( let i = 0; i < amount; ++i ) {
         const m = ( i + 1 ) * BALL_WIDTH;
         const ball = new Ball( engine, {
-            speed: -0.4,
-            left: ballStartProps.left - m,
-            top: ballStartProps.top - m,
+            left: x - m,
+            top: y - m,
             width: BALL_WIDTH,
             height: BALL_HEIGHT
         });

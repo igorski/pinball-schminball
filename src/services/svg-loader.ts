@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021-2023 - https://www.igorski.nl
+ * Igor Zinken 2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,31 +20,27 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import type { IPhysicsEngine } from "@/model/physics/engine";
-import { ActorTypes } from "@/model/actor";
-import type { ActorOpts } from "@/model/actor";
-import Rect from "@/model/rect";
+import Matter from "matter-js";
+import type { Vector } from "matter-js";
+// @ts-expect-error no type definitions for poly-decomp
+import PolyDecomp from "poly-decomp";
 
-export default class Flipper extends Rect {
-    private isUp: boolean;
+// note pathseg polyfill should also be provided onto window as SVGPathSeg
+Matter.Common.setDecomp( PolyDecomp );
 
-    constructor( engine: IPhysicsEngine, opts: ActorOpts ) {
-        super( engine, {
-            ...opts,
-            width: 132,
-            height: 41,
-        });
-
-        this.isUp = false;
-
-        this.cacheCoordinates();
-    }
-
-    trigger( up: boolean ): void {
-        if ( up === this.isUp ) {
-            return;
-        }
-        this.isUp = up;
-        this.engine.triggerFlipper( this.type, this.isUp );
-    }
+export const loadVertices = async ( filePath: string ): Promise<Vector[][]> => {
+    const svg = await loadSVG( filePath );
+    return selectPaths( svg, "path" ).map( path => Matter.Svg.pathToVertices( path, 30 ));
 };
+
+/* internal methods */
+
+function loadSVG( url: string ): Promise<XMLDocument> {
+    return fetch( url )
+        .then( response => response.text() )
+        .then( raw => (new window.DOMParser()).parseFromString( raw, "image/svg+xml") );
+}
+
+function selectPaths( document: XMLDocument, selector: string ): SVGPathElement[] {
+    return Array.prototype.slice.call( document.querySelectorAll( selector ));
+}

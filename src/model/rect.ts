@@ -58,7 +58,6 @@ export default class Rect extends Actor {
     }
 
     cacheCoordinates(): void {
-        try {
         const { left, top } = this.cacheBounds();
 
         this._pivot.x = left + this.pivotX;
@@ -72,8 +71,5 @@ export default class Rect extends Actor {
                 this._outline = rectangleToRotatedPolygon( this.bounds, this.angle, this._pivot.x, this._pivot.y );
             }
         }
-    } catch {
-        console.error("FIX THIS");
-    }
     }
 }

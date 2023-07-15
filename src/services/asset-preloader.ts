@@ -23,10 +23,16 @@
 import { loader }  from "zcanvas";
 import SpriteCache from "@/utils/sprite-cache";
 
-let _queue = [];
+const assetRoot = `./assets/sprites/`;
+const queue = [
+    { src: `${assetRoot}background.png`,    target: SpriteCache.BACKGROUND },
+    { src: `${assetRoot}ball.png`,          target: SpriteCache.BALL },
+    { src: `${assetRoot}flipper_left.png`,  target: SpriteCache.FLIPPER_LEFT },
+    { src: `${assetRoot}flipper_right.png`, target: SpriteCache.FLIPPER_RIGHT },
+];
 let _loadContainer;
 
-export const preloadAssets = () =>
+export const preloadAssets = (): Promise<void> =>
 {
     console.log( "PRELOAD ASSETS" );
 
@@ -43,23 +49,14 @@ export const preloadAssets = () =>
 
     document.body.appendChild( _loadContainer );
 
-    // all editor assets
-
-    const assetRoot = `./assets/sprites/`;
-    _queue = [
-        { src: `${assetRoot}background.png`,    target: SpriteCache.BACKGROUND },
-        { src: `${assetRoot}ball.png`,          target: SpriteCache.BALL },
-        { src: `${assetRoot}flipper_left.png`,  target: SpriteCache.FLIPPER_LEFT },
-        { src: `${assetRoot}flipper_right.png`, target: SpriteCache.FLIPPER_RIGHT },
-    ];
-    return new Promise((resolve, reject) => {
+    return new Promise(( resolve, reject ) => {
         const processQueue = async () => {
-            if ( _queue.length === 0 ) {
+            if ( queue.length === 0 ) {
                 // queue complete, remove temporary container and complete excution
                 document.body.removeChild( _loadContainer );
                 resolve();
             } else {
-                const asset = _queue.shift();
+                const asset = queue.shift();
                 const image = asset.target;
 
                 image.crossOrigin = "anonymous";

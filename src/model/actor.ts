@@ -44,7 +44,10 @@ export type ActorOpts = {
     fixed?: boolean;
 };
 
+let INSTANCE_NUM = 0;
+
 export default class Actor {
+    public id;
     public bounds: Rectangle;
     public renderer: sprite;
     public type: ActorTypes;
@@ -57,10 +60,12 @@ export default class Actor {
 
     protected _outline: number[];
 
-    constructor( engine: IPhysicsEngine, {
+    constructor( protected engine: IPhysicsEngine, {
         left = 0, top = 0, width = 1, height = 1,
         angle = 0, fixed = true, type = ActorTypes.RECTANGULAR
     }: ActorOpts = {} ) {
+        this.id = `actor_${++INSTANCE_NUM}`;
+
         this.fixed = fixed;
         this.angle = angle;
         this.type  = type;
@@ -75,7 +80,6 @@ export default class Actor {
         this._outline = [];
 
         this.register( engine );
-        this.cacheCoordinates();
     }
 
     cacheBounds(): Rectangle {

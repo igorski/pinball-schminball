@@ -21,17 +21,23 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import Matter from "matter-js";
+// @ts-expect-error no type definitions for matter-attractors
 import MatterAttractors from "matter-attractors";
 import type { Point } from "zcanvas";
+import type { LevelDef } from "@/definitions/levels";
 import type Actor from "@/model/actor";
 import { ActorTypes } from "@/model/actor";
+import { loadVertices } from "@/services/svg-loader";
 
 Matter.use( MatterAttractors );
 
-const GRAVITY = 0.75;
-const BUMPER_BOUNCE = 1.5;
+const GRAVITY     = 0.75;
 const PADDLE_PULL = 0.002;
-const MAX_VELOCITY = 50;
+
+enum FlipperPositions {
+    UP,
+    DOWN
+};
 
 export interface IPhysicsEngine {
     engine: Matter.Engine;
@@ -39,15 +45,17 @@ export interface IPhysicsEngine {
     applyForce: ( body: Matter.Body, xImpulse: number, yImpulse: number ) => void;
     addBody: ( actor: Actor ) => Matter.Body;
     removeBody: ( body: Matter.Body ) => void;
-    applyImpulse: ( body: Matter.Body, upwards: boolean ) => void;
+    triggerFlipper: ( type: ActorTypes, upwards: boolean ) => void;
 };
 
-export const createEngine = ( width: number, height: number ): IPhysicsEngine => {
+export const createEngine = async ( level: LevelDef ): Promise<IPhysicsEngine> => {
     const engine = Matter.Engine.create();
+
+    const { width, height } = level;
 
     // @ts-expect-error Property 'env' does not exist on type 'ImportMeta', Vite takes care of it
     if ( import.meta.env.MODE !== "production" ) {
-        //renderBodies( engine );
+        renderBodies( engine );
     }
     engine.world.gravity.y = GRAVITY;
     engine.world.bounds = {
@@ -58,7 +66,7 @@ export const createEngine = ( width: number, height: number ): IPhysicsEngine =>
     let isLeftPaddleUp = false;
     let isRightPaddleUp = false;
 
-    // collision group to be ignored by ball Actors
+    // collision group to be ignored by all circular Actors
     const ignoreGroup = Matter.Body.nextGroup( true );
 
     const createIgnorable = ( x: number, y: number, radius: number, optPlugin?: any ): Matter.Body => {
@@ -73,6 +81,15 @@ export const createEngine = ( width: number, height: number ): IPhysicsEngine =>
             plugin: optPlugin,
         });
     };
+
+    const bodyVertices = await loadVertices( level.body );
+    Matter.Composite.add( engine.world, Matter.Bodies.fromVertices( 400, 80, bodyVertices, {
+        render: {
+            fillStyle: "#FF0000",
+            strokeStyle: "#00FF00",
+            lineWidth: 1
+        }
+    }, true ));
 
     return {
         engine,
@@ -89,16 +106,13 @@ export const createEngine = ( width: number, height: number ): IPhysicsEngine =>
                 default:
                 case ActorTypes.RECTANGULAR:
                     body = Matter.Bodies.rectangle( left, top, width, height, {
-                        //label: "rect",
                         angle: actor.angle,
                         isStatic: actor.fixed,
                         chamfer: { radius: 10 }
                     })
                     break;
                 case ActorTypes.CIRCULAR:
-                    // TODO: below code is ball specific (see collisionFilter), make a bit more agnostic
                     body = Matter.Bodies.circle( left, top, width / 2, {
-                        //label: "circle",
                         collisionFilter: {
                             group: ignoreGroup
                         },
@@ -106,11 +120,10 @@ export const createEngine = ( width: number, height: number ): IPhysicsEngine =>
                     break;
                 case ActorTypes.LEFT_FLIPPER:
                 case ActorTypes.RIGHT_FLIPPER:
-                    const label = `flipper_${Math.random()}`; // TODO: UID
                     const isLeftFlipper = actor.type === ActorTypes.LEFT_FLIPPER;
                     body = Matter.Bodies.rectangle(
                         left, top, width, height, {
-                            label,
+                            label: actor.id,
                             frictionAir: 0,
                             chamfer: {},
                         }
@@ -126,21 +139,16 @@ export const createEngine = ( width: number, height: number ): IPhysicsEngine =>
                         stiffness: 0
                     });
 
-                    const PADDLE_PULL = 0.002;
-
-                    // TODO: enum
-                    const UP = "up";
-                    const DOWN = "down";
-
-                    const plugin = ( position: string ): any => ({
+                    const plugin = ( position: FlipperPositions ): any => ({
                         attractors: [
-                            // stopper is always a, other body is b
-                            function( a: Matter.Body, b: Matter.Body ): void {
-                                if ( b.label !== label ) {
+                            ( a: Matter.Body, b: Matter.Body ): Point => {
+                                if ( b.label !== actor.id ) {
                                     return;
                                 }
                                 const isPaddleUp = isLeftFlipper ? isLeftPaddleUp : isRightPaddleUp;
-                                if ( position === UP && isPaddleUp || position === DOWN && !isPaddleUp ) {
+                                if ( position === FlipperPositions.UP && isPaddleUp ||
+                                     position === FlipperPositions.DOWN && !isPaddleUp )
+                                 {
                                     return {
                                         x: ( a.position.x - b.position.x ) * PADDLE_PULL,
                                         y: ( a.position.y - b.position.y ) * PADDLE_PULL,
@@ -152,51 +160,25 @@ export const createEngine = ( width: number, height: number ): IPhysicsEngine =>
 
                     // we restrict the area of movement by using non-visible circles that cannot collide with the balls
                     const ignorableX = isLeftFlipper ? pivotX + 30 : pivotX - 20;
-                    Matter.World.add( engine.world, createIgnorable( ignorableX, pivotY - width * 1, height, plugin( UP )));
-                    Matter.World.add( engine.world, createIgnorable( ignorableX, pivotY + width * 0.8, height, plugin( DOWN )));
+                    Matter.World.add( engine.world, createIgnorable( ignorableX, pivotY - width * 1, height, plugin( FlipperPositions.UP )));
+                    Matter.World.add( engine.world, createIgnorable( ignorableX, pivotY + width * 0.8, height, plugin( FlipperPositions.DOWN )));
 
                     Matter.World.add( engine.world, [ body, pivot, constraint ]);
                     return body;
-                    break;
             }
             Matter.World.add( engine.world, body );
 
             return body;
         },
-        applyImpulse( type: ActorTypes, isUp: boolean ): void {
+        removeBody( body: Matter.Body ): void {
+            Matter.World.remove( engine.world, body );
+        },
+        triggerFlipper( type: ActorTypes, isUp: boolean ): void {
             if ( type === ActorTypes.LEFT_FLIPPER ) {
                 isLeftPaddleUp = isUp;
             } else {
                 isRightPaddleUp = isUp;
             }
-            return;
-
-
-            // TODO: provide via arguments
-            var MIN = 0.558505361;//Phaser.Math.DegToRad(32);
-            var MAX = -0.261799388;//Phaser.Math.DegToRad(-15);
-
-            const target = isUp ? MIN : MAX;
-
-            const force = body.type === ActorTypes.FLIPPER_LEFT ? 1 : -0.5; // Adjust the force applied as needed
-
-            Matter.Body.setVelocity( body, { x: 0, y: 0 });
-
-            // Apply a force to rotate the rectangle
-            /*
-            Matter.Body.applyForce(body, body.position, {
-                x: force * Math.cos(target),
-                y: force * Math.sin(target)
-            });*/
-            // Matter.Body.rotate( body, target, { ...body.position }, true );
-            Matter.Body.setAngularSpeed( body, force );
-            Matter.Body.applyForce( body, body.position, {
-                x: 0,
-                y: 1
-            })
-        },
-        removeBody( body: Matter.Body ): void {
-            Matter.World.remove( engine.world, body );
         },
     };
 };
