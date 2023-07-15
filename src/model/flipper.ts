@@ -24,10 +24,6 @@ import type { IPhysicsEngine } from "@/model/physics/engine";
 import { ActorTypes } from "@/model/actor";
 import type { ActorOpts } from "@/model/actor";
 import Rect from "@/model/rect";
-import { degToRad, radToDeg } from "@/utils/math-util";
-
-const MIN_ANGLE_RAD = degToRad( -45 );
-const MAX_ANGLE_RAD = degToRad( 30 );
 
 export default class Flipper extends Rect {
     private isUp: boolean;
@@ -37,7 +33,6 @@ export default class Flipper extends Rect {
             ...opts,
             width: 132,
             height: 41,
-            angle: opts.type === ActorTypes.LEFT_FLIPPER ? MAX_ANGLE_RAD : MIN_ANGLE_RAD
         });
 this.e = engine; // QQQ
         this.isUp = false;
@@ -51,13 +46,8 @@ this.e = engine; // QQQ
         }
         this.isUp = up;
 
-        if ( up ) {
-            console.warn('appply');
-            this.e.applyImpulse( this.body, this.isUp );
-        }
-    }
-
-    applyAngularImpulse( value: number ): void {
-        //console.warn( "implement applyAngularImpulse()", value );
+        //if ( up ) {
+            this.e.applyImpulse( this.type, this.isUp );
+    //    }
     }
 };

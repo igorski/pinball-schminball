@@ -21,9 +21,12 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import Matter from "matter-js";
+import MatterAttractors from "matter-attractors";
 import type { Point } from "zcanvas";
 import type Actor from "@/model/actor";
 import { ActorTypes } from "@/model/actor";
+
+Matter.use( MatterAttractors );
 
 const GRAVITY = 0.75;
 const BUMPER_BOUNCE = 1.5;
@@ -44,7 +47,7 @@ export const createEngine = ( width: number, height: number ): IPhysicsEngine =>
 
     // @ts-expect-error Property 'env' does not exist on type 'ImportMeta', Vite takes care of it
     if ( import.meta.env.MODE !== "production" ) {
-        renderBodies( engine );
+        //renderBodies( engine );
     }
     engine.world.gravity.y = GRAVITY;
     engine.world.bounds = {
@@ -52,10 +55,13 @@ export const createEngine = ( width: number, height: number ): IPhysicsEngine =>
         max: { x: width, y: height }
     };
 
+    let isLeftPaddleUp = false;
+    let isRightPaddleUp = false;
+
     // collision group to be ignored by ball Actors
     const ignoreGroup = Matter.Body.nextGroup( true );
 
-    const createIgnorable = ( x: number, y: number, radius: number ): Matter.Body => {
+    const createIgnorable = ( x: number, y: number, radius: number, optPlugin?: any ): Matter.Body => {
         return Matter.Bodies.circle( x, y, radius, {
             isStatic: true,
             render: {
@@ -64,6 +70,7 @@ export const createEngine = ( width: number, height: number ): IPhysicsEngine =>
             collisionFilter: {
                 group: ignoreGroup
             },
+            plugin: optPlugin,
         });
     };
 
@@ -99,27 +106,54 @@ export const createEngine = ( width: number, height: number ): IPhysicsEngine =>
                     break;
                 case ActorTypes.LEFT_FLIPPER:
                 case ActorTypes.RIGHT_FLIPPER:
+                    const label = `flipper_${Math.random()}`; // TODO: UID
+                    const isLeftFlipper = actor.type === ActorTypes.LEFT_FLIPPER;
                     body = Matter.Bodies.rectangle(
                         left, top, width, height, {
+                            label,
                             frictionAir: 0,
-                            angle: actor.angle,
                             chamfer: {},
                         }
                     );
-                    const pivotX = left - width / 2;
+                    const pivotX = isLeftFlipper ? left - width / 2 : left + width / 2;
                     const pivotY = top;
                     const pivot  = Matter.Bodies.circle( pivotX, pivotY, 5, { isStatic: true });
 
                     const constraint = Matter.Constraint.create({
                         pointA: { x: pivotX, y: pivotY },
                         bodyB: body,
-                        pointB: { x: -( width / 2 ), y: 0 },
+                        pointB: { x: isLeftFlipper ? -width / 2 : width / 2, y: 0 },
                         stiffness: 0
                     });
 
+                    const PADDLE_PULL = 0.002;
+
+                    // TODO: enum
+                    const UP = "up";
+                    const DOWN = "down";
+
+                    const plugin = ( position: string ): any => ({
+                        attractors: [
+                            // stopper is always a, other body is b
+                            function( a: Matter.Body, b: Matter.Body ): void {
+                                if ( b.label !== label ) {
+                                    return;
+                                }
+                                const isPaddleUp = isLeftFlipper ? isLeftPaddleUp : isRightPaddleUp;
+                                if ( position === UP && isPaddleUp || position === DOWN && !isPaddleUp ) {
+                                    return {
+                                        x: ( a.position.x - b.position.x ) * PADDLE_PULL,
+                                        y: ( a.position.y - b.position.y ) * PADDLE_PULL,
+                                    };
+                                }
+                            }
+                        ]
+                    });
+
                     // we restrict the area of movement by using non-visible circles that cannot collide with the balls
-                    Matter.World.add( engine.world, createIgnorable( pivotX + 30, pivotY + width * 0.8, height ));
-                    Matter.World.add( engine.world, createIgnorable( pivotX + 30, pivotY - width * 1, height ));
+                    const ignorableX = isLeftFlipper ? pivotX + 30 : pivotX - 20;
+                    Matter.World.add( engine.world, createIgnorable( ignorableX, pivotY - width * 1, height, plugin( UP )));
+                    Matter.World.add( engine.world, createIgnorable( ignorableX, pivotY + width * 0.8, height, plugin( DOWN )));
 
                     Matter.World.add( engine.world, [ body, pivot, constraint ]);
                     return body;
@@ -129,7 +163,15 @@ export const createEngine = ( width: number, height: number ): IPhysicsEngine =>
 
             return body;
         },
-        applyImpulse( body: Matter.Body, isUp: boolean ): void {
+        applyImpulse( type: ActorTypes, isUp: boolean ): void {
+            if ( type === ActorTypes.LEFT_FLIPPER ) {
+                isLeftPaddleUp = isUp;
+            } else {
+                isRightPaddleUp = isUp;
+            }
+            return;
+
+
             // TODO: provide via arguments
             var MIN = 0.558505361;//Phaser.Math.DegToRad(32);
             var MAX = -0.261799388;//Phaser.Math.DegToRad(-15);
@@ -188,5 +230,5 @@ function renderBodies( engine: Matter.Engine, width = 800, height = 1900 ): void
             [ "transform-origin" ]: "0 0"
         }
     );
-    Matter.Render.run(render);
+    Matter.Render.run( render );
 }

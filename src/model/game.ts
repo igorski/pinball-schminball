@@ -80,11 +80,7 @@ export const init = async ( canvasRef: zCanvas, levelNum = 0 ): Promise<void> =>
         return acc;
     }, [] );
     balls = [ new Ball( engine, { ...ballStartProps, width: BALL_WIDTH, height: BALL_HEIGHT }) ];
-    // QQQ multi ball
-    for (let i = 0; i < 5; ++i) {
-        const m = ( i + 1 ) * BALL_WIDTH;
-        balls.push(new Ball( engine, { speed: -0.4, left: ballStartProps.left - m, top: ballStartProps.top - m, width: BALL_WIDTH, height: BALL_HEIGHT }));
-    }
+
     // clear previous canvas contents
     while ( canvas.numChildren() > 0 ) {
         canvas.removeChildAt( 0 );
@@ -110,7 +106,7 @@ export const init = async ( canvasRef: zCanvas, levelNum = 0 ): Promise<void> =>
     rects.push( new Rect( engine, { left: 700, top: 900, width: 200, height: 20, angle: degToRad( -45 ) })); // by right flipper
 
     rects.push( new Rect( engine, { left: 0, top: 1500, width: 450, height: 20, angle: degToRad( 45 ) }));
-    rects.push( new Rect( engine, { left: 800, top: 1500, width: 400, height: 20, angle: degToRad( -45 ) }));
+    rects.push( new Rect( engine, { left: 800, top: 150, width: 400, height: 20, angle: degToRad( -45 ) }));
 
     for ( rect of rects ) {
         rect.renderer = new RectRenderer( rect );
@@ -207,4 +203,20 @@ function disposeActor( actor: Actor, actorList: Actor[] ): void {
     }
     actor.renderer.dispose();
     actor.unregister( engine );
+}
+
+function multiball( amount = 5 ): void {
+    for ( let i = 0; i < amount; ++i ) {
+        const m = ( i + 1 ) * BALL_WIDTH;
+        const ball = new Ball( engine, {
+            speed: -0.4,
+            left: ballStartProps.left - m,
+            top: ballStartProps.top - m,
+            width: BALL_WIDTH,
+            height: BALL_HEIGHT
+        });
+        ball.renderer = new BallRenderer( ball );
+        renderers.push( ball.renderer );
+        balls.push( ball );
+    }
 }
