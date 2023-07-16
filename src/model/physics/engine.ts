@@ -67,8 +67,8 @@ export const createEngine = async ( table: TableDef, collisionHandler: ( event: 
         max: { x: width, y: height }
     };
     Matter.Events.on( engine, "collisionStart", collisionHandler );
-    ;
-    let isLeftPaddleUp = false;
+
+    let isLeftPaddleUp  = false;
     let isRightPaddleUp = false;
 
     // collision group to be ignored by all circular Actors
