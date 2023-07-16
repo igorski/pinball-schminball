@@ -33,6 +33,7 @@ Matter.use( MatterAttractors );
 
 const GRAVITY       = 0.75;
 const FLIPPER_FORCE = 0.002;
+const MAX_SPEED     = 50;
 
 enum FlipperPositions {
     UP,
@@ -45,14 +46,18 @@ export interface IPhysicsEngine {
     applyForce: ( body: Matter.Body, xImpulse: number, yImpulse: number ) => void;
     addBody: ( actor: Actor, label: string ) => Matter.Body;
     removeBody: ( body: Matter.Body ) => void;
+    launchBall: ( body: Matter.Body ) => void;
     triggerFlipper: ( type: ActorTypes, upwards: boolean ) => void;
+    capSpeed: ( body: Matter.Body ) => void;
 };
 
 export interface CollisionEvent {
     pairs: { bodyA: Matter.Body, bodyB: Matter.Body }[]
 };
 
-export const createEngine = async ( table: TableDef, collisionHandler: ( event: CollisionEvent ) => void ): Promise<IPhysicsEngine> => {
+export const createEngine = async (
+    table: TableDef, beforeUpdateHandler: () => void, collisionHandler: ( event: CollisionEvent ) => void
+): Promise<IPhysicsEngine> => {
     const engine = Matter.Engine.create();
 
     const { width, height } = table;
@@ -66,7 +71,9 @@ export const createEngine = async ( table: TableDef, collisionHandler: ( event: 
         min: { x: 0, y: 0 },
         max: { x: width, y: height }
     };
+
     Matter.Events.on( engine, "collisionStart", collisionHandler );
+    Matter.Events.on( engine, "beforeUpdate", beforeUpdateHandler );
 
     let isLeftFlipperUp  = false;
     let isRightFlipperUp = false;
@@ -180,6 +187,9 @@ export const createEngine = async ( table: TableDef, collisionHandler: ( event: 
         removeBody( body: Matter.Body ): void {
             Matter.World.remove( engine.world, body );
         },
+        launchBall( body: Matter.Body ): void {
+            Matter.Body.setVelocity( body, { x: 0, y: -MAX_SPEED / 2 });
+        },
         triggerFlipper( type: ActorTypes, isUp: boolean ): void {
             if ( type === ActorTypes.LEFT_FLIPPER ) {
                 isLeftFlipperUp = isUp;
@@ -187,6 +197,12 @@ export const createEngine = async ( table: TableDef, collisionHandler: ( event: 
                 isRightFlipperUp = isUp;
             }
         },
+        capSpeed( body: Matter.Body ): void {
+            Matter.Body.setVelocity( body, {
+                x: Math.max( Math.min( body.velocity.x, MAX_SPEED ), -MAX_SPEED ),
+                y: Math.max( Math.min( body.velocity.y, MAX_SPEED ), -MAX_SPEED ),
+            });
+        }
     };
 };
 

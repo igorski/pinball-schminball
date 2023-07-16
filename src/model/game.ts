@@ -28,6 +28,7 @@ import Actor from "@/model/actor";
 import Ball from "@/model/ball";
 import Circle from "@/model/circle";
 import Flipper from "@/model/flipper";
+import Popper from "@/model/popper";
 import Rect from "@/model/rect";
 import { createEngine } from "@/model/physics/engine";
 import type { IPhysicsEngine, CollisionEvent } from "@/model/physics/engine";
@@ -69,13 +70,14 @@ const renderers: sprite[] = [];
 let panOffset = 0;
 let viewportWidth = 0;
 let viewportHeight = 0; // cached in scaleCanvas()
+let underworldOffset = 0;
 
 export const init = async ( canvasRef: zCanvas, tableNum = 0 ): Promise<void> => {
     canvas = canvasRef;
     engineStep = 1000 / canvas.getFrameRate();
 
     table = Tables[ tableNum ];
-    const { width, height, ballStartProps } = table;
+    const { width, height } = table;
 
     // 1. clear previous canvas contents
     while ( canvas.numChildren() > 0 ) {
@@ -84,7 +86,11 @@ export const init = async ( canvasRef: zCanvas, tableNum = 0 ): Promise<void> =>
     renderers.length = 0;
 
     // 2. generate physics world
-    engine = await createEngine( table, ( event: CollisionEvent ) => {
+    engine = await createEngine( table, () => {
+        if ( balls.length ) {
+            engine.capSpeed( balls[ 0 ].body );
+        }
+    }, ( event: CollisionEvent ) => {
 	    event.pairs.forEach( pair => {
     		if ( pair.bodyB.label !== "ball" ) {
                 return;
@@ -94,6 +100,10 @@ export const init = async ( canvasRef: zCanvas, tableNum = 0 ): Promise<void> =>
                 console.warn("BUMP!");
 					//pingBumper( pair.bodyA );
 					break;
+                case "popper":
+                console.warn("poppp");
+                    engine.launchBall( pair.bodyB );
+                    break;
 			}
 		})
     });
@@ -104,6 +114,8 @@ export const init = async ( canvasRef: zCanvas, tableNum = 0 ): Promise<void> =>
     renderers.push( backgroundRenderer );
 
     // 4. generate Actors
+    new Popper( engine, table.popper );
+
     flippers = table.flippers.map( flipperOpts => {
         return new Flipper( engine, flipperOpts );
     });
@@ -112,7 +124,7 @@ export const init = async ( canvasRef: zCanvas, tableNum = 0 ): Promise<void> =>
         return new Circle( engine, bumperOpts );
     });
 
-    balls = [ new Ball( engine, { ...ballStartProps, width: BALL_WIDTH, height: BALL_HEIGHT }) ];
+    balls = [ new Ball( engine, { ...table.popper, width: BALL_WIDTH, height: BALL_HEIGHT }) ];
 
     // 5. generate sprites for Actors
 
@@ -161,6 +173,9 @@ export const scaleCanvas = ( clientWidth: number, clientHeight: number ): void =
 
     // the vertical offset at which the viewport should pan to follow the ball
     panOffset = ( viewportHeight / 2 ) - ( BALL_WIDTH / 2 );
+
+    // the vertical offset we lock viewport panning to when ball is above the underworld
+    underworldOffset = table.underworld - viewportHeight;
 };
 
 export const setFlipperState = ( type: FlipperType, up: boolean ): void => {
@@ -208,7 +223,11 @@ export const update = ( timestamp: DOMHighResTimeStamp ): void => {
     // keep main ball within view
     ball = balls[ 0 ];
     if ( ball ) {
-       canvas.panViewport( 0, ball.bounds.top - panOffset );
+        const { top } = ball.bounds;
+        const { underworld } = table;
+        const y = top - panOffset;
+
+        canvas.panViewport( 0, y > underworldOffset && top < underworld ? underworld - viewportHeight : y );
     }
 };
 

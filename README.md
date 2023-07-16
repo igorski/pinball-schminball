@@ -38,7 +38,6 @@ npm run typecheck
 
 * isInsideViewport check should take angle into account for rects and flippers
 * Implement tilt on repeated bumps
-* Implement ball launcher
 * Switches to toggle score multiplier ("x when lit")
 * Score counter
 * Multiball mode
