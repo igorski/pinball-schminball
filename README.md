@@ -1,6 +1,9 @@
 # pinball-schminball
 
+A retro vertically scrolling pinball game that runs right here in your web browser.
+
 ## Project setup
+
 ```
 npm install
 ```
@@ -24,10 +27,18 @@ Running unit tests:
 ```
 npm run test
 ```
+
+Running TypeScript validation:
+
+```
+npm run typecheck
+```
+
 ## TODO
 
-* Launcher
+* isInsideViewport check should take angle into account for rects and flippers
+* Implement tilt on repeated bumps
+* Implement ball launcher
 * Switches to toggle score multiplier ("x when lit")
 * Score counter
 * Multiball mode
-* Extra flippers

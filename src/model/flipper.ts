@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021 - https://www.igorski.nl
+ * Igor Zinken 2021-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,35 +20,31 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import { loader } from "zcanvas";
+import type { IPhysicsEngine } from "@/model/physics/engine";
+import { ActorTypes } from "@/model/actor";
+import type { ActorOpts } from "@/model/actor";
+import Rect from "@/model/rect";
 
-export const createCanvas = ( width, height ) => {
-    const cvs  = document.createElement( "canvas" );
-    cvs.width  = width;
-    cvs.height = height;
+export default class Flipper extends Rect {
+    private isUp: boolean;
 
-    return {
-        cvs, ctx: cvs.getContext( "2d" )
+    constructor( engine: IPhysicsEngine, opts: ActorOpts ) {
+        super( engine, {
+            ...opts,
+            width: 132,
+            height: 41,
+        });
+
+        this.isUp = false;
+
+        this.cacheBounds();
     }
-};
 
-export const getTransparentPixelsForImage = async image => {
-    await loader.onReady( image );
-    const { width, height } = image;
-
-    const { cvs, ctx } = createCanvas( width, height );
-    ctx.drawImage( image, 0, 0 );
-
-    const imageData = ctx.getImageData( 0, 0, width, height ).data;
-    const out = [];
-    // we increment by 4 as each pixel is represented by R, G, B and A values
-    for ( let i = 0, l = imageData.length; i < l; i += 4 ) {
-        const r = imageData[ i ];
-        const g = imageData[ i + 1 ];
-        const b = imageData[ i + 2 ];
-        const a = imageData[ i + 3 ];
-
-        out.push( a === 0 || ( r === 0 && g === 0 && b === 0 ));
+    trigger( up: boolean ): void {
+        if ( up === this.isUp ) {
+            return;
+        }
+        this.isUp = up;
+        this.engine.triggerFlipper( this.type, this.isUp );
     }
-    return out;
 };

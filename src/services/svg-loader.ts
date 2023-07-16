@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021 - https://www.igorski.nl
+ * Igor Zinken 2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,30 +20,27 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Actor from "@/model/actor";
+import Matter from "matter-js";
+import type { Vector } from "matter-js";
+// @ts-expect-error no type definitions for poly-decomp
+import PolyDecomp from "poly-decomp";
 
-export default class Ball extends Actor {
-    constructor( opts ) {
-        super({ ...opts, init: false });
+// note pathseg polyfill should also be provided onto window as SVGPathSeg
+Matter.Common.setDecomp( PolyDecomp );
 
-        // instance variables used by getters (prevents garbage collector hit)
-        // invocation of cacheCoordinates() on position update will set the values properly
-        this._center = { x: 0, y: 0 };
+export const loadVertices = async ( filePath: string ): Promise<Vector[][]> => {
+    const svg = await loadSVG( filePath );
+    return selectPaths( svg, "path" ).map( path => Matter.Svg.pathToVertices( path, 30 ));
+};
 
-        this.cacheCoordinates();
-    }
+/* internal methods */
 
-    getCenter() {
-        return this._center;
-    }
+function loadSVG( url: string ): Promise<XMLDocument> {
+    return fetch( url )
+        .then( response => response.text() )
+        .then( raw => (new window.DOMParser()).parseFromString( raw, "image/svg+xml") );
+}
 
-    /**
-     * @override
-     */
-    cacheCoordinates() {
-        super.cacheCoordinates();
-
-        this._center.x = Math.round( this.x + this.width  * 0.5 );
-        this._center.y = Math.round( this.y + this.height * 0.5 );
-    }
+function selectPaths( document: XMLDocument, selector: string ): SVGPathElement[] {
+    return Array.prototype.slice.call( document.querySelectorAll( selector ));
 }

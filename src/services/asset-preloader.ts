@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021 - https://www.igorski.nl
+ * Igor Zinken 2021-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -23,10 +23,15 @@
 import { loader }  from "zcanvas";
 import SpriteCache from "@/utils/sprite-cache";
 
-let _queue = [];
-let _loadContainer;
+const assetRoot = `./assets/sprites/`;
+const queue = [
+    { src: `${assetRoot}ball.png`,          target: SpriteCache.BALL },
+    { src: `${assetRoot}flipper_left.png`,  target: SpriteCache.FLIPPER_LEFT },
+    { src: `${assetRoot}flipper_right.png`, target: SpriteCache.FLIPPER_RIGHT },
+];
+const loadContainer: HTMLElement = document.createElement( "div" );
 
-export const preloadAssets = () =>
+export const preloadAssets = (): Promise<void> =>
 {
     console.log( "PRELOAD ASSETS" );
 
@@ -34,39 +39,29 @@ export const preloadAssets = () =>
     // overcome mobile browsers not actually loading the Images until they are inside the DOM and
     // no, we cannot add it to a display:none; -container !
 
-    _loadContainer = document.createElement( "div" );
-
-    const { style } = _loadContainer;
+    const { style } = loadContainer;
     style.position  = "absolute";
     style.left      = "-9999px";
     style.top       = "0";
 
-    document.body.appendChild( _loadContainer );
+    document.body.appendChild( loadContainer );
 
-    // all editor assets
-
-    const assetRoot = `./assets/sprites/`;
-    _queue = [
-        { src: `${assetRoot}background.png`,    target: SpriteCache.BACKGROUND },
-        { src: `${assetRoot}ball.png`,          target: SpriteCache.BALL },
-        { src: `${assetRoot}flipper_left.png`,  target: SpriteCache.FLIPPER_LEFT },
-        { src: `${assetRoot}flipper_right.png`, target: SpriteCache.FLIPPER_RIGHT },
-    ];
-    return new Promise((resolve, reject) => {
+    return new Promise( resolve => {
         const processQueue = async () => {
-            if ( _queue.length === 0 ) {
+            if ( queue.length === 0 ) {
                 // queue complete, remove temporary container and complete excution
-                document.body.removeChild( _loadContainer );
+                document.body.removeChild( loadContainer );
                 resolve();
             } else {
-                const asset = _queue.shift();
+                const asset = queue.shift();
                 const image = asset.target;
 
                 image.crossOrigin = "anonymous";
-                _loadContainer.appendChild( image );
+                loadContainer.appendChild( image );
 
                 try {
                     await loader.loadImage( asset.src, image );
+                    loadContainer.removeChild( image );
                 } catch( e ) {
                     console.error( e, asset.src );
                 }

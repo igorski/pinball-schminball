@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021 - https://www.igorski.nl
+ * Igor Zinken 2021-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,15 +20,16 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import SpriteCache from "@/utils/sprite-cache";
+import type { ActorOpts } from "@/model/actor";
+import Circle from "@/model/circle";
+import type { IPhysicsEngine } from "@/model/physics/engine";
 
-export default [{
-    background      : SpriteCache.BACKGROUND,
-    width           : 600,
-    height          : 800,
-    ballStartProps  : { x: 560, y: 310, dir: 4, speed: 8 },
-    flippers : {
-        left:  { x: 150, y: 680 },
-        right: { x: 330, y: 680 }
+export default class Ball extends Circle {
+    constructor( engine: IPhysicsEngine, opts: ActorOpts ) {
+        super( engine, { ...opts, fixed: false });
     }
-}];
+
+    protected override getLabel(): string {
+        return "ball";
+    }
+}

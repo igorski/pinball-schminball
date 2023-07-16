@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021 - https://www.igorski.nl
+ * Igor Zinken 2021-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,43 +20,47 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import { sprite } from "zcanvas";
-import { degToRad, rectangleToRotatedVector } from "@/utils/math-util";
+import { sprite, collision } from "zcanvas";
+import type { Viewport } from "zcanvas";
+import { ActorTypes } from "@/model/actor";
+import type Flipper from "@/model/flipper";
 import SpriteCache from "@/utils/sprite-cache";
 
-const DEBUG = process.env.NODE_ENV !== "production";
+// @ts-expect-error Property 'env' does not exist on type 'ImportMeta', Vite takes care of it
+const DEBUG = import.meta.env.MODE !== "production";
 
 export default class FlipperRenderer extends sprite {
-    constructor( flipperActor, direction = "left" ) {
+    constructor( private actor: Flipper ) {
         super({
-            bitmap : direction === "left" ? SpriteCache.FLIPPER_LEFT : SpriteCache.FLIPPER_RIGHT,
-            width  : flipperActor.width,
-            height : flipperActor.height
+            bitmap : actor.type === ActorTypes.LEFT_FLIPPER ? SpriteCache.FLIPPER_LEFT : SpriteCache.FLIPPER_RIGHT,
+            width  : actor.bounds.width,
+            height : actor.bounds.height
         });
-        this.actor = flipperActor;
     }
 
-    update() {
-        this.setX( this.actor.x );
-        this.setY( this.actor.y );
-    }
+    draw( ctx: CanvasRenderingContext2D, viewport: Viewport ): void {
+        this.actor.update();
 
-    draw( ctx, { left, top }) {
-        const { x, y, width, height, angle } = this.actor;
+        if ( !this._bitmapReady || !collision.isInsideViewport( this.actor.bounds, viewport )) {
+            return;
+        }
+
+        const { left, top, width, height } = this.actor.bounds;
+        const angle = this.actor.angle;
         const rotate = angle !== 0;
 
         if ( rotate ) {
             const pivot = this.actor.getPivot();
             ctx.save();
-            const xD = pivot.x - left;
-            const yD = pivot.y - top;
+            const xD = pivot.x - viewport.left;
+            const yD = pivot.y - viewport.top;
             ctx.translate( xD, yD );
-            ctx.rotate( degToRad( angle ));
+            ctx.rotate( angle );
             ctx.translate( -xD, -yD );
         }
 
         ctx.drawImage(
-            this._bitmap, 0, 0, width, height, x - left, y - top, width, height
+            this._bitmap, 0, 0, width, height, left - viewport.left, top - viewport.top, width, height
         );
 
         if ( rotate ) {
@@ -65,9 +69,9 @@ export default class FlipperRenderer extends sprite {
 
         if ( DEBUG ) {
             ctx.save();
-            const vector = this.actor.getVector();
+            const vector = this.actor.getOutline();
             ctx.strokeStyle = "red";
-            ctx.translate( -left, -top );
+            ctx.translate( -viewport.left, -viewport.top );
             ctx.beginPath();
             ctx.moveTo( vector[ 0 ], vector[ 1 ]);
             for ( let i = 2; i < vector.length; i += 2 ) {
