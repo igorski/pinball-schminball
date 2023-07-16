@@ -31,8 +31,8 @@ import { loadVertices } from "@/services/svg-loader";
 
 Matter.use( MatterAttractors );
 
-const GRAVITY     = 0.75;
-const PADDLE_PULL = 0.002;
+const GRAVITY       = 0.75;
+const FLIPPER_FORCE = 0.002;
 
 enum FlipperPositions {
     UP,
@@ -68,8 +68,8 @@ export const createEngine = async ( table: TableDef, collisionHandler: ( event: 
     };
     Matter.Events.on( engine, "collisionStart", collisionHandler );
 
-    let isLeftPaddleUp  = false;
-    let isRightPaddleUp = false;
+    let isLeftFlipperUp  = false;
+    let isRightFlipperUp = false;
 
     // collision group to be ignored by all circular Actors
     const ignoreGroup = Matter.Body.nextGroup( true );
@@ -153,13 +153,13 @@ export const createEngine = async ( table: TableDef, collisionHandler: ( event: 
                                 if ( b.label !== actor.id ) {
                                     return;
                                 }
-                                const isPaddleUp = isLeftFlipper ? isLeftPaddleUp : isRightPaddleUp;
-                                if ( position === FlipperPositions.UP && isPaddleUp ||
-                                     position === FlipperPositions.DOWN && !isPaddleUp )
+                                const isFlipperUp = isLeftFlipper ? isLeftFlipperUp : isRightFlipperUp;
+                                if ( position === FlipperPositions.UP && isFlipperUp ||
+                                     position === FlipperPositions.DOWN && !isFlipperUp )
                                  {
                                     return {
-                                        x: ( a.position.x - b.position.x ) * PADDLE_PULL,
-                                        y: ( a.position.y - b.position.y ) * PADDLE_PULL,
+                                        x: ( a.position.x - b.position.x ) * FLIPPER_FORCE,
+                                        y: ( a.position.y - b.position.y ) * FLIPPER_FORCE,
                                     };
                                 }
                             }
@@ -182,9 +182,9 @@ export const createEngine = async ( table: TableDef, collisionHandler: ( event: 
         },
         triggerFlipper( type: ActorTypes, isUp: boolean ): void {
             if ( type === ActorTypes.LEFT_FLIPPER ) {
-                isLeftPaddleUp = isUp;
+                isLeftFlipperUp = isUp;
             } else {
-                isRightPaddleUp = isUp;
+                isRightFlipperUp = isUp;
             }
         },
     };
