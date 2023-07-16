@@ -24,7 +24,7 @@ import Matter from "matter-js";
 // @ts-expect-error no type definitions for matter-attractors
 import MatterAttractors from "matter-attractors";
 import type { Point } from "zcanvas";
-import type { LevelDef } from "@/definitions/levels";
+import type { TableDef } from "@/definitions/tables";
 import type Actor from "@/model/actor";
 import { ActorTypes } from "@/model/actor";
 import { loadVertices } from "@/services/svg-loader";
@@ -43,26 +43,31 @@ export interface IPhysicsEngine {
     engine: Matter.Engine;
     update: ( ticks: number ) => void;
     applyForce: ( body: Matter.Body, xImpulse: number, yImpulse: number ) => void;
-    addBody: ( actor: Actor ) => Matter.Body;
+    addBody: ( actor: Actor, label: string ) => Matter.Body;
     removeBody: ( body: Matter.Body ) => void;
     triggerFlipper: ( type: ActorTypes, upwards: boolean ) => void;
 };
 
-export const createEngine = async ( level: LevelDef ): Promise<IPhysicsEngine> => {
+export interface CollisionEvent {
+    pairs: { bodyA: Matter.Body, bodyB: Matter.Body }[]
+};
+
+export const createEngine = async ( table: TableDef, collisionHandler: ( event: CollisionEvent ) => void ): Promise<IPhysicsEngine> => {
     const engine = Matter.Engine.create();
 
-    const { width, height } = level;
+    const { width, height } = table;
 
     // @ts-expect-error Property 'env' does not exist on type 'ImportMeta', Vite takes care of it
     if ( import.meta.env.MODE !== "production" ) {
-        renderBodies( engine );
+        //renderBodies( engine, width, height );
     }
     engine.world.gravity.y = GRAVITY;
     engine.world.bounds = {
         min: { x: 0, y: 0 },
         max: { x: width, y: height }
     };
-
+    Matter.Events.on( engine, "collisionStart", collisionHandler );
+    ;
     let isLeftPaddleUp = false;
     let isRightPaddleUp = false;
 
@@ -72,9 +77,6 @@ export const createEngine = async ( level: LevelDef ): Promise<IPhysicsEngine> =
     const createIgnorable = ( x: number, y: number, radius: number, optPlugin?: any ): Matter.Body => {
         return Matter.Bodies.circle( x, y, radius, {
             isStatic: true,
-            render: {
-                visible: true,//false,
-            },
             collisionFilter: {
                 group: ignoreGroup
             },
@@ -82,13 +84,10 @@ export const createEngine = async ( level: LevelDef ): Promise<IPhysicsEngine> =
         });
     };
 
-    const bodyVertices = await loadVertices( level.body );
-    Matter.Composite.add( engine.world, Matter.Bodies.fromVertices( 400, 80, bodyVertices, {
-        render: {
-            fillStyle: "#FF0000",
-            strokeStyle: "#00FF00",
-            lineWidth: 1
-        }
+    const bodyVertices = await loadVertices( table.body.source );
+    Matter.Composite.add( engine.world, Matter.Bodies.fromVertices( table.body.left, table.body.top, bodyVertices, {
+        isStatic: true,
+        friction: 0,
     }, true ));
 
     return {
@@ -99,25 +98,34 @@ export const createEngine = async ( level: LevelDef ): Promise<IPhysicsEngine> =
         applyForce( body: Matter.Body, xImpulse: number, yImpulse: number ): void {
             Matter.Body.setVelocity( body, { x: xImpulse, y: yImpulse });
         },
-        addBody( actor: Actor ): Matter.Body {
+        addBody( actor: Actor, label: string ): Matter.Body {
             const { left, top, width, height } = actor.bounds;
             let body: Matter.Body;
             switch ( actor.type ) {
                 default:
                 case ActorTypes.RECTANGULAR:
                     body = Matter.Bodies.rectangle( left, top, width, height, {
+                        label,
                         angle: actor.angle,
                         isStatic: actor.fixed,
                         chamfer: { radius: 10 }
                     })
                     break;
+
                 case ActorTypes.CIRCULAR:
+                    const isBumper = label !== "ball";
                     body = Matter.Bodies.circle( left, top, width / 2, {
+                        label,
+                        isStatic: actor.fixed,
                         collisionFilter: {
-                            group: ignoreGroup
+                            group: !isBumper ? ignoreGroup : undefined
                         },
                     });
+                    if ( isBumper ) {
+                        body.restitution = 1.5;
+                    }
                     break;
+
                 case ActorTypes.LEFT_FLIPPER:
                 case ActorTypes.RIGHT_FLIPPER:
                     const isLeftFlipper = actor.type === ActorTypes.LEFT_FLIPPER;
@@ -167,7 +175,6 @@ export const createEngine = async ( level: LevelDef ): Promise<IPhysicsEngine> =
                     return body;
             }
             Matter.World.add( engine.world, body );
-
             return body;
         },
         removeBody( body: Matter.Body ): void {
@@ -188,7 +195,7 @@ export const createEngine = async ( level: LevelDef ): Promise<IPhysicsEngine> =
 /**
  * Debug method to view the bodies as visualised by the Matter JS renderer
  */
-function renderBodies( engine: Matter.Engine, width = 800, height = 1900 ): void {
+function renderBodies( engine: Matter.Engine, width = 800, height = 600 ): void {
     const render = Matter.Render.create({
         element: document.body,
         engine,

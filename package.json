@@ -27,6 +27,6 @@
     "vite": "^4.1.4",
     "vite-plugin-static-copy": "^0.13.1",
     "vitest": "^0.29.3",
-    "zcanvas": "^5.1.8"
+    "zcanvas": "^5.1.10"
   }
 }

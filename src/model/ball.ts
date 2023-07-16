@@ -26,6 +26,10 @@ import type { IPhysicsEngine } from "@/model/physics/engine";
 
 export default class Ball extends Circle {
     constructor( engine: IPhysicsEngine, opts: ActorOpts ) {
-        super( engine, opts );
+        super( engine, { ...opts, fixed: false });
+    }
+
+    protected override getLabel(): string {
+        return "ball";
     }
 }

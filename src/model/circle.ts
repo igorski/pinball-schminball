@@ -30,5 +30,11 @@ export default class Circle extends Actor {
 
     constructor( engine: IPhysicsEngine, opts: ActorOpts ) {
         super( engine, { ...opts, type: ActorTypes.CIRCULAR });
+
+        this.radius = opts.width / 2;
+    }
+
+    protected override getLabel(): string {
+        return "circle";
     }
 }

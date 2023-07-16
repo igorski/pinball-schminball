@@ -20,7 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import { sprite } from "zcanvas";
+import { sprite, collision } from "zcanvas";
 import type { Viewport } from "zcanvas";
 import type Actor from "@/model/actor";
 import { BALL_WIDTH, BALL_HEIGHT } from "@/model/game";
@@ -53,7 +53,7 @@ export default class BallRenderer extends sprite {
     draw( ctx: CanvasRenderingContext2D, viewport: Viewport ): void {
         this.actor.update();
 
-        if ( !this._bitmapReady ) {
+        if ( !this._bitmapReady || !collision.isInsideViewport( this.actor.bounds, viewport )) {
             return;
         }
 

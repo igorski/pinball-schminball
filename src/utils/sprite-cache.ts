@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021 - https://www.igorski.nl
+ * Igor Zinken 2021-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -27,7 +27,7 @@ export default {
     FLIPPER_RIGHT : createImagePlaceholder(),
 };
 
-function createImagePlaceholder(): typeof Image {
-    const img = new Image();
-    return img as unknown as typeof Image;
+// @ts-expect-error typeof Image suggested instead of instance...
+function createImagePlaceholder(): Image {
+    return new Image();
 }

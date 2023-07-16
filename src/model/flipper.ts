@@ -37,7 +37,7 @@ export default class Flipper extends Rect {
 
         this.isUp = false;
 
-        this.cacheCoordinates();
+        this.cacheBounds();
     }
 
     trigger( up: boolean ): void {

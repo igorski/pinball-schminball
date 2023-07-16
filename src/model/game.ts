@@ -22,18 +22,21 @@
  */
 import { sprite } from "zcanvas";
 import type { canvas as zCanvas } from "zcanvas";
-import Levels from "@/definitions/levels";
-import type { LevelDef, FlipperType } from "@/definitions/levels";
+import Tables from "@/definitions/tables";
+import type { TableDef, FlipperType } from "@/definitions/tables";
 import Actor from "@/model/actor";
 import Ball from "@/model/ball";
+import Circle from "@/model/circle";
 import Flipper from "@/model/flipper";
 import Rect from "@/model/rect";
 import { createEngine } from "@/model/physics/engine";
-import type { IPhysicsEngine } from "@/model/physics/engine";
+import type { IPhysicsEngine, CollisionEvent } from "@/model/physics/engine";
 import BallRenderer from "@/renderers/ball-renderer";
+import BumperRenderer from "@/renderers/bumper-renderer";
 import FlipperRenderer from "@/renderers/flipper-renderer";
 import RectRenderer from "@/renderers/rect-renderer";
-import { radToDeg, degToRad } from "@/utils/math-util";
+import SpriteCache from "@/utils/sprite-cache";
+
 const { cos, sin, min, round } = Math;
 
 export const BALL_WIDTH  = 40;
@@ -45,12 +48,14 @@ let engine: IPhysicsEngine;
 let engineStep: number = 1000 / 60;
 let flippers: Flipper[];
 let flipper: Flipper;
+let bumpers: Circle[];
+let bumper: Circle;
 let balls: Ball[];
 let ball: Ball;
 let otherBall: Ball;
 let rects: Rect[];
 let rect: Rect;
-let level: LevelDef;
+let table: TableDef;
 let score = 0;
 let gameActive = false;
 
@@ -65,31 +70,51 @@ let panOffset = 0;
 let viewportWidth = 0;
 let viewportHeight = 0; // cached in scaleCanvas()
 
-export const init = async ( canvasRef: zCanvas, levelNum = 0 ): Promise<void> => {
+export const init = async ( canvasRef: zCanvas, tableNum = 0 ): Promise<void> => {
     canvas = canvasRef;
     engineStep = 1000 / canvas.getFrameRate();
 
-    level = Levels[ levelNum ];
-    const { background, width, height, ballStartProps } = level;
+    table = Tables[ tableNum ];
+    const { width, height, ballStartProps } = table;
 
-    engine = await createEngine( level );
-
-    // generate Actors
-    flippers = level.flippers.reduce(( acc, flipperOpts ) => {
-        acc.push( new Flipper( engine, flipperOpts ) );
-        return acc;
-    }, [] );
-    balls = [ new Ball( engine, { ...ballStartProps, width: BALL_WIDTH, height: BALL_HEIGHT }) ];
-
-    // clear previous canvas contents
+    // 1. clear previous canvas contents
     while ( canvas.numChildren() > 0 ) {
         canvas.removeChildAt( 0 );
     }
     renderers.length = 0;
 
-    // generate sprites
-    backgroundRenderer = new sprite({ width, height, bitmap: background });
-    //renderers.push( backgroundRenderer ); // QQQ
+    // 2. generate physics world
+    engine = await createEngine( table, ( event: CollisionEvent ) => {
+	    event.pairs.forEach( pair => {
+    		if ( pair.bodyB.label !== "ball" ) {
+                return;
+            }
+			switch ( pair.bodyA.label ) {
+				case "circle":
+                console.warn("BUMP!");
+					//pingBumper( pair.bodyA );
+					break;
+			}
+		})
+    });
+
+    // 3. generate background assets
+    SpriteCache.BACKGROUND.src = table.background;
+    backgroundRenderer = new sprite({ width, height, bitmap: SpriteCache.BACKGROUND });
+    renderers.push( backgroundRenderer );
+
+    // 4. generate Actors
+    flippers = table.flippers.map( flipperOpts => {
+        return new Flipper( engine, flipperOpts );
+    });
+
+    bumpers = table.bumpers.map( bumperOpts => {
+        return new Circle( engine, bumperOpts );
+    });
+
+    balls = [ new Ball( engine, { ...ballStartProps, width: BALL_WIDTH, height: BALL_HEIGHT }) ];
+
+    // 5. generate sprites for Actors
 
     flippers.forEach( flipper => renderers.push( new FlipperRenderer( flipper )));
 
@@ -98,17 +123,13 @@ export const init = async ( canvasRef: zCanvas, levelNum = 0 ): Promise<void> =>
         renderers.push( ball.renderer );
     }
 
-    // QQQ
-    rects = [ new Rect( engine, { left: 475, top: ballStartProps.top + 200, width: 300, height: 20, angle: degToRad( 40 ) }) ];
-    rects.push( new Rect( engine, { left: 770, top: 350, width: 100, height: 20, angle: degToRad( 45 ) }));
-    rects.push( new Rect( engine, { left: 20, top: 350, width: 20, height: 1916 })); // left wall
-    rects.push( new Rect( engine, { left: 780, top: 350, width: 20, height: 1916 })); // right wall
-    rects.push( new Rect( engine, { left: 700, top: 900, width: 200, height: 20, angle: degToRad( -45 ) })); // by right flipper
+    for ( bumper of bumpers ) {
+        bumper.renderer = new BumperRenderer( bumper );
+        renderers.push( bumper.renderer );
+    }
 
-    rects.push( new Rect( engine, { left: 0, top: 1500, width: 450, height: 20, angle: degToRad( 45 ) }));
-    rects.push( new Rect( engine, { left: 800, top: 150, width: 400, height: 20, angle: degToRad( -45 ) }));
-
-    for ( rect of rects ) {
+    for ( const rectDef of table.rects ) {
+        rect = new Rect( engine, rectDef );
         rect.renderer = new RectRenderer( rect );
         renderers.push( rect.renderer );
     }
@@ -120,16 +141,16 @@ export const init = async ( canvasRef: zCanvas, levelNum = 0 ): Promise<void> =>
 };
 
 export const scaleCanvas = ( clientWidth: number, clientHeight: number ): void => {
-    // TODO here we assume all levels are taller than wide
-    const ratio  = level.height / level.width;
-    const width  = min( level.width, clientWidth );
+    // TODO here we assume all tables are taller than wide
+    const ratio  = table.height / table.width;
+    const width  = min( table.width, clientWidth );
     const height = min( clientHeight, round( width * ratio ));
 
     // by setting the dimensions we have set the "world size"
-    canvas.setDimensions( level.width, level.height );
+    canvas.setDimensions( table.width, table.height );
 
-    // take into account that certain resolutions are lower than the level width
-    const zoom = clientWidth < level.width ? clientWidth / level.width : 1;
+    // take into account that certain resolutions are lower than the table width
+    const zoom = clientWidth < table.width ? clientWidth / table.width : 1;
 
     // the viewport however is local to the client window size
     viewportWidth  = width / zoom;
@@ -152,7 +173,9 @@ export const setFlipperState = ( type: FlipperType, up: boolean ): void => {
 
 export const bumpTable = (): void => {
     for ( ball of balls ) {
-        engine.applyForce( ball.body, Math.random() * 0.5, 10 );
+        const dir = Math.random() > .5;
+        const force = dir ? 4 : -4;
+        engine.applyForce( ball.body, Math.random() * force, Math.random() * 4 );
     }
     console.warn( "TODO: not too much bumpin'!" );
 };
@@ -176,8 +199,8 @@ export const update = ( timestamp: DOMHighResTimeStamp ): void => {
     // update ball actors
 
     for ( const ball of balls ) {
-        if ( ball.bounds.top > level.height ) {
-            console.warn( `BYE BYE BALL ! ( ${ball.bounds.top} vs ${level.height} )` );
+        if ( ball.bounds.top > table.height ) {
+            console.warn( `BYE BYE BALL ! ( ${ball.bounds.top} vs ${table.height} )` );
             disposeActor( ball, balls );
         }
     }

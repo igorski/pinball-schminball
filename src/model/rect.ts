@@ -20,7 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import type { Point } from "zcanvas";
+import type { Point, Rectangle } from "zcanvas";
 import type { IPhysicsEngine } from "@/model/physics/engine";
 import Actor, { ActorTypes } from "@/model/actor";
 import type { ActorOpts } from "@/model/actor";
@@ -47,18 +47,18 @@ export default class Rect extends Actor {
         this.pivotY = opts.height / 2;
 
         // instance variables used by getters (prevents garbage collector hit)
-        // invocation of cacheCoordinates() on position update will set the values properly
+        // invocation of cacheBounds() on position update will set the values properly
         this._pivot = { x: 0, y: 0 };
 
-        this.cacheCoordinates();
+        this.cacheBounds();
     }
 
     getPivot(): Point {
         return this._pivot;
     }
 
-    cacheCoordinates(): void {
-        const { left, top } = this.cacheBounds();
+    cacheBounds(): Rectangle {
+        const { left, top } = super.cacheBounds();
 
         this._pivot.x = left + this.pivotX;
         this._pivot.y = top  + this.pivotY;
@@ -71,5 +71,6 @@ export default class Rect extends Actor {
                 this._outline = rectangleToRotatedPolygon( this.bounds, this.angle, this._pivot.x, this._pivot.y );
             }
         }
+        return this.bounds;
     }
 }

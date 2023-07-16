@@ -22,7 +22,7 @@
  */
 import type { Point, Rectangle, sprite } from "zcanvas";
 import type { IPhysicsEngine } from "@/model/physics/engine";
-import { rectangleToPolygon } from "@/utils/math-util";
+import { degToRad, rectangleToPolygon } from "@/utils/math-util";
 
 export enum ActorTypes {
     CIRCULAR,
@@ -39,7 +39,7 @@ export type ActorOpts = {
     top?: number;
     width?: number;
     height?: number;
-    angle?: number; // in radians
+    angle?: number; // in degrees
     type?: ActorTypes;
     fixed?: boolean;
 };
@@ -64,10 +64,10 @@ export default class Actor {
         left = 0, top = 0, width = 1, height = 1,
         angle = 0, fixed = true, type = ActorTypes.RECTANGULAR
     }: ActorOpts = {} ) {
-        this.id = `actor_${++INSTANCE_NUM}`;
+        this.id = `${++INSTANCE_NUM}`;
 
         this.fixed = fixed;
-        this.angle = angle;
+        this.angle = degToRad( angle );
         this.type  = type;
 
         this.bounds = { left, top, width, height };
@@ -76,7 +76,7 @@ export default class Actor {
         this.halfHeight = height / 2;
 
         // instance variables used by getters (prevents garbage collector hit)
-        // invocation of cacheCoordinates() on position update will set the values properly
+        // invocation of cacheBounds() on position update will set the values properly
         this._outline = [];
 
         this.register( engine );
@@ -86,15 +86,10 @@ export default class Actor {
         this.bounds.left = this.body.position.x - this.halfWidth;
         this.bounds.top  = this.body.position.y - this.halfHeight;
 
-        return this.bounds;
-    }
-
-    cacheCoordinates(): void {
-        this.cacheBounds();
-
         if ( DEBUG ) {
-            this._outline = rectangleToPolygon( this.cacheBounds() );
+            this._outline = rectangleToPolygon( this.bounds );
         }
+        return this.bounds;
     }
 
     getOutline(): number[] {
@@ -102,7 +97,7 @@ export default class Actor {
     }
 
     register( engine: IPhysicsEngine ): void {
-        this.body = engine.addBody( this );
+        this.body = engine.addBody( this, this.getLabel() );
     }
 
     unregister( engine: IPhysicsEngine ): void {
@@ -111,6 +106,10 @@ export default class Actor {
 
     update(): void {
         this.angle = this.body.angle;
-        this.cacheCoordinates(); // TODO: how expensive is this
+        this.cacheBounds();
+    }
+
+    protected getLabel(): string {
+        return `actor_${this.id}`;
     }
 }
