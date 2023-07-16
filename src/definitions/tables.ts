@@ -36,15 +36,16 @@ export type ObjectDef = Rectangle & {
 };
 
 export type TableDef = {
+    soundtrackId: string;
+    width: number;
+    height: number;
+    underworld: number; // at which y coordinate the "underworld"-section starts
     background: string,
     body: {
         source: string;
         left: number;
         top: number;
     },
-    width: number;
-    height: number;
-    underworld: number; // at which y coordinate the "underworld"-section starts
     popper: { left: number, top: number, width: number };
     flippers: FlipperDef[];
     rects: ObjectDef[];
@@ -54,15 +55,16 @@ export type TableDef = {
 const SPRITE_PATH = "./assets/sprites/";
 
 export default [{
+    soundtrackId: "1566338341",
+    width      : 800,
+    height     : 2441,
+    underworld : 1441,
     background : `${SPRITE_PATH}/table1_background.png`,
     body : {
         source : `${SPRITE_PATH}/table1_shape.svg`,
         left   : 320,
         top    : 345
     },
-    width      : 800,
-    height     : 2441,
-    underworld : 1441,
     popper     : { left: 795, top: 1360, width: 40 },
     flippers : [
         { type: ActorTypes.LEFT_FLIPPER,  left: 115, top: 580 },
@@ -98,7 +100,7 @@ export default [{
         { left: 380, top: 800, width: 100, height: 100 },
 
         // underworld
-
+        
         { left: 340, top: 1800, width: 100, height: 100 },
         { left: 460, top: 1800, width: 100, height: 100 },
         { left: 400, top: 1900, width: 90, height: 90 },

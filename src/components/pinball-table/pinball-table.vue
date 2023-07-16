@@ -56,10 +56,10 @@ interface ComponentData {
 export default {
     data: (): ComponentData => ({
         game: {
+            active: false,
             table: 0,
             score: 0,
             balls: 3,
-            active: true,
         },
     }),
     mounted(): void {
@@ -92,7 +92,7 @@ export default {
                 active: true,
                 table: 0,
                 score: 0,
-                balls: 3
+                balls: 3,
             };
             init( this.canvas, this.game );
         },

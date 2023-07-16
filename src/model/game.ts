@@ -37,6 +37,7 @@ import BallRenderer from "@/renderers/ball-renderer";
 import BumperRenderer from "@/renderers/bumper-renderer";
 import FlipperRenderer from "@/renderers/flipper-renderer";
 import RectRenderer from "@/renderers/rect-renderer";
+import { enqueueTrack, setFrequency } from "@/services/audio-service";
 import SpriteCache from "@/utils/sprite-cache";
 
 const { cos, sin, min, round } = Math;
@@ -58,10 +59,7 @@ let otherBall: Ball;
 let rects: Rect[];
 let rect: Rect;
 let table: TableDef;
-let score = 0;
-
-let leftFlipperUp = false;
-let rightFlipperUp = false;
+let inUnderworld = false;
 
 let canvas: zCanvas;
 let backgroundRenderer: sprite;
@@ -81,20 +79,9 @@ export const init = async ( canvasRef: zCanvas, game: GameDef ): Promise<void> =
 
     // 1. generate physics world and hook events into game logic
 
+    inUnderworld = false;
     engine = await createEngine( table, () => {
-        for ( const ball of balls ) {
-            engine.capSpeed( ball.body );
-            if ( ball.bounds.top > table.height ) {
-                disposeActor( ball, balls );
-                if ( balls.length === 0 ) {
-                    if ( --game.balls === 0 ) {
-                        game.active = false;
-                    } else {
-                        setTimeout(() => createBall( engine, table.popper.left, table.popper.top ), 2500 );
-                    }
-                }
-            }
-        }
+        handleEngineUpdate( engine, game );
     }, ( event: CollisionEvent ) => {
 	    event.pairs.forEach( pair => {
     		if ( pair.bodyB.label !== "ball" ) {
@@ -153,6 +140,9 @@ export const init = async ( canvasRef: zCanvas, game: GameDef ): Promise<void> =
     for ( const renderer of renderers ) {
         canvas.addChild( renderer );
     }
+
+    // 6. and get the music goin'
+    enqueueTrack( table.soundtrackId );
 };
 
 export const scaleCanvas = ( clientWidth: number, clientHeight: number ): void => {
@@ -225,6 +215,40 @@ export const update = ( timestamp: DOMHighResTimeStamp ): void => {
 };
 
 /* internal methods */
+
+function handleEngineUpdate( engine: IPhysicsEngine, game: GameDef ): void {
+    const singleBall = balls.length === 1;
+
+    for ( const ball of balls ) {
+        engine.capSpeed( ball.body );
+        const { top } = ball.bounds;
+
+        if ( singleBall ) {
+            if ( !inUnderworld && top >= table.underworld ) {
+                inUnderworld = true;
+                setFrequency( 2000 );
+            } else if ( inUnderworld && top < table.underworld ) {
+                inUnderworld = false;
+                setFrequency();
+            }
+        }
+
+        if ( top > table.height ) {
+            disposeActor( ball, balls );
+            if ( singleBall ) {
+                if ( --game.balls === 0 ) {
+                    game.active = false;
+                } else {
+                    setTimeout(() => {
+                        createBall( engine, table.popper.left, table.popper.top );
+                        setFrequency();
+                        inUnderworld = false;
+                    }, 2500 );
+                }
+            }
+        }
+    }
+}
 
 function disposeActor( actor: Actor, actorList: Actor[] ): void {
     // TODO: maintain linked lists instead for higher performance

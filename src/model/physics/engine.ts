@@ -33,7 +33,7 @@ Matter.use( MatterAttractors );
 
 const GRAVITY       = 0.75;
 const FLIPPER_FORCE = 0.002;
-const LAUNCH_SPEED  = 25;
+const LAUNCH_SPEED  = 28;
 const MAX_SPEED     = 35;
 
 enum FlipperPositions {

@@ -5,6 +5,7 @@
 
 <script lang="ts">
 import { preloadAssets } from "@/services/asset-preloader";
+import { init } from "@/services/audio-service";
 import PinballTable from "./components/pinball-table/pinball-table.vue";
 
 export default {
@@ -14,10 +15,23 @@ export default {
     data: () => ({
         loading: true,
     }),
-    async mounted(): void {
+    async mounted(): Promise<void> {
         await preloadAssets();
         this.loading = false;
-    }
+
+        // unlock the AudioContext as soon as we receive a user interaction event
+        const handler = ( e: Event ): void => {
+            if ( e.type === "keydown" && ( e as KeyboardEvent ).keyCode === 27 ) {
+                return; // hitting escape will not actually unlock the AudioContext
+            }
+            document.removeEventListener( "click",   handler, false );
+            document.removeEventListener( "keydown", handler, false );
+
+            init();
+        };
+        document.addEventListener( "click", handler );
+        document.addEventListener( "keydown", handler );
+    },
 };
 </script>
 
