@@ -104,6 +104,10 @@ export default class Actor {
         engine.removeBody( this.body );
     }
 
+    /**
+     * Invoke on each step of the simulation to synchronise
+     * the Actors properties with the altered body properties
+     */
     update(): void {
         this.angle = this.body.angle;
         this.cacheBounds();
