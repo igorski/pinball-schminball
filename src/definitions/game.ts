@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2022-2023 - https://www.igorski.nl
+ * Igor Zinken 2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,20 +20,9 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Actor, { ActorTypes } from "@/model/actor";
-import type { ActorOpts } from "@/model/actor";
-import type { IPhysicsEngine } from "@/model/physics/engine";
-
-export default class Circle extends Actor {
-    public radius: number;
-
-    constructor( engine: IPhysicsEngine, opts: ActorOpts ) {
-        super( engine, { ...opts, type: ActorTypes.CIRCULAR });
-
-        this.radius = opts.width / 2;
-    }
-
-    protected override getLabel(): string {
-        return "circle";
-    }
-}
+export type GameDef = {
+    active: boolean;
+    table: number;
+    score: number;
+    balls: number;
+};

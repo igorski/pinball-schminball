@@ -3,7 +3,7 @@
     <PinballTable v-else />
 </template>
 
-<script>
+<script lang="ts">
 import { preloadAssets } from "@/services/asset-preloader";
 import PinballTable from "./components/pinball-table/pinball-table.vue";
 
@@ -14,7 +14,7 @@ export default {
     data: () => ({
         loading: true,
     }),
-    async mounted() {
+    async mounted(): void {
         await preloadAssets();
         this.loading = false;
     }

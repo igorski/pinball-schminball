@@ -24,26 +24,49 @@
     <div
         ref="canvasContainer"
         class="canvas-container"
+        :class="{'canvas-container--active': game.active}"
         @touchstart="handleTouch"
         @touchend="handleTouch"
         @touchcancel="handleTouch"
     ></div>
+    <div v-if="!game.active" class="overlay">
+        GAME OVER
+        <button @click="initGame()">New game</button>
+    </div>
+    <div class="status-display">
+        <div class="score-display__score">{{ game.score }} pts.</div>
+        <div class="score-display__balls">{{ game.balls }} balls</div>
+    </div>
 </template>
 
 <script lang="ts">
 import { canvas } from "zcanvas";
+import type { GameDef } from "@/definitions/game";
 import { ActorTypes } from "@/model/actor";
 import { init, scaleCanvas, setFlipperState, bumpTable, update } from "@/model/game";
 
-let leftTouchId = -1, rightTouchId = -1, touch;
+let leftTouchId = -1;
+let rightTouchId = -1;
+let touch;
+
+interface ComponentData {
+    game: GameDef;
+};
 
 export default {
+    data: (): ComponentData => ({
+        game: {
+            table: 0,
+            score: 0,
+            balls: 3,
+            active: true,
+        },
+    }),
     mounted(): void {
         this.canvas = new canvas({
             width       : 600,
             height      : 800,
             animate     : true,
-            interactive : false,
             onUpdate    : update,
             backgroundColor: "#000" // TODO can be removed when sprite is used for bg
         });
@@ -65,7 +88,13 @@ export default {
     },
     methods: {
         initGame(): void {
-            init( this.canvas );
+            this.game = {
+                active: true,
+                table: 0,
+                score: 0,
+                balls: 3
+            };
+            init( this.canvas, this.game );
         },
         handleResize(): void {
             const { clientWidth, clientHeight } = document.documentElement;
@@ -123,9 +152,35 @@ export default {
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .canvas-container {
     overflow: hidden;
     text-align: center;
+
+    &--active {
+        cursor: none;
+    }
+}
+
+.overlay {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 7px;
+    border: 3px solid #000;
+    background-color: #FFF;
+    padding: 16px;
+}
+
+.status-display {
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    border-radius: 7px;
+    background-color: #FFF;
+    border: 2px solid #000;
+    width: 200px;
+    padding: 7px;
 }
 </style>

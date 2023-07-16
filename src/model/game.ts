@@ -22,6 +22,7 @@
  */
 import { sprite } from "zcanvas";
 import type { canvas as zCanvas } from "zcanvas";
+import type { GameDef } from "@/definitions/game";
 import Tables from "@/definitions/tables";
 import type { TableDef, FlipperType } from "@/definitions/tables";
 import Actor from "@/model/actor";
@@ -47,18 +48,17 @@ const MAX_BALL_SPEED     = 10;   // maximum ball speed
 
 let engine: IPhysicsEngine;
 let engineStep: number = 1000 / 60;
-let flippers: Flipper[];
-let flipper: Flipper;
-let bumpers: Circle[];
-let bumper: Circle;
-let balls: Ball[];
+const balls: Ball[] = [];
+let bumpers: Circle[] = [];
+let flippers: Flipper[] = [];
 let ball: Ball;
+let bumper: Circle;
+let flipper: Flipper;
 let otherBall: Ball;
 let rects: Rect[];
 let rect: Rect;
 let table: TableDef;
 let score = 0;
-let gameActive = false;
 
 let leftFlipperUp = false;
 let rightFlipperUp = false;
@@ -72,23 +72,28 @@ let viewportWidth = 0;
 let viewportHeight = 0; // cached in scaleCanvas()
 let underworldOffset = 0;
 
-export const init = async ( canvasRef: zCanvas, tableNum = 0 ): Promise<void> => {
+export const init = async ( canvasRef: zCanvas, game: GameDef ): Promise<void> => {
     canvas = canvasRef;
     engineStep = 1000 / canvas.getFrameRate();
 
-    table = Tables[ tableNum ];
+    table = Tables[ game.table ];
     const { width, height } = table;
 
-    // 1. clear previous canvas contents
-    while ( canvas.numChildren() > 0 ) {
-        canvas.removeChildAt( 0 );
-    }
-    renderers.length = 0;
+    // 1. generate physics world and hook events into game logic
 
-    // 2. generate physics world
     engine = await createEngine( table, () => {
-        if ( balls.length ) {
-            engine.capSpeed( balls[ 0 ].body );
+        for ( const ball of balls ) {
+            engine.capSpeed( ball.body );
+            if ( ball.bounds.top > table.height ) {
+                disposeActor( ball, balls );
+                if ( balls.length === 0 ) {
+                    if ( --game.balls === 0 ) {
+                        game.active = false;
+                    } else {
+                        setTimeout(() => createBall( engine, table.popper.left, table.popper.top ), 2500 );
+                    }
+                }
+            }
         }
     }, ( event: CollisionEvent ) => {
 	    event.pairs.forEach( pair => {
@@ -97,16 +102,20 @@ export const init = async ( canvasRef: zCanvas, tableNum = 0 ): Promise<void> =>
             }
 			switch ( pair.bodyA.label ) {
 				case "circle":
-                console.warn("BUMP!");
-					//pingBumper( pair.bodyA );
+                    game.score += 100;
 					break;
                 case "popper":
-                console.warn("poppp");
                     engine.launchBall( pair.bodyB );
                     break;
 			}
 		})
     });
+
+    // 2. clear previous canvas contents
+    while ( canvas.numChildren() > 0 ) {
+        canvas.removeChildAt( 0 );
+    }
+    renderers.length = 0;
 
     // 3. generate background assets
     SpriteCache.BACKGROUND.src = table.background;
@@ -124,16 +133,11 @@ export const init = async ( canvasRef: zCanvas, tableNum = 0 ): Promise<void> =>
         return new Circle( engine, bumperOpts );
     });
 
-    balls = [ new Ball( engine, { ...table.popper, width: BALL_WIDTH, height: BALL_HEIGHT }) ];
+    createBall( engine, table.popper.left, table.popper.top );
 
     // 5. generate sprites for Actors
 
     flippers.forEach( flipper => renderers.push( new FlipperRenderer( flipper )));
-
-    for ( ball of balls ) {
-        ball.renderer = new BallRenderer( ball );
-        renderers.push( ball.renderer );
-    }
 
     for ( bumper of bumpers ) {
         bumper.renderer = new BumperRenderer( bumper );
@@ -149,7 +153,6 @@ export const init = async ( canvasRef: zCanvas, tableNum = 0 ): Promise<void> =>
     for ( const renderer of renderers ) {
         canvas.addChild( renderer );
     }
-    gameActive = true;
 };
 
 export const scaleCanvas = ( clientWidth: number, clientHeight: number ): void => {
@@ -199,8 +202,10 @@ export const bumpTable = (): void => {
  * Should be called when zCanvas invokes update() prior to rendering
  */
 export const update = ( timestamp: DOMHighResTimeStamp ): void => {
-    if ( !gameActive ) {
-        return;
+    ball = balls[ 0 ];
+
+    if ( !ball ) {
+        return; // no ball means no game, keep last screen contents indefinitely
     }
 
     // update physics engine
@@ -211,24 +216,12 @@ export const update = ( timestamp: DOMHighResTimeStamp ): void => {
         renderer.update( timestamp, 0 );
     }
 
-    // update ball actors
-
-    for ( const ball of balls ) {
-        if ( ball.bounds.top > table.height ) {
-            console.warn( `BYE BYE BALL ! ( ${ball.bounds.top} vs ${table.height} )` );
-            disposeActor( ball, balls );
-        }
-    }
-
     // keep main ball within view
-    ball = balls[ 0 ];
-    if ( ball ) {
-        const { top } = ball.bounds;
-        const { underworld } = table;
-        const y = top - panOffset;
+    const { top } = ball.bounds;
+    const { underworld } = table;
+    const y = top - panOffset;
 
-        canvas.panViewport( 0, y > underworldOffset && top < underworld ? underworld - viewportHeight : y );
-    }
+    canvas.panViewport( 0, y > underworldOffset && top < underworld ? underworld - viewportHeight : y );
 };
 
 /* internal methods */
@@ -247,17 +240,21 @@ function disposeActor( actor: Actor, actorList: Actor[] ): void {
     actor.unregister( engine );
 }
 
-function multiball( amount = 5, x = 0, y = 0 ): void {
+function createBall( engine: IPhysicsEngine, left: number, top: number ): Ball {
+    const ball = new Ball( engine, { left, top, width: BALL_WIDTH, height: BALL_HEIGHT });
+    ball.renderer = new BallRenderer( ball );
+
+    balls.push( ball );
+    renderers.push( ball.renderer );
+
+    canvas.addChild( ball.renderer );
+
+    return ball;
+}
+
+function createMultiball( engine: IPhysicsEngine, amount = 5, left = 0, top = 0 ): void {
     for ( let i = 0; i < amount; ++i ) {
         const m = ( i + 1 ) * BALL_WIDTH;
-        const ball = new Ball( engine, {
-            left: x - m,
-            top: y - m,
-            width: BALL_WIDTH,
-            height: BALL_HEIGHT
-        });
-        ball.renderer = new BallRenderer( ball );
-        renderers.push( ball.renderer );
-        balls.push( ball );
+        createBall( engine, left - m, top - m );
     }
 }

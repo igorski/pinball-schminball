@@ -42,12 +42,12 @@ export default class BallRenderer extends sprite {
     }
 
     update(): void {
-        let { x } = this.actor.body.velocity;
-        const isMovingLeft = x < 0;
+        let { x, y } = this.actor.body.velocity;
+        const isMoving = x < 0 || y > 0;
         if ( x === 0 ) {
             x = 0.2; // ball should always spin, even when moving solely on vertical axis
         }
-        this.spin = ( isMovingLeft ? this.spin + ( x * SPIN_SPEED ): this.spin - ( x * SPIN_SPEED )) % 360;
+        this.spin = ( isMoving ? this.spin + ( x * SPIN_SPEED ): this.spin - ( x * SPIN_SPEED )) % 360;
     }
 
     draw( ctx: CanvasRenderingContext2D, viewport: Viewport ): void {

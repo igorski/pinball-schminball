@@ -66,8 +66,8 @@ export default [{
     popper     : { left: 795, top: 1360, width: 40 },
     flippers : [
         { type: ActorTypes.LEFT_FLIPPER,  left: 115, top: 580 },
-        { type: ActorTypes.LEFT_FLIPPER,  left: 280, top: 1350 },
-        { type: ActorTypes.RIGHT_FLIPPER, left: 480, top: 1350 },
+        { type: ActorTypes.LEFT_FLIPPER,  left: 270, top: 1335 },
+        { type: ActorTypes.RIGHT_FLIPPER, left: 480, top: 1335 },
 
         // underworld
 
@@ -75,6 +75,11 @@ export default [{
         { type: ActorTypes.LEFT_FLIPPER,  left: 280, top: 2270 },
     ],
     rects: [
+        // outer walls
+        { left: 400, top: 0, width: 800, height: 10 },
+        { left: 0, top: 1220, width: 10, height: 2000 },
+        { left: 805, top: 1220, width: 10, height: 2000 },
+
         // bottom left flipper area
         { left: 58,  top: 1167, width: 10, height: 138 },
         { left: 125, top: 1280, width: 165, height: 10, angle: 34 },

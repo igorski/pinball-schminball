@@ -33,7 +33,8 @@ Matter.use( MatterAttractors );
 
 const GRAVITY       = 0.75;
 const FLIPPER_FORCE = 0.002;
-const MAX_SPEED     = 50;
+const LAUNCH_SPEED  = 25;
+const MAX_SPEED     = 35;
 
 enum FlipperPositions {
     UP,
@@ -175,8 +176,9 @@ export const createEngine = async (
 
                     // we restrict the area of movement by using non-visible circles that cannot collide with the balls
                     const ignorableX = isLeftFlipper ? pivotX + 30 : pivotX - 20;
+                    const lowerMult = isLeftFlipper ? 0.8 : 0.7;
                     Matter.World.add( engine.world, createIgnorable( ignorableX, pivotY - width * 1, height, plugin( FlipperPositions.UP )));
-                    Matter.World.add( engine.world, createIgnorable( ignorableX, pivotY + width * 0.8, height, plugin( FlipperPositions.DOWN )));
+                    Matter.World.add( engine.world, createIgnorable( ignorableX, pivotY + width * lowerMult, height, plugin( FlipperPositions.DOWN )));
 
                     Matter.World.add( engine.world, [ body, pivot, constraint ]);
                     return body;
@@ -188,7 +190,7 @@ export const createEngine = async (
             Matter.World.remove( engine.world, body );
         },
         launchBall( body: Matter.Body ): void {
-            Matter.Body.setVelocity( body, { x: 0, y: -MAX_SPEED / 2 });
+            Matter.Body.setVelocity( body, { x: 0, y: -LAUNCH_SPEED });
         },
         triggerFlipper( type: ActorTypes, isUp: boolean ): void {
             if ( type === ActorTypes.LEFT_FLIPPER ) {
