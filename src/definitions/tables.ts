@@ -62,10 +62,10 @@ export default [{
     background : `${SPRITE_PATH}/table1_background.png`,
     body : {
         source : `${SPRITE_PATH}/table1_shape.svg`,
-        left   : 320,
-        top    : 345
+        left   : 327,
+        top    : 334
     },
-    popper     : { left: 795, top: 1360, width: 40 },
+    popper : { left: 795, top: 1360, width: 40 },
     flippers : [
         { type: ActorTypes.LEFT_FLIPPER,  left: 115, top: 580 },
         { type: ActorTypes.LEFT_FLIPPER,  left: 270, top: 1335 },
@@ -100,7 +100,7 @@ export default [{
         { left: 380, top: 800, width: 100, height: 100 },
 
         // underworld
-        
+
         { left: 340, top: 1800, width: 100, height: 100 },
         { left: 460, top: 1800, width: 100, height: 100 },
         { left: 400, top: 1900, width: 90, height: 90 },

@@ -72,7 +72,7 @@ export default class Actor {
 
         this.bounds = { left, top, width, height };
 
-        this.halfWidth = width / 2;
+        this.halfWidth  = width  / 2;
         this.halfHeight = height / 2;
 
         // instance variables used by getters (prevents garbage collector hit)
@@ -100,8 +100,9 @@ export default class Actor {
         this.body = engine.addBody( this, this.getLabel() );
     }
 
-    unregister( engine: IPhysicsEngine ): void {
+    dispose( engine: IPhysicsEngine ): void {
         engine.removeBody( this.body );
+        this.renderer?.dispose();
     }
 
     /**

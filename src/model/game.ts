@@ -64,7 +64,6 @@ let inUnderworld = false;
 let canvas: zCanvas;
 let backgroundRenderer: sprite;
 let renderer: sprite;
-const renderers: sprite[] = [];
 let panOffset = 0;
 let viewportWidth = 0;
 let viewportHeight = 0; // cached in scaleCanvas()
@@ -102,12 +101,11 @@ export const init = async ( canvasRef: zCanvas, game: GameDef ): Promise<void> =
     while ( canvas.numChildren() > 0 ) {
         canvas.removeChildAt( 0 );
     }
-    renderers.length = 0;
 
     // 3. generate background assets
     SpriteCache.BACKGROUND.src = table.background;
     backgroundRenderer = new sprite({ width, height, bitmap: SpriteCache.BACKGROUND });
-    renderers.push( backgroundRenderer );
+    canvas.addChild( backgroundRenderer );
 
     // 4. generate Actors
     new Popper( engine, table.popper );
@@ -124,21 +122,17 @@ export const init = async ( canvasRef: zCanvas, game: GameDef ): Promise<void> =
 
     // 5. generate sprites for Actors
 
-    flippers.forEach( flipper => renderers.push( new FlipperRenderer( flipper )));
+    flippers.forEach( flipper => canvas.addChild( new FlipperRenderer( flipper )));
 
     for ( bumper of bumpers ) {
         bumper.renderer = new BumperRenderer( bumper );
-        renderers.push( bumper.renderer );
+        canvas.addChild( bumper.renderer );
     }
 
     for ( const rectDef of table.rects ) {
         rect = new Rect( engine, rectDef );
         rect.renderer = new RectRenderer( rect );
-        renderers.push( rect.renderer );
-    }
-
-    for ( const renderer of renderers ) {
-        canvas.addChild( renderer );
+        canvas.addChild( rect.renderer );
     }
 
     // 6. and get the music goin'
@@ -191,7 +185,7 @@ export const bumpTable = (): void => {
 /**
  * Should be called when zCanvas invokes update() prior to rendering
  */
-export const update = ( timestamp: DOMHighResTimeStamp ): void => {
+export const update = ( /*timestamp: DOMHighResTimeStamp*/ ): void => {
     ball = balls[ 0 ];
 
     if ( !ball ) {
@@ -201,12 +195,8 @@ export const update = ( timestamp: DOMHighResTimeStamp ): void => {
     // update physics engine
     engine.update( engineStep );
 
-    // render content
-    for ( renderer of renderers ) {
-        renderer.update( timestamp, 0 );
-    }
+    // align viewport with main (first) ball
 
-    // keep main ball within view
     const { top } = ball.bounds;
     const { underworld } = table;
     const y = top - panOffset;
@@ -256,12 +246,7 @@ function disposeActor( actor: Actor, actorList: Actor[] ): void {
     if ( index >= 0 ) {
         actorList.splice( index, 1 );
     }
-    index = renderers.indexOf( actor.renderer );
-    if ( index >= 0 ) {
-        renderers.splice( index, 1 );
-    }
-    actor.renderer.dispose();
-    actor.unregister( engine );
+    actor.dispose( engine );
 }
 
 function createBall( engine: IPhysicsEngine, left: number, top: number ): Ball {
@@ -269,8 +254,6 @@ function createBall( engine: IPhysicsEngine, left: number, top: number ): Ball {
     ball.renderer = new BallRenderer( ball );
 
     balls.push( ball );
-    renderers.push( ball.renderer );
-
     canvas.addChild( ball.renderer );
 
     return ball;

@@ -30,9 +30,9 @@ import { rectangleToPolygon, rectangleToRotatedPolygon } from "@/utils/math-util
 const DEBUG = import.meta.env.MODE !== "production";
 
 export default class Rect extends Actor {
-    public pivotX: number;
-    public pivotY: number;
-    private _pivot: Point; // TODO can this replace _pivotX and _pivotY ?
+    private _centerX: number;
+    private _centerY: number;
+    private _pivot: Point;
 
     /**
      * a Rect is an Actor that can adjust its angle and
@@ -43,8 +43,8 @@ export default class Rect extends Actor {
 
         this.body.restitution = 0.5;
 
-        this.pivotX = opts.width / 2;
-        this.pivotY = opts.height / 2;
+        this._centerX = opts.width  / 2;
+        this._centerY = opts.height / 2;
 
         // instance variables used by getters (prevents garbage collector hit)
         // invocation of cacheBounds() on position update will set the values properly
@@ -60,8 +60,8 @@ export default class Rect extends Actor {
     cacheBounds(): Rectangle {
         const { left, top } = super.cacheBounds();
 
-        this._pivot.x = left + this.pivotX;
-        this._pivot.y = top  + this.pivotY;
+        this._pivot.x = left + this._centerX;
+        this._pivot.y = top  + this._centerY;
 
 
         if ( DEBUG ) {
