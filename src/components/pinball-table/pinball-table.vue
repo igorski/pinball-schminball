@@ -42,7 +42,7 @@
 <script lang="ts">
 import { canvas } from "zcanvas";
 import type { GameDef } from "@/definitions/game";
-import { ActorTypes } from "@/model/actor";
+import { ActorTypes } from "@/definitions/game";
 import { init, scaleCanvas, setFlipperState, bumpTable, update } from "@/model/game";
 
 let leftTouchId = -1;

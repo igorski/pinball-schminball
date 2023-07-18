@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2022-2023 - https://www.igorski.nl
+ * Igor Zinken 2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,20 +20,42 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Actor, { ActorTypes } from "@/model/actor";
+import type { canvas as zCanvas } from "zcanvas";
+import type { ObjectDef, TriggerDef, TriggerTarget, TriggerTypes } from "@/definitions/game";
+import Actor from "@/model/actor";
 import type { ActorOpts } from "@/model/actor";
 import type { IPhysicsEngine } from "@/model/physics/engine";
+import Trigger from "@/model/trigger";
 
-export default class Circle extends Actor {
-    public radius: number;
+export default class TriggerGroup extends Actor {
+    public triggerTarget: TriggerTarget;
+    public triggerType: TriggerTypes;
 
-    constructor( engine: IPhysicsEngine, opts: ActorOpts ) {
-        super( engine, { ...opts, type: ActorTypes.CIRCULAR });
+    private triggerParts: ObjectDef[];
+    private triggers: Trigger[];
 
-        this.radius = opts.width / 2;
+    constructor( private opts: TriggerDef, engine: IPhysicsEngine, canvas: zCanvas ) {
+        super({ fixed: true, opts }, engine, canvas );
+
+        this.triggerTarget = opts.target;
+        this.triggerType   = opts.type;
+    }
+
+    dispose( engine: IPhysicsEngine ): void {
+        for ( const trigger of this.triggers ) {
+            trigger.dispose( engine );
+        }
+        this.triggers.length = 0;
+    }
+
+    protected register( engine: IPhysicsEngine, canvas: zCanvas ): void {
+        const triggerObjectDefs = this._opts.triggers as never as ObjectDef[];
+        this.triggers = triggerObjectDefs.map( trigger => {
+            return new Trigger( trigger, engine, canvas );
+        });
     }
 
     protected override getLabel(): string {
-        return "circle";
+        return "trigger-group";
     }
 }

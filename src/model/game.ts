@@ -22,25 +22,19 @@
  */
 import { sprite } from "zcanvas";
 import type { canvas as zCanvas } from "zcanvas";
-import type { GameDef } from "@/definitions/game";
+import type { GameDef, TableDef, FlipperType } from "@/definitions/game";
 import Tables from "@/definitions/tables";
-import type { TableDef, FlipperType } from "@/definitions/tables";
 import Actor from "@/model/actor";
 import Ball from "@/model/ball";
-import Circle from "@/model/circle";
+import Bumper from "@/model/bumper";
 import Flipper from "@/model/flipper";
 import Popper from "@/model/popper";
 import Rect from "@/model/rect";
+import TriggerGroup from "@/model/trigger-group";
 import { createEngine } from "@/model/physics/engine";
 import type { IPhysicsEngine, CollisionEvent } from "@/model/physics/engine";
-import BallRenderer from "@/renderers/ball-renderer";
-import BumperRenderer from "@/renderers/bumper-renderer";
-import FlipperRenderer from "@/renderers/flipper-renderer";
-import RectRenderer from "@/renderers/rect-renderer";
 import { enqueueTrack, setFrequency } from "@/services/audio-service";
 import SpriteCache from "@/utils/sprite-cache";
-
-const { cos, sin, min, round } = Math;
 
 export const BALL_WIDTH  = 40;
 export const BALL_HEIGHT = BALL_WIDTH;
@@ -50,20 +44,15 @@ const MAX_BALL_SPEED     = 10;   // maximum ball speed
 let engine: IPhysicsEngine;
 let engineStep: number = 1000 / 60;
 const balls: Ball[] = [];
-let bumpers: Circle[] = [];
 let flippers: Flipper[] = [];
 let ball: Ball;
-let bumper: Circle;
 let flipper: Flipper;
 let otherBall: Ball;
-let rects: Rect[];
-let rect: Rect;
 let table: TableDef;
 let inUnderworld = false;
 
 let canvas: zCanvas;
 let backgroundRenderer: sprite;
-let renderer: sprite;
 let panOffset = 0;
 let viewportWidth = 0;
 let viewportHeight = 0; // cached in scaleCanvas()
@@ -79,6 +68,8 @@ export const init = async ( canvasRef: zCanvas, game: GameDef ): Promise<void> =
     // 1. generate physics world and hook events into game logic
 
     inUnderworld = false;
+
+    engine?.destroy();
     engine = await createEngine( table, () => {
         handleEngineUpdate( engine, game );
     }, ( event: CollisionEvent ) => {
@@ -87,11 +78,14 @@ export const init = async ( canvasRef: zCanvas, game: GameDef ): Promise<void> =
                 return;
             }
 			switch ( pair.bodyA.label ) {
-				case "circle":
-                    game.score += 100;
-					break;
                 case "popper":
                     engine.launchBall( pair.bodyB );
+                    break;
+                case "bumper":
+                    game.score += 100;
+                    break;
+                case "trigger":
+                    console.warn( "trigger hit! map its label to its group and do stuff! of the unit testable kind please." );
                     break;
 			}
 		})
@@ -108,42 +102,35 @@ export const init = async ( canvasRef: zCanvas, game: GameDef ): Promise<void> =
     canvas.addChild( backgroundRenderer );
 
     // 4. generate Actors
-    new Popper( engine, table.popper );
+    new Popper( table.popper, engine, canvas );
 
     flippers = table.flippers.map( flipperOpts => {
-        return new Flipper( engine, flipperOpts );
+        return new Flipper( flipperOpts, engine, canvas );
     });
 
-    bumpers = table.bumpers.map( bumperOpts => {
-        return new Circle( engine, bumperOpts );
-    });
-
-    createBall( engine, table.popper.left, table.popper.top );
-
-    // 5. generate sprites for Actors
-
-    flippers.forEach( flipper => canvas.addChild( new FlipperRenderer( flipper )));
-
-    for ( bumper of bumpers ) {
-        bumper.renderer = new BumperRenderer( bumper );
-        canvas.addChild( bumper.renderer );
+    for ( const bumperOpts of table.bumpers ) {
+        new Bumper( bumperOpts, engine, canvas );
     }
 
-    for ( const rectDef of table.rects ) {
-        rect = new Rect( engine, rectDef );
-        rect.renderer = new RectRenderer( rect );
-        canvas.addChild( rect.renderer );
+    for ( const triggerDef of table.triggerGroups ) {
+        new TriggerGroup( triggerDef, engine, canvas );
     }
 
-    // 6. and get the music goin'
+    for ( const rectOpts of table.rects ) {
+        new Rect( rectOpts, engine, canvas );
+    }
+
+    createBall( table.popper.left, table.popper.top );
+
+    // 5. and get the music goin'
     enqueueTrack( table.soundtrackId );
 };
 
 export const scaleCanvas = ( clientWidth: number, clientHeight: number ): void => {
     // TODO here we assume all tables are taller than wide
     const ratio  = table.height / table.width;
-    const width  = min( table.width, clientWidth );
-    const height = min( clientHeight, round( width * ratio ));
+    const width  = Math.min( table.width, clientWidth );
+    const height = Math.min( clientHeight, Math.round( width * ratio ));
 
     // by setting the dimensions we have set the "world size"
     canvas.setDimensions( table.width, table.height );
@@ -177,7 +164,8 @@ export const bumpTable = (): void => {
     for ( ball of balls ) {
         const dir = Math.random() > .5;
         const force = dir ? 4 : -4;
-        engine.applyForce( ball.body, Math.random() * force, Math.random() * 4 );
+        // TODO: apply to world instead?
+        engine.applyForce( ball.body, Math.random() * force, ball.body.velocity.y );// Math.random() * force );
     }
     console.warn( "TODO: not too much bumpin'!" );
 };
@@ -230,7 +218,7 @@ function handleEngineUpdate( engine: IPhysicsEngine, game: GameDef ): void {
                     game.active = false;
                 } else {
                     setTimeout(() => {
-                        createBall( engine, table.popper.left, table.popper.top );
+                        createBall( table.popper.left, table.popper.top );
                         setFrequency();
                         inUnderworld = false;
                     }, 2500 );
@@ -249,19 +237,16 @@ function disposeActor( actor: Actor, actorList: Actor[] ): void {
     actor.dispose( engine );
 }
 
-function createBall( engine: IPhysicsEngine, left: number, top: number ): Ball {
-    const ball = new Ball( engine, { left, top, width: BALL_WIDTH, height: BALL_HEIGHT });
-    ball.renderer = new BallRenderer( ball );
-
+function createBall( left: number, top: number ): Ball {
+    const ball = new Ball({ left, top, width: BALL_WIDTH, height: BALL_HEIGHT }, engine, canvas );
     balls.push( ball );
-    canvas.addChild( ball.renderer );
 
     return ball;
 }
 
-function createMultiball( engine: IPhysicsEngine, amount = 5, left = 0, top = 0 ): void {
+function createMultiball( amount = 5, left = 0, top = 0 ): void {
     for ( let i = 0; i < amount; ++i ) {
         const m = ( i + 1 ) * BALL_WIDTH;
-        createBall( engine, left - m, top - m );
+        createBall( left - m, top - m );
     }
 }

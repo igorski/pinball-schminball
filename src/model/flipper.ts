@@ -20,20 +20,18 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import type { canvas as zCanvas } from "zcanvas";
+import { ActorTypes } from "@/definitions/game";
 import type { IPhysicsEngine } from "@/model/physics/engine";
-import { ActorTypes } from "@/model/actor";
-import type { ActorOpts } from "@/model/actor";
+import type { ActorOpts, IRendererClass } from "@/model/actor";
 import Rect from "@/model/rect";
+import FlipperRenderer from "@/renderers/flipper-renderer";
 
 export default class Flipper extends Rect {
     private isUp: boolean;
 
-    constructor( engine: IPhysicsEngine, opts: ActorOpts ) {
-        super( engine, {
-            ...opts,
-            width: 132,
-            height: 41,
-        });
+    constructor( opts: ActorOpts, engine: IPhysicsEngine, canvas: zCanvas ) {
+        super({ ...opts, width: 132, height: 41 }, engine, canvas );
 
         this.isUp = false;
 
@@ -46,5 +44,9 @@ export default class Flipper extends Rect {
         }
         this.isUp = up;
         this.engine.triggerFlipper( this.type, this.isUp );
+    }
+
+    protected override getRendererClass(): IRendererClass | null {
+        return FlipperRenderer;
     }
 };

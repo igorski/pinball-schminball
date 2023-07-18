@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2023 - https://www.igorski.nl
+ * Igor Zinken 2022-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -21,16 +21,26 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import type { canvas as zCanvas } from "zcanvas";
+import { ActorTypes } from "@/definitions/game";
 import Actor from "@/model/actor";
-import type { ActorOpts } from "@/model/actor";
+import type { ActorOpts, IRendererClass } from "@/model/actor";
 import type { IPhysicsEngine } from "@/model/physics/engine";
+import BumperRenderer from "@/renderers/bumper-renderer";
 
-export default class Popper extends Actor {
+export default class Bumper extends Actor {
+    public radius: number;
+
     constructor( opts: ActorOpts, engine: IPhysicsEngine, canvas: zCanvas ) {
-        super({ ...opts, fixed: true }, engine, canvas );
+        super({ ...opts, type: ActorTypes.CIRCULAR }, engine, canvas );
+
+        this.radius = opts.width / 2;
+    }
+
+    protected override getRendererClass(): IRendererClass | null {
+        return BumperRenderer;
     }
 
     protected override getLabel(): string {
-        return "popper";
+        return "bumper";
     }
 }

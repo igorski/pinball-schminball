@@ -20,10 +20,12 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import type { Point, Rectangle } from "zcanvas";
+import type { Point, Rectangle, canvas as zCanvas } from "zcanvas";
+import { ActorTypes } from "@/definitions/game";
 import type { IPhysicsEngine } from "@/model/physics/engine";
-import Actor, { ActorTypes } from "@/model/actor";
-import type { ActorOpts } from "@/model/actor";
+import Actor from "@/model/actor";
+import type { ActorOpts, IRendererClass } from "@/model/actor";
+import RectRenderer from "@/renderers/rect-renderer";
 import { rectangleToPolygon, rectangleToRotatedPolygon } from "@/utils/math-util";
 
 // @ts-expect-error Property 'env' does not exist on type 'ImportMeta', Vite takes care of it
@@ -38,8 +40,8 @@ export default class Rect extends Actor {
      * a Rect is an Actor that can adjust its angle and
      * rotate around a custom pivot point
      */
-    constructor( engine: IPhysicsEngine, opts: ActorOpts ) {
-        super( engine, { ...opts, type: opts.type ?? ActorTypes.RECTANGULAR });
+    constructor( opts: ActorOpts, engine: IPhysicsEngine, canvas: zCanvas ) {
+        super({ ...opts, type: opts.type ?? ActorTypes.RECTANGULAR }, engine, canvas );
 
         this.body.restitution = 0.5;
 
@@ -72,5 +74,9 @@ export default class Rect extends Actor {
             }
         }
         return this.bounds;
+    }
+
+    protected override getRendererClass(): IRendererClass | null {
+        return RectRenderer;
     }
 }

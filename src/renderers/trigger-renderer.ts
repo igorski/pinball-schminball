@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021-2023 - https://www.igorski.nl
+ * Igor Zinken 2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -22,60 +22,46 @@
  */
 import { sprite, collision } from "zcanvas";
 import type { Viewport } from "zcanvas";
-import { ActorTypes } from "@/definitions/game";
-import type Flipper from "@/model/flipper";
+import type Actor from "@/model/actor";
+import type Trigger from "@/model/trigger";
+import { BALL_WIDTH, BALL_HEIGHT } from "@/model/game";
+import { degToRad } from "@/utils/math-util";
 import SpriteCache from "@/utils/sprite-cache";
+
+const SPIN_SPEED = 30;
 
 // @ts-expect-error Property 'env' does not exist on type 'ImportMeta', Vite takes care of it
 const DEBUG = import.meta.env.MODE !== "production";
 
-export default class FlipperRenderer extends sprite {
-    constructor( private actor: Flipper ) {
-        super({
-            bitmap : actor.type === ActorTypes.LEFT_FLIPPER ? SpriteCache.FLIPPER_LEFT : SpriteCache.FLIPPER_RIGHT,
-            width  : actor.bounds.width,
-            height : actor.bounds.height
-        });
+export default class TriggerRenderer extends sprite {
+    constructor( private actor: Actor ) {
+        super({ width: actor.bounds.width, height: actor.bounds.width });
     }
 
     draw( ctx: CanvasRenderingContext2D, viewport: Viewport ): void {
         this.actor.update();
 
-        if ( !this._bitmapReady || !collision.isInsideViewport( this.actor.bounds, viewport )) {
+        if ( !collision.isInsideViewport( this.actor.bounds, viewport )) {
             return;
         }
 
         const { left, top, width, height } = this.actor.bounds;
-        const angle = this.actor.angle;
-        const rotate = angle !== 0;
+        const { radius } = this.actor as Trigger;
 
-        if ( rotate ) {
-            const pivot = this.actor.getPivot();
-            ctx.save();
-            const xD = pivot.x - viewport.left;
-            const yD = pivot.y - viewport.top;
-            ctx.translate( xD, yD );
-            ctx.rotate( angle );
-            ctx.translate( -xD, -yD );
-        }
-
-        ctx.drawImage(
-            this._bitmap, 0, 0, width, height, left - viewport.left, top - viewport.top, width, height
-        );
-
-        if ( rotate ) {
-            ctx.restore();
-        }
+        ctx.beginPath();
+        ctx.arc(( left - viewport.left ) + radius, ( top - viewport.top ) + radius, radius, 0, 2 * Math.PI );
+        ctx.fillStyle = "#6600FF";
+        ctx.fill();
 
         if ( DEBUG ) {
             ctx.save();
-            const vector = this.actor.getOutline();
-            ctx.strokeStyle = "red";
+            const bbox = this.actor.getOutline();
             ctx.translate( -viewport.left, -viewport.top );
+            ctx.strokeStyle = "red";
             ctx.beginPath();
-            ctx.moveTo( vector[ 0 ], vector[ 1 ]);
-            for ( let i = 2; i < vector.length; i += 2 ) {
-                ctx.lineTo( vector[ i ], vector[ i + 1 ] );
+            ctx.moveTo( bbox[ 0 ], bbox[ 1 ] );
+            for ( let i = 2; i < bbox.length; i += 2 ) {
+                ctx.lineTo( bbox[ i ], bbox[ i + 1 ] );
             }
             ctx.closePath();
             ctx.stroke();

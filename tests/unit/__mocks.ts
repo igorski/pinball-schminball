@@ -1,6 +1,12 @@
 import { vi } from "vitest";
+import type { sprite, canvas as zCanvas } from "zcanvas";
 import type { Actor } from "@/model/actor";
 import type { IPhysicsEngine } from "@/model/physics/engine";
+
+export const getMockCanvas = (): zCanvas => ({
+    addChild: vi.fn(),
+    removeChild: vi.fn(),
+} as never as zCanvas );
 
 export const getMockPhysicsEngine = (): IPhysicsEngine => ({
     engine: {},

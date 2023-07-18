@@ -21,16 +21,26 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import type { canvas as zCanvas } from "zcanvas";
+import { ActorTypes } from "@/definitions/game";
 import Actor from "@/model/actor";
-import type { ActorOpts } from "@/model/actor";
+import type { ActorOpts, IRendererClass } from "@/model/actor";
 import type { IPhysicsEngine } from "@/model/physics/engine";
+import TriggerRenderer from "@/renderers/trigger-renderer";
 
-export default class Popper extends Actor {
+export default class Trigger extends Actor {
+    public radius: number;
+
     constructor( opts: ActorOpts, engine: IPhysicsEngine, canvas: zCanvas ) {
-        super({ ...opts, fixed: true }, engine, canvas );
+        super({ ...opts, type: ActorTypes.CIRCULAR }, engine, canvas );
+
+        this.radius = opts.width / 2;
+    }
+
+    protected override getRendererClass(): IRendererClass | null {
+        return TriggerRenderer;
     }
 
     protected override getLabel(): string {
-        return "popper";
+        return "trigger";
     }
 }

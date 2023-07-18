@@ -20,13 +20,24 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import type { ActorOpts } from "@/model/actor";
-import Circle from "@/model/circle";
+import type { canvas as zCanvas } from "zcanvas";
+import { ActorTypes } from "@/definitions/game";
+import type { ActorOpts, IRendererClass } from "@/model/actor";
+import Actor from "@/model/actor";
 import type { IPhysicsEngine } from "@/model/physics/engine";
+import BallRenderer from "@/renderers/ball-renderer";
 
-export default class Ball extends Circle {
-    constructor( engine: IPhysicsEngine, opts: ActorOpts ) {
-        super( engine, { ...opts, fixed: false });
+export default class Ball extends Actor {
+    public radius: number;
+
+    constructor( opts: ActorOpts, engine: IPhysicsEngine, canvas: zCanvas ) {
+        super({ ...opts, type: ActorTypes.CIRCULAR, fixed: false }, engine, canvas );
+
+        this.radius = opts.width / 2;
+    }
+
+    protected override getRendererClass(): IRendererClass | null {
+        return BallRenderer;
     }
 
     protected override getLabel(): string {

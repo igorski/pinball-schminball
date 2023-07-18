@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021-2023 - https://www.igorski.nl
+ * Igor Zinken 2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -23,7 +23,7 @@
 import { sprite, collision } from "zcanvas";
 import type { Viewport } from "zcanvas";
 import type Actor from "@/model/actor";
-import type Circle from "@/model/circle";
+import type Bumper from "@/model/bumper";
 import { BALL_WIDTH, BALL_HEIGHT } from "@/model/game";
 import { degToRad } from "@/utils/math-util";
 import SpriteCache from "@/utils/sprite-cache";
@@ -46,7 +46,7 @@ export default class BumperRenderer extends sprite {
         }
 
         const { left, top, width, height } = this.actor.bounds;
-        const { radius } = this.actor as Circle;
+        const { radius } = this.actor as Bumper;
 
         ctx.beginPath();
         ctx.arc(( left - viewport.left ) + radius, ( top - viewport.top ) + radius, radius, 0, 2 * Math.PI );

@@ -24,9 +24,9 @@ import Matter from "matter-js";
 // @ts-expect-error no type definitions for matter-attractors
 import MatterAttractors from "matter-attractors";
 import type { Point } from "zcanvas";
-import type { TableDef } from "@/definitions/tables";
+import { ActorTypes } from "@/definitions/game";
+import type { TableDef } from "@/definitions/game";
 import type Actor from "@/model/actor";
-import { ActorTypes } from "@/model/actor";
 import { loadVertices } from "@/services/svg-loader";
 
 Matter.use( MatterAttractors );
@@ -34,7 +34,7 @@ Matter.use( MatterAttractors );
 const GRAVITY       = 0.75;
 const FLIPPER_FORCE = 0.002;
 const LAUNCH_SPEED  = 28;
-const MAX_SPEED     = 35;
+const MAX_SPEED     = 45;
 
 enum FlipperPositions {
     UP,
@@ -50,6 +50,7 @@ export interface IPhysicsEngine {
     launchBall: ( body: Matter.Body ) => void;
     triggerFlipper: ( type: ActorTypes, upwards: boolean ) => void;
     capSpeed: ( body: Matter.Body ) => void;
+    destroy: () => void;
 };
 
 export interface CollisionEvent {
@@ -65,7 +66,7 @@ export const createEngine = async (
 
     // @ts-expect-error Property 'env' does not exist on type 'ImportMeta', Vite takes care of it
     if ( import.meta.env.MODE !== "production" ) {
-        //renderBodies( engine, width, height );
+        // renderBodies( engine, width, height );
     }
     engine.world.gravity.y = GRAVITY;
     engine.world.bounds = {
@@ -173,14 +174,19 @@ export const createEngine = async (
                             }
                         ]
                     });
-
                     // we restrict the area of movement by using non-visible circles that cannot collide with the balls
                     const ignorableX = isLeftFlipper ? pivotX + 30 : pivotX - 20;
-                    const lowerMult = isLeftFlipper ? 0.8 : 0.7;
-                    Matter.World.add( engine.world, createIgnorable( ignorableX, pivotY - width * 1, height, plugin( FlipperPositions.UP )));
-                    Matter.World.add( engine.world, createIgnorable( ignorableX, pivotY + width * lowerMult, height, plugin( FlipperPositions.DOWN )));
+                    const lowerMult  = isLeftFlipper ? 0.8 : 0.7;
 
-                    Matter.World.add( engine.world, [ body, pivot, constraint ]);
+                    const ignore1 = createIgnorable( ignorableX, pivotY - width, height, plugin( FlipperPositions.UP ));
+                    const ignore2 = createIgnorable( ignorableX, pivotY + width * lowerMult, height, plugin( FlipperPositions.DOWN ));
+
+                    Matter.World.add( engine.world, [ ignore1, ignore2 ]); // otherwise attractors won't work
+
+                    const composite = Matter.Composite.add( Matter.Composite.create(), [ body, pivot, constraint, ignore1, ignore2 ]);
+                    Matter.Composite.rotate( composite, actor.angle, { x: pivotX, y: pivotY });
+
+                    Matter.World.add( engine.world, composite );
                     return body;
             }
             Matter.World.add( engine.world, body );
@@ -204,7 +210,10 @@ export const createEngine = async (
                 x: Math.max( Math.min( body.velocity.x, MAX_SPEED ), -MAX_SPEED ),
                 y: Math.max( Math.min( body.velocity.y, MAX_SPEED ), -MAX_SPEED ),
             });
-        }
+        },
+        destroy(): void {
+            Matter.Engine.clear( engine );
+        },
     };
 };
 

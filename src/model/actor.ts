@@ -20,16 +20,10 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import type { Point, Rectangle, sprite } from "zcanvas";
+import type { Point, Rectangle, sprite, canvas as zCanvas } from "zcanvas";
+import { ActorTypes } from "@/definitions/game";
 import type { IPhysicsEngine } from "@/model/physics/engine";
 import { degToRad, rectangleToPolygon } from "@/utils/math-util";
-
-export enum ActorTypes {
-    CIRCULAR,
-    RECTANGULAR,
-    LEFT_FLIPPER,
-    RIGHT_FLIPPER,
-};
 
 // @ts-expect-error Property 'env' does not exist on type 'ImportMeta', Vite takes care of it
 const DEBUG = import.meta.env.MODE !== "production";
@@ -39,10 +33,13 @@ export type ActorOpts = {
     top?: number;
     width?: number;
     height?: number;
-    angle?: number; // in degrees
+    angle?: number; // provide in degrees
     type?: ActorTypes;
     fixed?: boolean;
+    opts?: any;
 };
+
+export type IRendererClass = new ( actor: Actor ) => sprite;
 
 let INSTANCE_NUM = 0;
 
@@ -52,20 +49,22 @@ export default class Actor {
     public renderer: sprite;
     public type: ActorTypes;
     public fixed: boolean;
-    public angle: number;
+    public angle: number; // internally in radians
 
     public body: Matter.Body | null;
     public halfWidth: number;
     public halfHeight: number;
 
-    protected _outline: number[];
+    protected _opts: any;
+    protected _outline: number[]; // debug only
 
-    constructor( protected engine: IPhysicsEngine, {
-        left = 0, top = 0, width = 1, height = 1,
-        angle = 0, fixed = true, type = ActorTypes.RECTANGULAR
-    }: ActorOpts = {} ) {
+    constructor({
+        left = 0, top = 0, width = 1, height = 1, angle = 0, fixed = true, opts = null, type = ActorTypes.RECTANGULAR
+    }: ActorOpts = {}, protected engine: IPhysicsEngine, canvas: zCanvas )
+    {
         this.id = `${++INSTANCE_NUM}`;
 
+        this._opts = opts;
         this.fixed = fixed;
         this.angle = degToRad( angle );
         this.type  = type;
@@ -79,7 +78,7 @@ export default class Actor {
         // invocation of cacheBounds() on position update will set the values properly
         this._outline = [];
 
-        this.register( engine );
+        this.register( engine, canvas );
     }
 
     cacheBounds(): Rectangle {
@@ -96,17 +95,15 @@ export default class Actor {
         return this._outline;
     }
 
-    register( engine: IPhysicsEngine ): void {
-        this.body = engine.addBody( this, this.getLabel() );
-    }
-
     dispose( engine: IPhysicsEngine ): void {
         engine.removeBody( this.body );
+
         this.renderer?.dispose();
+        this.renderer = null;
     }
 
     /**
-     * Invoke on each step of the simulation to synchronise
+     * Invoked on each step of the simulation to synchronise
      * the Actors properties with the altered body properties
      */
     update(): void {
@@ -114,7 +111,29 @@ export default class Actor {
         this.cacheBounds();
     }
 
+    /**
+     * Override in your sub classes to provide a renderer in case this Actor
+     * should be visually represented on-screen on the canvas.
+     */
+    protected getRendererClass(): IRendererClass | null {
+        return null;
+    }
+
     protected getLabel(): string {
-        return `actor_${this.id}`;
+        return `actor-${this.id}`;
+    }
+
+    /**
+     * Invoked on construction. Registers the body inside the physics engine
+     * and when existing, constructs the renderer class and adds it onto the canvas
+     */
+    protected register( engine: IPhysicsEngine, canvas: zCanvas ): void {
+        this.body = engine.addBody( this, this.getLabel() );
+
+        const rendererClass = this.getRendererClass();
+        if ( rendererClass ) {
+            this.renderer = new rendererClass( this );
+            canvas.addChild( this.renderer );
+        }
     }
 }
