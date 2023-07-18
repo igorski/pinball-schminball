@@ -28,6 +28,7 @@ let playing = false;
 // @ts-expect-error Property 'env' does not exist on type 'ImportMeta', Vite takes care of it
 let muted   = import.meta.env.MODE !== "production";
 let queuedTrackId: string | null = null;
+let playingTrackId: string | null = null;
 let scheduledFrequency = 0;
 
 let audioContext: AudioContext;
@@ -78,7 +79,12 @@ export const enqueueTrack = async( trackId: string ): Promise<void> => {
         return;
     }
 
-    queuedTrackId = trackId;
+    queuedTrackId = null;
+
+    if ( playingTrackId === trackId ) {
+        setFrequency();
+        return;
+    }
 
     // prepare the stream from SoundCloud, we create an inline <audio> tag instead
     // of using SC stream to overcome silence on mobile devices (looking at you, Apple!)
@@ -101,7 +107,7 @@ export const enqueueTrack = async( trackId: string ): Promise<void> => {
         ({ data } = await axios.get( `https://api.soundcloud.com/tracks/${trackId}/streams`, requestData ));
         if ( data?.http_mp3_128_url ) {
             sound = createAudioElement( data.http_mp3_128_url, true, masterBus );
-            _startPlayingEnqueuedTrack();
+            _startPlayingEnqueuedTrack( trackId );
         }
     }
 };
@@ -114,6 +120,7 @@ export const stop = (): void => {
         }
         sound.pause();
         sound = null;
+        playingTrackId = null;
     }
     playing = false;
 };
@@ -126,18 +133,19 @@ export const setFrequency = ( value = 22050 ): void => {
         scheduledFrequency = value;
 
         filter.frequency.cancelScheduledValues( audioContext.currentTime );
-        filter.frequency.linearRampToValueAtTime( scheduledFrequency, audioContext.currentTime + 1.25 )
+        filter.frequency.linearRampToValueAtTime( scheduledFrequency, audioContext.currentTime + 1.5 )
     }
 };
 
 /* internal methods */
 
-function _startPlayingEnqueuedTrack(): void {
+function _startPlayingEnqueuedTrack( trackId: string ): void {
     if ( !sound ) {
         return;
     }
     try {
         sound.play();
+        playingTrackId = trackId;
     } catch ( e ) {
         // no supported sources
         return;
