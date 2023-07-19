@@ -22,15 +22,10 @@
  */
 import type { Rectangle } from "zcanvas";
 
-/**
- * Runtime properties of an active game
- * @see pinball-table.vue, model/game.ts
- */
-export type GameDef = {
-    active: boolean;
-    table: number;
-    score: number;
-    balls: number;
+export const AwardablePoints = {
+    BUMPER: 100,
+    TRIGGER: 50,
+    TRIGGER_GROUP_COMPLETE: 500,
 };
 
 /**
@@ -42,6 +37,26 @@ export enum ActorTypes {
     LEFT_FLIPPER,
     RIGHT_FLIPPER,
     TRIGGER,
+};
+
+export enum ActorLabels {
+    BALL            = "ball",
+    POPPER          = "popper",
+    BUMPER          = "bumper",
+    TRIGGER         = "trigger",
+    TRIGGER_GROUP   = "trigger-group"
+};
+
+/**
+ * Runtime properties of an active game
+ * @see pinball-table.vue, model/game.ts
+ */
+export type GameDef = {
+    active: boolean;
+    table: number;
+    score: number;
+    balls: number;
+    multiplier: number;
 };
 
 export type FlipperType = ActorTypes.LEFT_FLIPPER | ActorTypes.RIGHT_FLIPPER;
@@ -66,6 +81,7 @@ export type ObjectDef = Rectangle & {
  * getting a bonus.
  */
 export enum TriggerTarget {
+    MULTIPLIER,
     MULTIBALL,
 };
 

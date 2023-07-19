@@ -24,7 +24,7 @@ import Matter from "matter-js";
 // @ts-expect-error no type definitions for matter-attractors
 import MatterAttractors from "matter-attractors";
 import type { Point } from "zcanvas";
-import { ActorTypes } from "@/definitions/game";
+import { ActorTypes, ActorLabels } from "@/definitions/game";
 import type { TableDef } from "@/definitions/game";
 import type Actor from "@/model/actor";
 import { loadVertices } from "@/services/svg-loader";
@@ -123,7 +123,7 @@ export const createEngine = async (
                     break;
 
                 case ActorTypes.CIRCULAR:
-                    const isBumper = label !== "ball";
+                    const isBumper = label !== ActorLabels.BALL;
                     body = Matter.Bodies.circle( left, top, width / 2, {
                         label,
                         isStatic: actor.fixed,

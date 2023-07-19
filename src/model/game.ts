@@ -23,7 +23,7 @@
 import { sprite } from "zcanvas";
 import type { canvas as zCanvas } from "zcanvas";
 import type { GameDef, TableDef, FlipperType } from "@/definitions/game";
-import { TriggerTarget } from "@/definitions/game";
+import { TriggerTarget, AwardablePoints, ActorLabels } from "@/definitions/game";
 import Tables from "@/definitions/tables";
 import Actor from "@/model/actor";
 import Ball from "@/model/ball";
@@ -87,22 +87,37 @@ export const init = async ( canvasRef: zCanvas, game: GameDef ): Promise<void> =
         handleEngineUpdate( engine, game );
     }, ( event: CollisionEvent ) => {
 	    event.pairs.forEach( pair => {
-    		if ( pair.bodyB.label !== "ball" ) {
+    		if ( pair.bodyB.label !== ActorLabels.BALL ) {
                 return;
             }
 			switch ( pair.bodyA.label ) {
-                case "popper":
+                case ActorLabels.POPPER:
                     engine.launchBall( pair.bodyB );
                     break;
-                case "bumper":
-                    game.score += 100;
+                case ActorLabels.BUMPER:
+                    awardPoints( game, AwardablePoints.BUMPER );
                     break;
-                case "trigger":
+                case ActorLabels.TRIGGER:
                     const triggerGroup = actorMap.get( pair.bodyA.id ) as TriggerGroup;
                     const groupHit = triggerGroup?.trigger( pair.bodyA.id );
-                    if ( groupHit && triggerGroup.triggerTarget === TriggerTarget.MULTIBALL ) {
-                        triggerGroup.unsetTriggers();
-                        createMultiball( 5, table.popper.left, table.popper.top );
+                    awardPoints( game, AwardablePoints.TRIGGER );
+
+                    if ( groupHit ) {
+                        switch ( triggerGroup.triggerTarget ) {
+                            default:
+                                break;
+                            case TriggerTarget.MULTIPLIER: {
+                                triggerGroup.unsetTriggers();
+                                game.multiplier = Math.min( 2 * game.multiplier, 32 );
+                                break;
+                            }
+                            case TriggerTarget.MULTIBALL: {
+                                awardPoints( game, AwardablePoints.TRIGGER_GROUP_COMPLETE );
+                                triggerGroup.unsetTriggers();
+                                createMultiball( 5, table.popper.left, table.popper.top );
+                                break;
+                            }
+                        }
                     }
                     break;
 			}
@@ -215,6 +230,10 @@ export const update = ( timestamp: DOMHighResTimeStamp, framesSinceLastRender: n
 
 /* internal methods */
 
+function awardPoints( game: GameDef, points: number ): void {
+    game.score += ( points * game.multiplier );
+}
+
 function handleEngineUpdate( engine: IPhysicsEngine, game: GameDef ): void {
     const singleBall = balls.length === 1;
 
@@ -247,6 +266,8 @@ function handleEngineUpdate( engine: IPhysicsEngine, game: GameDef ): void {
 
         if ( top > table.height ) {
             removeBall( ball );
+            game.multiplier = 1;
+
             if ( singleBall ) {
                 if ( --game.balls === 0 ) {
                     game.active = false;

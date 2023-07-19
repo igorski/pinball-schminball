@@ -21,6 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import type { canvas as zCanvas } from "zcanvas";
+import { ActorLabels } from "@/definitions/game";
 import Actor from "@/model/actor";
 import type { ActorOpts } from "@/model/actor";
 import type { IPhysicsEngine } from "@/model/physics/engine";
@@ -31,6 +32,6 @@ export default class Popper extends Actor {
     }
 
     protected override getLabel(): string {
-        return "popper";
+        return ActorLabels.POPPER;
     }
 }

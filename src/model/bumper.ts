@@ -21,7 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import type { canvas as zCanvas } from "zcanvas";
-import { ActorTypes } from "@/definitions/game";
+import { ActorTypes, ActorLabels } from "@/definitions/game";
 import Actor from "@/model/actor";
 import type { ActorOpts, IRendererClass } from "@/model/actor";
 import type { IPhysicsEngine } from "@/model/physics/engine";
@@ -41,6 +41,6 @@ export default class Bumper extends Actor {
     }
 
     protected override getLabel(): string {
-        return "bumper";
+        return ActorLabels.BUMPER;
     }
 }

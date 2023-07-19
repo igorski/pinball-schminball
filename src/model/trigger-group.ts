@@ -22,7 +22,7 @@
  */
 import type { canvas as zCanvas } from "zcanvas";
 import type { ObjectDef, TriggerDef, TriggerTarget } from "@/definitions/game";
-import { TriggerTypes, TRIGGER_EXPIRY } from "@/definitions/game";
+import { ActorLabels, TriggerTypes, TRIGGER_EXPIRY } from "@/definitions/game";
 import Actor from "@/model/actor";
 import type { ActorOpts } from "@/model/actor";
 import type { IPhysicsEngine } from "@/model/physics/engine";
@@ -104,6 +104,6 @@ export default class TriggerGroup extends Actor {
     }
 
     protected override getLabel(): string {
-        return "trigger-group";
+        return ActorLabels.TRIGGER_GROUP;
     }
 }

@@ -36,6 +36,7 @@
     <div class="status-display">
         <div class="score-display__score">{{ game.score }} pts.</div>
         <div class="score-display__balls">{{ game.balls }} balls</div>
+        <div class="score-display__multiplier">{{ game.multiplier }} x</div>
     </div>
 </template>
 
@@ -60,6 +61,7 @@ export default {
             table: 0,
             score: 0,
             balls: 3,
+            multiplier: 1,
         },
     }),
     mounted(): void {
@@ -93,6 +95,7 @@ export default {
                 table: 0,
                 score: 0,
                 balls: 3,
+                multiplier: 1,
             };
             init( this.canvas, this.game );
         },

@@ -86,7 +86,7 @@ export default [{
     ],
     triggerGroups: [
         {
-            target: TriggerTarget.MULTIBALL,
+            target: TriggerTarget.MULTIPLIER,
             type: TriggerTypes.BOOL,
             triggers: [
                 { left: 250, top: 900, width: 24, height: 24 },
