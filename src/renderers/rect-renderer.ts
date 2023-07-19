@@ -25,8 +25,7 @@ import type { Viewport } from "zcanvas";
 import type Rect from "@/model/rect";
 import SpriteCache from "@/utils/sprite-cache";
 
-// @ts-expect-error Property 'env' does not exist on type 'ImportMeta', Vite takes care of it
-const DEBUG = import.meta.env.MODE !== "production";
+const DEBUG = false;//import.meta.env.MODE !== "production";
 
 export default class RectRenderer extends sprite {
     constructor( private actor: Rect ) {

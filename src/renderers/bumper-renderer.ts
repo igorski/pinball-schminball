@@ -30,8 +30,7 @@ import SpriteCache from "@/utils/sprite-cache";
 
 const SPIN_SPEED = 30;
 
-// @ts-expect-error Property 'env' does not exist on type 'ImportMeta', Vite takes care of it
-const DEBUG = import.meta.env.MODE !== "production";
+const DEBUG = false;//import.meta.env.MODE !== "production";
 
 export default class BumperRenderer extends sprite {
     constructor( private actor: Actor ) {

@@ -41,10 +41,8 @@ npm run typecheck
 
 ## TODO
 
-* physics world update needs to account for lost frames instead of advancing by single frame fps time
-* trigger-renderer should render a text label or something (should be trigger opt prop)
 * fix issue where flipper can rotate over its maximum axis
 * isInsideViewport check should take angle into account for rects and flippers
 * Implement tilt on repeated bumps
 * Switches to toggle score multiplier ("x when lit")
-* Multiball mode
+* Feedback messages when trigger groups are completed

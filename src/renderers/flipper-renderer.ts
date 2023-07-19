@@ -26,8 +26,7 @@ import { ActorTypes } from "@/definitions/game";
 import type Flipper from "@/model/flipper";
 import SpriteCache from "@/utils/sprite-cache";
 
-// @ts-expect-error Property 'env' does not exist on type 'ImportMeta', Vite takes care of it
-const DEBUG = import.meta.env.MODE !== "production";
+const DEBUG = false;//import.meta.env.MODE !== "production";
 
 export default class FlipperRenderer extends sprite {
     constructor( private actor: Flipper ) {
