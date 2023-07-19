@@ -23,7 +23,10 @@
 import { sprite } from "zcanvas";
 import type { canvas as zCanvas } from "zcanvas";
 import type { GameDef, TableDef, FlipperType } from "@/definitions/game";
-import { TriggerTarget, AwardablePoints, ActorLabels } from "@/definitions/game";
+import {
+    BALL_WIDTH, BALL_HEIGHT, MAX_BUMPS, BUMP_TIMEOUT, BUMP_IMPULSE,
+    TriggerTarget, AwardablePoints, ActorLabels
+} from "@/definitions/game";
 import Tables from "@/definitions/tables";
 import Actor from "@/model/actor";
 import Ball from "@/model/ball";
@@ -36,11 +39,6 @@ import { createEngine } from "@/model/physics/engine";
 import type { IPhysicsEngine, CollisionEvent } from "@/model/physics/engine";
 import { enqueueTrack, setFrequency } from "@/services/audio-service";
 import SpriteCache from "@/utils/sprite-cache";
-
-export const BALL_WIDTH  = 40;
-export const BALL_HEIGHT = BALL_WIDTH;
-const MIN_BALL_SPEED     = 0.35; // the speed at which gravity pulls the ball down instantly
-const MAX_BALL_SPEED     = 10;   // maximum ball speed
 
 let engine: IPhysicsEngine;
 let engineStep: number = 1000 / 60;
@@ -59,6 +57,9 @@ let panOffset = 0;
 let viewportWidth = 0;
 let viewportHeight = 0; // cached in scaleCanvas()
 let underworldOffset = 0;
+
+let bumpAmount = 0;
+let tilt = false;
 
 export const init = async ( canvasRef: zCanvas, game: GameDef ): Promise<void> => {
     canvas = canvasRef;
@@ -185,6 +186,9 @@ export const scaleCanvas = ( clientWidth: number, clientHeight: number ): void =
 };
 
 export const setFlipperState = ( type: FlipperType, up: boolean ): void => {
+    if ( tilt ) {
+        return;
+    }
     flippers.forEach( flipper => {
         if ( flipper.type === type ) {
             flipper.trigger( up );
@@ -193,13 +197,22 @@ export const setFlipperState = ( type: FlipperType, up: boolean ): void => {
 };
 
 export const bumpTable = (): void => {
-    for ( ball of balls ) {
-        const dir = Math.random() > .5;
-        const force = dir ? 4 : -4;
-        // TODO: apply to world instead?
-        engine.applyForce( ball.body, Math.random() * force, ball.body.velocity.y );// Math.random() * force );
+    if ( tilt ) {
+        return;
     }
-    console.warn( "TODO: not too much bumpin'!" );
+    for ( ball of balls ) {
+        if ( Math.abs( ball.body.velocity.y ) > 2 ) {
+            continue; // ball is in the air, gets no impulse
+        }
+        const force = Math.random() > 0.5 ? BUMP_IMPULSE : -BUMP_IMPULSE;
+        engine.applyForce( ball.body, Math.random() * force, force );
+    }
+    if ( ++bumpAmount >= MAX_BUMPS ) {
+        tilt = true;
+    }
+    setTimeout(() => {
+        bumpAmount = Math.max( 0, bumpAmount - 1 );
+    }, BUMP_TIMEOUT );
 };
 
 /**
@@ -267,6 +280,7 @@ function handleEngineUpdate( engine: IPhysicsEngine, game: GameDef ): void {
         if ( top > table.height ) {
             removeBall( ball );
             game.multiplier = 1;
+            tilt = false;
 
             if ( singleBall ) {
                 if ( --game.balls === 0 ) {

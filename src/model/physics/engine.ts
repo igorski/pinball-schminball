@@ -24,17 +24,15 @@ import Matter from "matter-js";
 // @ts-expect-error no type definitions for matter-attractors
 import MatterAttractors from "matter-attractors";
 import type { Point } from "zcanvas";
-import { ActorTypes, ActorLabels } from "@/definitions/game";
+import {
+    GRAVITY, FLIPPER_FORCE, LAUNCH_SPEED, MAX_SPEED,
+    ActorTypes, ActorLabels
+} from "@/definitions/game";
 import type { TableDef } from "@/definitions/game";
 import type Actor from "@/model/actor";
 import { loadVertices } from "@/services/svg-loader";
 
 Matter.use( MatterAttractors );
-
-const GRAVITY       = 0.75;
-const FLIPPER_FORCE = 0.002;
-const LAUNCH_SPEED  = 28;
-const MAX_SPEED     = 45;
 
 enum FlipperPositions {
     UP,

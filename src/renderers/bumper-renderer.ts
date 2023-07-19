@@ -22,9 +22,9 @@
  */
 import { sprite, collision } from "zcanvas";
 import type { Viewport } from "zcanvas";
+import { BALL_WIDTH, BALL_HEIGHT } from "@/definitions/game";
 import type Actor from "@/model/actor";
 import type Bumper from "@/model/bumper";
-import { BALL_WIDTH, BALL_HEIGHT } from "@/model/game";
 import { degToRad } from "@/utils/math-util";
 import SpriteCache from "@/utils/sprite-cache";
 

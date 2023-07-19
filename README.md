@@ -41,7 +41,8 @@ npm run typecheck
 
 ## TODO
 
+* pinball-table status display should flash messages on certain events
+* underworld should be set on game and only unlocked after certain event
 * isInsideViewport check should take angle into account for rects and flippers
-* Implement tilt on repeated bumps
 * Switches to toggle score multiplier ("x when lit")
 * Feedback messages when trigger groups are completed

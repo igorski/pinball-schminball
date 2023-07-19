@@ -22,8 +22,8 @@
  */
 import { sprite, collision } from "zcanvas";
 import type { Viewport } from "zcanvas";
+import { BALL_WIDTH, BALL_HEIGHT } from "@/definitions/game";
 import type Trigger from "@/model/trigger";
-import { BALL_WIDTH, BALL_HEIGHT } from "@/model/game";
 import { degToRad } from "@/utils/math-util";
 import SpriteCache from "@/utils/sprite-cache";
 
