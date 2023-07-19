@@ -190,7 +190,7 @@ export const bumpTable = (): void => {
 /**
  * Should be called when zCanvas invokes update() prior to rendering
  */
-export const update = ( timestamp: DOMHighResTimeStamp ): void => {
+export const update = ( timestamp: DOMHighResTimeStamp, framesSinceLastRender: number ): void => {
     ball = balls[ 0 ];
 
     if ( !ball ) {
@@ -198,7 +198,7 @@ export const update = ( timestamp: DOMHighResTimeStamp ): void => {
     }
 
     // update physics engine
-    engine.update( engineStep );
+    engine.update( engineStep * Math.round( framesSinceLastRender ));
 
     // update Actors
 
