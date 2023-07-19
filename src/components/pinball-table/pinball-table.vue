@@ -203,13 +203,16 @@ export default {
     }
 
     &__game-details {
+        display: flex;
+        justify-content: space-around;
+        flex-direction: column;
         width: 40%;
+        height: 60%;
         font-size: 18px;
     }
 
     &__score {
         max-width: 350px;
-        text-align: right;
         font-size: 64px;
     }
 }

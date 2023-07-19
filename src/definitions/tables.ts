@@ -50,6 +50,11 @@ export default [{
         { type: ActorTypes.LEFT_FLIPPER,  left: 280, top: 2270 },
     ],
     rects: [
+        // top
+        { left: 400, top: 175, width: 25, height: 75, radius: 15 },
+        { left: 470, top: 185, width: 25, height: 75, radius: 15 },
+        { left: 540, top: 175, width: 25, height: 75, radius: 15 },
+
         // outer walls
         { left: 400, top: 0, width: 800, height: 10 },
         { left: 0, top: 1220, width: 10, height: 2000 },
@@ -86,12 +91,22 @@ export default [{
     ],
     triggerGroups: [
         {
+            target: TriggerTarget.MULTIBALL,
+            type: TriggerTypes.BOOL,
+            triggers: [
+                { left: 355, top: 140, width: 24, height: 24 },
+                { left: 425, top: 140, width: 24, height: 24 },
+                { left: 490, top: 140, width: 24, height: 24 },
+                { left: 560, top: 140, width: 24, height: 24 },
+            ]
+        },
+        {
             target: TriggerTarget.MULTIPLIER,
             type: TriggerTypes.BOOL,
             triggers: [
-                { left: 250, top: 900, width: 24, height: 24 },
-                { left: 290, top: 910, width: 24, height: 24 },
-                { left: 330, top: 920, width: 24, height: 24 },
+                { left: 305, top: 505, width: 24, height: 24 },
+                { left: 345, top: 515, width: 24, height: 24 },
+                { left: 390, top: 510, width: 24, height: 24 },
             ]
         }
     ],
