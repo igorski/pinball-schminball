@@ -29,14 +29,21 @@
         @touchend="handleTouch"
         @touchcancel="handleTouch"
     ></div>
+    <div
+        ref="statusDisplay"
+        class="status-display"
+    >
+        <div class="status-display__container">
+            <div class="status-display__game-details">
+                <div class="status-display__balls">BALLS: {{ game.balls }}</div>
+                <div class="status-display__multiplier">MULTIPLIER: {{ game.multiplier }}x</div>
+            </div>
+            <div class="status-display__score">{{ game.score }}</div>
+        </div>
+    </div>
     <div v-if="!game.active" class="overlay">
         GAME OVER
         <button @click="initGame()">New game</button>
-    </div>
-    <div class="status-display">
-        <div class="score-display__score">{{ game.score }} pts.</div>
-        <div class="score-display__balls">{{ game.balls }} balls</div>
-        <div class="score-display__multiplier">{{ game.multiplier }} x</div>
     </div>
 </template>
 
@@ -101,10 +108,11 @@ export default {
         },
         handleResize(): void {
             const { clientWidth, clientHeight } = document.documentElement;
-            scaleCanvas( clientWidth, clientHeight );
+            const statusHeight = this.$refs.statusDisplay.offsetHeight;
+            scaleCanvas( clientWidth, clientHeight - statusHeight );
             this.halfWidth = clientWidth / 2;
         },
-        handleTouch( event: Event ): void {
+        handleTouch( event: TouchEvent ): void {
             switch ( event.type ) {
                 // touch cancel, end
                 default:
@@ -132,7 +140,7 @@ export default {
                     break;
             }
         },
-        handleKey( event: Event ): void {
+        handleKey( event: KeyboardEvent ): void {
             const { type, keyCode } = event;
             switch ( keyCode ) {
                 default:
@@ -156,6 +164,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import "@/styles/_typography";
+
 .canvas-container {
     overflow: hidden;
     text-align: center;
@@ -177,13 +187,30 @@ export default {
 }
 
 .status-display {
-    position: fixed;
-    top: 16px;
-    left: 16px;
-    border-radius: 7px;
-    background-color: #FFF;
-    border: 2px solid #000;
-    width: 200px;
-    padding: 7px;
+    @include displayFont();
+    width: 100%;
+    height: 100px;
+    background-color: #000;
+    color: #FFF;
+
+    &__container {
+        max-width: 800px;
+        margin: 0 auto;
+        height: inherit;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+    }
+
+    &__game-details {
+        width: 40%;
+        font-size: 18px;
+    }
+
+    &__score {
+        max-width: 350px;
+        text-align: right;
+        font-size: 64px;
+    }
 }
 </style>
