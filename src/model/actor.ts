@@ -33,6 +33,7 @@ export type ActorOpts = {
     top?: number;
     width?: number;
     height?: number;
+    radius?: number;
     angle?: number; // provide in degrees
     type?: ActorTypes;
     fixed?: boolean;
@@ -46,6 +47,7 @@ let INSTANCE_NUM = 0;
 export default class Actor {
     public id: number;
     public bounds: Rectangle;
+    public radius: number;
     public renderer: sprite;
     public type: ActorTypes;
     public fixed: boolean;
@@ -59,15 +61,17 @@ export default class Actor {
     protected _outline: number[]; // debug only
 
     constructor({
-        left = 0, top = 0, width = 1, height = 1, angle = 0, fixed = true, opts = null, type = ActorTypes.RECTANGULAR
+        left = 0, top = 0, width = 1, height = 1, angle = 0, radius = 0,
+        fixed = true, opts = null, type = ActorTypes.RECTANGULAR
     }: ActorOpts = {}, protected engine: IPhysicsEngine, canvas: zCanvas )
     {
         this.id = ++INSTANCE_NUM;
 
-        this._opts = opts;
-        this.fixed = fixed;
-        this.angle = degToRad( angle );
-        this.type  = type;
+        this._opts  = opts;
+        this.fixed  = fixed;
+        this.angle  = degToRad( angle );
+        this.radius = radius;
+        this.type   = type;
 
         this.bounds = { left, top, width, height };
 

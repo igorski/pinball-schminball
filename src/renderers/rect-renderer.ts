@@ -41,7 +41,8 @@ export default class RectRenderer extends sprite {
         }
 
         const { left, top, width, height } = this.actor.bounds;
-        const angle = this.actor.angle;
+        const { angle, radius } = this.actor;
+
         const rotate = angle !== 0;
 
         if ( rotate ) {
@@ -55,7 +56,14 @@ export default class RectRenderer extends sprite {
         }
 
         ctx.fillStyle = "gray";
-        ctx.fillRect( left - viewport.left, top - viewport.top, width, height );
+
+        if ( radius === 0 ) {
+            ctx.fillRect( left - viewport.left, top - viewport.top, width, height );
+        } else {
+            ctx.beginPath();
+            ctx.roundRect( left - viewport.left, top - viewport.top, width, height, radius );
+            ctx.fill();
+        }
 
         if ( rotate ) {
             ctx.restore();

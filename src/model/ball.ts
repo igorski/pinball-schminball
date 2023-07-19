@@ -28,12 +28,10 @@ import type { IPhysicsEngine } from "@/model/physics/engine";
 import BallRenderer from "@/renderers/ball-renderer";
 
 export default class Ball extends Actor {
-    public radius: number;
-
     constructor( opts: ActorOpts, engine: IPhysicsEngine, canvas: zCanvas ) {
-        super({ ...opts, type: ActorTypes.CIRCULAR, fixed: false }, engine, canvas );
-
-        this.radius = opts.width / 2;
+        super({
+            ...opts, type: ActorTypes.CIRCULAR, fixed: false, radius: opts.radius ?? opts.width / 2
+        }, engine, canvas );
     }
 
     protected override getRendererClass(): IRendererClass | null {

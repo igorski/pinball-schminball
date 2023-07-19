@@ -49,7 +49,7 @@ export default class Rect extends Actor {
         this._centerY = opts.height / 2;
 
         // instance variables used by getters (prevents garbage collector hit)
-        // invocation of cacheBounds() on position update will set the values properly
+        // invocation of cacheBounds() on position update will set the value appropriately
         this._pivot = { x: 0, y: 0 };
 
         this.cacheBounds();
@@ -64,7 +64,6 @@ export default class Rect extends Actor {
 
         this._pivot.x = left + this._centerX;
         this._pivot.y = top  + this._centerY;
-
 
         if ( DEBUG ) {
             if ( this.angle === 0 ) {

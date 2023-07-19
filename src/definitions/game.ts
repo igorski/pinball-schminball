@@ -73,6 +73,7 @@ export type FlipperDef = {
  */
 export type ObjectDef = Rectangle & {
     angle?: number;
+    radius?: number;
 };
 
 /**
