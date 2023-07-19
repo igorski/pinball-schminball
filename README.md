@@ -41,7 +41,6 @@ npm run typecheck
 
 ## TODO
 
-* fix issue where flipper can rotate over its maximum axis
 * isInsideViewport check should take angle into account for rects and flippers
 * Implement tilt on repeated bumps
 * Switches to toggle score multiplier ("x when lit")

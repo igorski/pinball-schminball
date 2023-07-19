@@ -181,7 +181,7 @@ export const createEngine = async (
                     const ignorableX = isLeftFlipper ? pivotX + 30 : pivotX - 20;
                     const lowerMult  = isLeftFlipper ? 0.8 : 0.7;
 
-                    const ignore1 = createIgnorable( ignorableX, pivotY - width, height, plugin( FlipperPositions.UP ));
+                    const ignore1 = createIgnorable( ignorableX, pivotY - width, height * 1.5, plugin( FlipperPositions.UP ));
                     const ignore2 = createIgnorable( ignorableX, pivotY + width * lowerMult, height, plugin( FlipperPositions.DOWN ));
 
                     Matter.World.add( engine.world, [ ignore1, ignore2 ]); // otherwise attractors won't work
