@@ -102,7 +102,7 @@ export const init = async ( canvasRef: zCanvas, game: GameDef ): Promise<void> =
                     const groupHit = triggerGroup?.trigger( pair.bodyA.id );
                     if ( groupHit && triggerGroup.triggerTarget === TriggerTarget.MULTIBALL ) {
                         triggerGroup.unsetTriggers();
-                        createMultiball();
+                        createMultiball( 5, table.popper.left, table.popper.top );
                     }
                     break;
 			}
@@ -220,16 +220,29 @@ function handleEngineUpdate( engine: IPhysicsEngine, game: GameDef ): void {
 
     for ( const ball of balls ) {
         engine.capSpeed( ball.body );
-        const { top } = ball.bounds;
+        const { left, top } = ball.bounds;
+
+        const enteringUnderworld = !inUnderworld && top >= table.underworld;
 
         if ( singleBall ) {
-            if ( !inUnderworld && top >= table.underworld ) {
+            if ( enteringUnderworld ) {
                 inUnderworld = true;
                 setFrequency( 2000 );
             } else if ( inUnderworld && top < table.underworld ) {
                 inUnderworld = false;
                 setFrequency();
             }
+        } else if ( enteringUnderworld ) {
+            removeBall( ball );
+            continue;
+        }
+
+        const halfWidth = table.width / 2;
+        if ( left < -halfWidth ) {
+            // TODO keep in bounds or push back
+            console.warn("--- Ball out of horizontal bounds, this should not happen!! TODO correct" );
+            engine.updateBodyPosition( ball.body, { x: -halfWidth + BALL_WIDTH, y: ball.body.position.y });
+            ball.body.isStatic = true; // TODO
         }
 
         if ( top > table.height ) {
@@ -270,9 +283,9 @@ function createBall( left: number, top: number ): Ball {
     return ball;
 }
 
-function createMultiball( amount = 5, left = 200, top = 300 ): void {
+function createMultiball( amount: number, left: number, top: number ): void {
     for ( let i = 0; i < amount; ++i ) {
         const m = ( i + 1 ) * BALL_WIDTH;
-        createBall( left - m, top - m );
+        createBall( left, top - m );
     }
 }
