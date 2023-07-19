@@ -37,6 +37,7 @@ export type ActorOpts = {
     angle?: number; // provide in degrees
     type?: ActorTypes;
     fixed?: boolean;
+    sensor?: boolean;
     opts?: any;
 };
 
@@ -51,6 +52,7 @@ export default class Actor {
     public renderer: sprite;
     public type: ActorTypes;
     public fixed: boolean;
+    public sensor: boolean;
     public angle: number; // internally in radians
 
     public body: Matter.Body | null;
@@ -62,13 +64,14 @@ export default class Actor {
 
     constructor({
         left = 0, top = 0, width = 1, height = 1, angle = 0, radius = 0,
-        fixed = true, opts = null, type = ActorTypes.RECTANGULAR
+        fixed = true, sensor = false, opts = null, type = ActorTypes.RECTANGULAR
     }: ActorOpts = {}, protected engine: IPhysicsEngine, canvas: zCanvas )
     {
         this.id = ++INSTANCE_NUM;
 
         this._opts  = opts;
         this.fixed  = fixed;
+        this.sensor = sensor;
         this.angle  = degToRad( angle );
         this.radius = radius;
         this.type   = type;

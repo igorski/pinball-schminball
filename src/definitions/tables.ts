@@ -94,10 +94,10 @@ export default [{
             target: TriggerTarget.MULTIBALL,
             type: TriggerTypes.BOOL,
             triggers: [
-                { left: 355, top: 140, width: 24, height: 24 },
-                { left: 425, top: 140, width: 24, height: 24 },
-                { left: 490, top: 140, width: 24, height: 24 },
-                { left: 560, top: 140, width: 24, height: 24 },
+                { left: 355, top: 140, width: 24, height: 24, sensor: true },
+                { left: 425, top: 140, width: 24, height: 24, sensor: true },
+                { left: 490, top: 140, width: 24, height: 24, sensor: true },
+                { left: 560, top: 140, width: 24, height: 24, sensor: true },
             ]
         },
         {

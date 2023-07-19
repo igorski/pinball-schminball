@@ -74,6 +74,7 @@ export type FlipperDef = {
 export type ObjectDef = Rectangle & {
     angle?: number;
     radius?: number;
+    sensor?: boolean; // detects collision but does not reflect balls
 };
 
 /**

@@ -126,6 +126,7 @@ export const createEngine = async (
                     const isBumper = label !== ActorLabels.BALL;
                     body = Matter.Bodies.circle( left, top, width / 2, {
                         label,
+                        isSensor: actor.sensor,
                         isStatic: actor.fixed,
                         collisionFilter: {
                             group: !isBumper ? ignoreGroup : undefined
