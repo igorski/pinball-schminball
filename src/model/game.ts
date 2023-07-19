@@ -43,13 +43,14 @@ const MAX_BALL_SPEED     = 10;   // maximum ball speed
 
 let engine: IPhysicsEngine;
 let engineStep: number = 1000 / 60;
-const balls: Ball[] = [];
-let flippers: Flipper[] = [];
 let ball: Ball;
 let flipper: Flipper;
 let otherBall: Ball;
 let table: TableDef;
 let inUnderworld = false;
+const actorMap: Map<number, Actor> = new Map(); // mapping all Actors to their physics body id
+const balls: Ball[] = []; // separate list for quick access to Ball Actors
+let flippers: Flipper[] = []; // separate list for quick access to Flipper Actors
 
 let canvas: zCanvas;
 let backgroundRenderer: sprite;
@@ -65,11 +66,22 @@ export const init = async ( canvasRef: zCanvas, game: GameDef ): Promise<void> =
     table = Tables[ game.table ];
     const { width, height } = table;
 
-    // 1. generate physics world and hook events into game logic
-
     inUnderworld = false;
 
+    // 1. clean up previous instances, when existing
+
+    for ( const actor of actorMap.values() ) {
+        actor.dispose( engine );
+    }
+    actorMap.clear();
     engine?.destroy();
+
+    while ( canvas.numChildren() > 0 ) {
+        canvas.removeChildAt( 0 );
+    }
+
+    // 2. generate physics world and hook events into game logic
+
     engine = await createEngine( table, () => {
         handleEngineUpdate( engine, game );
     }, ( event: CollisionEvent ) => {
@@ -85,16 +97,12 @@ export const init = async ( canvasRef: zCanvas, game: GameDef ): Promise<void> =
                     game.score += 100;
                     break;
                 case "trigger":
-                    console.warn( "trigger hit! map its label to its group and do stuff! of the unit testable kind please." );
+                    const triggerGroup = actorMap.get( pair.bodyA.id ) as TriggerGroup;
+                    triggerGroup?.trigger( pair.bodyA.id );
                     break;
 			}
 		})
     });
-
-    // 2. clear previous canvas contents
-    while ( canvas.numChildren() > 0 ) {
-        canvas.removeChildAt( 0 );
-    }
 
     // 3. generate background assets
     SpriteCache.BACKGROUND.src = table.background;
@@ -102,22 +110,26 @@ export const init = async ( canvasRef: zCanvas, game: GameDef ): Promise<void> =
     canvas.addChild( backgroundRenderer );
 
     // 4. generate Actors
-    new Popper( table.popper, engine, canvas );
+    mapActor( new Popper( table.popper, engine, canvas ));
 
     flippers = table.flippers.map( flipperOpts => {
-        return new Flipper( flipperOpts, engine, canvas );
+        const flipper = new Flipper( flipperOpts, engine, canvas );
+        mapActor( flipper );
+        return flipper;
     });
 
     for ( const bumperOpts of table.bumpers ) {
-        new Bumper( bumperOpts, engine, canvas );
+        mapActor( new Bumper( bumperOpts, engine, canvas ));
     }
 
     for ( const triggerDef of table.triggerGroups ) {
-        new TriggerGroup( triggerDef, engine, canvas );
+        const group = new TriggerGroup( triggerDef, engine, canvas );
+        // individual Trigger bodies' ids are mapped to their parent TriggerGroup
+        group.triggers.map( trigger => mapActor( group, trigger.body.id ));
     }
 
     for ( const rectOpts of table.rects ) {
-        new Rect( rectOpts, engine, canvas );
+        mapActor( new Rect( rectOpts, engine, canvas ));
     }
 
     createBall( table.popper.left, table.popper.top );
@@ -183,6 +195,10 @@ export const update = ( /*timestamp: DOMHighResTimeStamp*/ ): void => {
     // update physics engine
     engine.update( engineStep );
 
+    // update Actors
+
+    actorMap.forEach( actor => actor.update());
+
     // align viewport with main (first) ball
 
     const { top } = ball.bounds;
@@ -212,7 +228,7 @@ function handleEngineUpdate( engine: IPhysicsEngine, game: GameDef ): void {
         }
 
         if ( top > table.height ) {
-            disposeActor( ball, balls );
+            removeBall( ball );
             if ( singleBall ) {
                 if ( --game.balls === 0 ) {
                     game.active = false;
@@ -228,17 +244,22 @@ function handleEngineUpdate( engine: IPhysicsEngine, game: GameDef ): void {
     }
 }
 
-function disposeActor( actor: Actor, actorList: Actor[] ): void {
-    // TODO: maintain linked lists instead for higher performance
-    let index = actorList.indexOf( actor );
+function mapActor( actor: Actor, optId?: number ): void {
+    actorMap.set( optId ?? actor.body.id, actor );
+}
+
+function removeBall( ball: Ball ): void {
+    const index = balls.indexOf( ball );
     if ( index >= 0 ) {
-        actorList.splice( index, 1 );
+        balls.splice( index, 1 );
     }
-    actor.dispose( engine );
+    actorMap.delete( ball.body.id );
+    ball.dispose( engine );
 }
 
 function createBall( left: number, top: number ): Ball {
     const ball = new Ball({ left, top, width: BALL_WIDTH, height: BALL_HEIGHT }, engine, canvas );
+    mapActor( ball );
     balls.push( ball );
 
     return ball;

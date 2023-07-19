@@ -39,8 +39,6 @@ export default class FlipperRenderer extends sprite {
     }
 
     draw( ctx: CanvasRenderingContext2D, viewport: Viewport ): void {
-        this.actor.update();
-
         if ( !this._bitmapReady || !collision.isInsideViewport( this.actor.bounds, viewport )) {
             return;
         }

@@ -39,8 +39,6 @@ export default class TriggerRenderer extends sprite {
     }
 
     draw( ctx: CanvasRenderingContext2D, viewport: Viewport ): void {
-        this.actor.update();
-
         if ( !collision.isInsideViewport( this.actor.bounds, viewport )) {
             return;
         }

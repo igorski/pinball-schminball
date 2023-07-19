@@ -51,7 +51,6 @@ export default class BallRenderer extends sprite {
     }
 
     draw( ctx: CanvasRenderingContext2D, viewport: Viewport ): void {
-        this.actor.update();
         this.update();
 
         if ( !this._bitmapReady || !collision.isInsideViewport( this.actor.bounds, viewport )) {

@@ -44,7 +44,7 @@ export type IRendererClass = new ( actor: Actor ) => sprite;
 let INSTANCE_NUM = 0;
 
 export default class Actor {
-    public id;
+    public id: number;
     public bounds: Rectangle;
     public renderer: sprite;
     public type: ActorTypes;
@@ -62,7 +62,7 @@ export default class Actor {
         left = 0, top = 0, width = 1, height = 1, angle = 0, fixed = true, opts = null, type = ActorTypes.RECTANGULAR
     }: ActorOpts = {}, protected engine: IPhysicsEngine, canvas: zCanvas )
     {
-        this.id = `${++INSTANCE_NUM}`;
+        this.id = ++INSTANCE_NUM;
 
         this._opts = opts;
         this.fixed = fixed;

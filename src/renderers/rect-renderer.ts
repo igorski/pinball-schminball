@@ -37,8 +37,6 @@ export default class RectRenderer extends sprite {
     }
 
     draw( ctx: CanvasRenderingContext2D, viewport: Viewport ): void {
-        this.actor.update();
-
         if ( !collision.isInsideViewport( this.actor.bounds, viewport )) {
             return;
         }

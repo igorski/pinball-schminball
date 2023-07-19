@@ -30,9 +30,9 @@ import Trigger from "@/model/trigger";
 export default class TriggerGroup extends Actor {
     public triggerTarget: TriggerTarget;
     public triggerType: TriggerTypes;
+    public triggers: Trigger[];
 
     private triggerParts: ObjectDef[];
-    private triggers: Trigger[];
 
     constructor( private opts: TriggerDef, engine: IPhysicsEngine, canvas: zCanvas ) {
         super({ fixed: true, opts }, engine, canvas );
@@ -48,7 +48,19 @@ export default class TriggerGroup extends Actor {
         this.triggers.length = 0;
     }
 
-    protected register( engine: IPhysicsEngine, canvas: zCanvas ): void {
+    /**
+     * Invoked whenever one of the child Trigger bodies within this TriggerGroup is hit
+     */
+    trigger( triggerBodyId: number ): void {
+        const trigger = this.triggers.find( trigger => trigger.body.id === triggerBodyId );
+        console.warn( 'do something with', trigger );
+    }
+
+    override update(): void {
+        // nowt...
+    }
+
+    protected override register( engine: IPhysicsEngine, canvas: zCanvas ): void {
         const triggerObjectDefs = this._opts.triggers as never as ObjectDef[];
         this.triggers = triggerObjectDefs.map( trigger => {
             return new Trigger( trigger, engine, canvas );

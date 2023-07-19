@@ -137,10 +137,12 @@ export const createEngine = async (
 
                 case ActorTypes.LEFT_FLIPPER:
                 case ActorTypes.RIGHT_FLIPPER:
+                    const id = actor.id.toString();
                     const isLeftFlipper = actor.type === ActorTypes.LEFT_FLIPPER;
+
                     body = Matter.Bodies.rectangle(
                         left, top, width, height, {
-                            label: actor.id,
+                            label: id,
                             frictionAir: 0,
                             chamfer: {},
                         }
@@ -159,7 +161,7 @@ export const createEngine = async (
                     const plugin = ( position: FlipperPositions ): any => ({
                         attractors: [
                             ( a: Matter.Body, b: Matter.Body ): Point => {
-                                if ( b.label !== actor.id ) {
+                                if ( b.label !== id ) {
                                     return;
                                 }
                                 const isFlipperUp = isLeftFlipper ? isLeftFlipperUp : isRightFlipperUp;
