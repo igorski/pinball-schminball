@@ -106,7 +106,8 @@ export default class Actor {
      * Invoked on each step of the simulation to synchronise
      * the Actors properties with the altered body properties
      */
-    update(): void {
+    // @ts-expect-error 'timestamp' is declared but its value is never read.
+    update( timestamp: DOMHighResTimeStamp ): void {
         this.angle = this.body.angle;
         this.cacheBounds();
     }

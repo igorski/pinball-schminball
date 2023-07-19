@@ -22,7 +22,6 @@
  */
 import { sprite, collision } from "zcanvas";
 import type { Viewport } from "zcanvas";
-import type Actor from "@/model/actor";
 import type Trigger from "@/model/trigger";
 import { BALL_WIDTH, BALL_HEIGHT } from "@/model/game";
 import { degToRad } from "@/utils/math-util";
@@ -34,7 +33,7 @@ const SPIN_SPEED = 30;
 const DEBUG = import.meta.env.MODE !== "production";
 
 export default class TriggerRenderer extends sprite {
-    constructor( private actor: Actor ) {
+    constructor( private actor: Trigger ) {
         super({ width: actor.bounds.width, height: actor.bounds.width });
     }
 
@@ -44,11 +43,11 @@ export default class TriggerRenderer extends sprite {
         }
 
         const { left, top, width, height } = this.actor.bounds;
-        const { radius } = this.actor as Trigger;
+        const { radius } = this.actor;
 
         ctx.beginPath();
         ctx.arc(( left - viewport.left ) + radius, ( top - viewport.top ) + radius, radius, 0, 2 * Math.PI );
-        ctx.fillStyle = "#6600FF";
+        ctx.fillStyle = this.actor.active ? "#FFF" : "#6600FF";
         ctx.fill();
 
         if ( DEBUG ) {

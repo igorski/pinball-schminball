@@ -21,7 +21,8 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import type { canvas as zCanvas } from "zcanvas";
-import type { ObjectDef, TriggerDef, TriggerTarget, TriggerTypes } from "@/definitions/game";
+import type { ObjectDef, TriggerDef, TriggerTarget } from "@/definitions/game";
+import { TriggerTypes, TRIGGER_EXPIRY } from "@/definitions/game";
 import Actor from "@/model/actor";
 import type { ActorOpts } from "@/model/actor";
 import type { IPhysicsEngine } from "@/model/physics/engine";
@@ -32,7 +33,8 @@ export default class TriggerGroup extends Actor {
     public triggerType: TriggerTypes;
     public triggers: Trigger[];
 
-    private triggerParts: ObjectDef[];
+    private activeTriggers = new Set<number>(); // Body ids of active triggers
+    private triggerTimeoutStart = 0;
 
     constructor( private opts: TriggerDef, engine: IPhysicsEngine, canvas: zCanvas ) {
         super({ fixed: true, opts }, engine, canvas );
@@ -49,15 +51,49 @@ export default class TriggerGroup extends Actor {
     }
 
     /**
-     * Invoked whenever one of the child Trigger bodies within this TriggerGroup is hit
+     * Invoked whenever one of the child Trigger bodies within this TriggerGroup is hit.
+     * Returns boolean value indicating whether all triggers have been hit, so the
+     * game class can taken appropriate state changing action.
      */
-    trigger( triggerBodyId: number ): void {
+    trigger( triggerBodyId: number ): boolean {
         const trigger = this.triggers.find( trigger => trigger.body.id === triggerBodyId );
-        console.warn( 'do something with', trigger );
+        if ( trigger === undefined ) {
+            return false;
+        }
+
+        this.activeTriggers.add( triggerBodyId );
+        trigger.setActive( true );
+
+        return this.activeTriggers.size === this.triggers.length;
     }
 
-    override update(): void {
-        // nowt...
+    /**
+     * Unset the active state of all triggers
+     */
+    unsetTriggers(): void {
+        for ( const trigger of this.triggers ) {
+            trigger.setActive( false );
+        }
+        this.activeTriggers.clear();
+    }
+
+    override update( timestamp: DOMHighResTimeStamp ): void {
+        if ( this.activeTriggers.size === 0 ) {
+            return;
+        }
+
+        // when trigger type is timed (e.g. all triggers need to be set to active within
+        // a certain threshold), we start a timeout that will unset all active triggers if
+        // not all of them where activated within this period
+
+        if ( this.triggerType === TriggerTypes.SERIES ) {
+            if ( this.triggerTimeoutStart === 0 ) {
+                this.triggerTimeoutStart = timestamp;
+            } else if ( timestamp - this.triggerTimeoutStart >= TRIGGER_EXPIRY ) {
+                this.unsetTriggers();
+                this.triggerTimeoutStart = 0;
+            }
+        }
     }
 
     protected override register( engine: IPhysicsEngine, canvas: zCanvas ): void {

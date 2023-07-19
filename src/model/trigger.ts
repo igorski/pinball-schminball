@@ -29,11 +29,16 @@ import TriggerRenderer from "@/renderers/trigger-renderer";
 
 export default class Trigger extends Actor {
     public radius: number;
+    public active = false;
 
     constructor( opts: ActorOpts, engine: IPhysicsEngine, canvas: zCanvas ) {
         super({ ...opts, type: ActorTypes.CIRCULAR }, engine, canvas );
 
         this.radius = opts.width / 2;
+    }
+
+    setActive( value: boolean ): void {
+        this.active = value;
     }
 
     protected override getRendererClass(): IRendererClass | null {

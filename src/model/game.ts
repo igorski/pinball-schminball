@@ -23,6 +23,7 @@
 import { sprite } from "zcanvas";
 import type { canvas as zCanvas } from "zcanvas";
 import type { GameDef, TableDef, FlipperType } from "@/definitions/game";
+import { TriggerTarget } from "@/definitions/game";
 import Tables from "@/definitions/tables";
 import Actor from "@/model/actor";
 import Ball from "@/model/ball";
@@ -98,7 +99,11 @@ export const init = async ( canvasRef: zCanvas, game: GameDef ): Promise<void> =
                     break;
                 case "trigger":
                     const triggerGroup = actorMap.get( pair.bodyA.id ) as TriggerGroup;
-                    triggerGroup?.trigger( pair.bodyA.id );
+                    const groupHit = triggerGroup?.trigger( pair.bodyA.id );
+                    if ( groupHit && triggerGroup.triggerTarget === TriggerTarget.MULTIBALL ) {
+                        triggerGroup.unsetTriggers();
+                        createMultiball();
+                    }
                     break;
 			}
 		})
@@ -185,7 +190,7 @@ export const bumpTable = (): void => {
 /**
  * Should be called when zCanvas invokes update() prior to rendering
  */
-export const update = ( /*timestamp: DOMHighResTimeStamp*/ ): void => {
+export const update = ( timestamp: DOMHighResTimeStamp ): void => {
     ball = balls[ 0 ];
 
     if ( !ball ) {
@@ -197,7 +202,7 @@ export const update = ( /*timestamp: DOMHighResTimeStamp*/ ): void => {
 
     // update Actors
 
-    actorMap.forEach( actor => actor.update());
+    actorMap.forEach( actor => actor.update( timestamp ));
 
     // align viewport with main (first) ball
 
@@ -265,7 +270,7 @@ function createBall( left: number, top: number ): Ball {
     return ball;
 }
 
-function createMultiball( amount = 5, left = 0, top = 0 ): void {
+function createMultiball( amount = 5, left = 200, top = 300 ): void {
     for ( let i = 0; i < amount; ++i ) {
         const m = ( i + 1 ) * BALL_WIDTH;
         createBall( left - m, top - m );

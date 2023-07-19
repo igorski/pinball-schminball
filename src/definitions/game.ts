@@ -73,12 +73,18 @@ export enum TriggerTarget {
  * The types of triggers.
  * Bool -> all Actors in the Trigger group must be hit for the action to happen
  * Series -> all Actors in the Trigger group must be hit in succession (within
- * a 1 second grace period) for the action to happen
+ * a TRIGGER_EXPIRY grace period) for the action to happen
  */
 export enum TriggerTypes {
     BOOL,
     SERIES,
 };
+
+/**
+ * The amount of milliseconds that are allowed to pass before the active triggers
+ * within a not-fully activated Trigger group expire
+ */
+export const TRIGGER_EXPIRY = 5000;
 
 export type TriggerDef = {
     target: TriggerTarget;
