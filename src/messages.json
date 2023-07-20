@@ -1,9 +1,25 @@
 {
     "en": {
+        "menu": {
+            "newGame": "New game",
+            "settings": "Settings",
+            "credits": "Credits"
+        },
+        "ui": {
+            "closeWindow": "Close window"
+        },
         "messages": {
             "tilt": "Tilt",
             "multiball": "Multiball",
             "multiplier": "{count}x multiplier"
+        },
+        "settings": {
+            "sound": "Play sound"
+        },
+        "credits": {
+            "introduction": "Unless otherwise stated, programming, illustrations and music by:",
+            "font": "Font",
+            "by": "by"
         }
     }
 }

@@ -20,24 +20,19 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-<template>
-    <p>
-        <span v-t="'credits.introduction'"></span>
-        <a href="https://www.igorski.nl" target="_blank" title="igorski.nl website">igorski</a>.<br />
-    </p>
-    <p
-        v-for="(credit, index) in credits" :key="`c_${index}`"
-    >
-        {{ credit.type }} <a :href="credit.url" target="_blank">{{ credit.title }}</a> <span v-t="'by'"></span> {{ credit.author }}
-    </p>
-</template>
-
-<script lang="ts">
-export default {
-    created(): void {
-        this.credits = [
-            { type: this.$t( "credits.font" ), title: "Clubland", url: "https://www.dafont.com/clubland.font", author: "Joseph Gibson" }
-        ];
-    },
+export const getFromStorage = ( storageKey: string ): string | null => {
+    try {
+        return window.localStorage.getItem( storageKey );
+    } catch {
+        return null; // can fail in Safari private mode
+    }
 };
-</script>
+
+export const setInStorage = ( storageKey: string, value: string ): boolean => {
+    try {
+        window.localStorage.setItem( storageKey, value );
+        return true;
+    } catch {
+        return false;
+    }
+};

@@ -65,6 +65,7 @@ let touch;
 
 interface ComponentData {
     game: GameDef;
+    message: string;
 };
 
 export default {
@@ -117,7 +118,7 @@ export default {
         handleResize(): void {
             const { clientWidth, clientHeight } = document.documentElement;
             const statusHeight = this.$refs.statusDisplay.offsetHeight;
-            scaleCanvas( clientWidth, clientHeight - statusHeight );
+            scaleCanvas( clientWidth, clientHeight - ( 58 /* is $menu-height */ + statusHeight ));
             this.halfWidth = clientWidth / 2;
         },
         handleTouch( event: TouchEvent ): void {
@@ -211,10 +212,12 @@ export default {
 <style lang="scss" scoped>
 @import "@/styles/_animation";
 @import "@/styles/_typography";
+@import "@/styles/_variables";
 
 .canvas-container {
     overflow: hidden;
     text-align: center;
+    margin-top: $menu-height;
 
     &--active {
         cursor: none;
@@ -223,6 +226,7 @@ export default {
 
 .overlay {
     position: fixed;
+    z-index: $z-index-on-top;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);

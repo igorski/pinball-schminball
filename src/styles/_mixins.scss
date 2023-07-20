@@ -1,0 +1,45 @@
+/* mixins */
+
+@mixin mobile() {
+    @media (max-width: #{$mobile-width}) {
+        @content;
+    }
+}
+
+@mixin large() {
+    @media (min-width: #{$mobile-width}) {
+        @content;
+    }
+}
+
+@mixin center( $position: absolute ) {
+    position: $position;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+@mixin noSelect() {
+    -webkit-touch-callout: none;
+      -webkit-user-select: none;
+       -khtml-user-select: none;
+         -moz-user-select: none;
+          -ms-user-select: none;
+              user-select: none;
+}
+
+@mixin noEvents() {
+    pointer-events: none;
+}
+
+@mixin textOverflow() {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@mixin scrollableWindow() {
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+}

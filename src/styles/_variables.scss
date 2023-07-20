@@ -1,0 +1,21 @@
+/* layout variables */
+
+$app-width: 960px;    // the baseline resolution we strive for (tablet)
+$ideal-width: 1100px; // the minimum resolution we consider a luxury
+$mobile-width: 685px; // the threshold below which we start to use the mobile view
+
+$menu-height: 58px;
+$menu-toggle-width: 50px;
+
+$spacing-xsmall: 4px;
+$spacing-small: 7px;
+$spacing-medium: 14px;
+$spacing-large: 28px;
+$spacing-xlarge: 56px;
+
+$z-index-game: 0;
+$z-index-header: 1;
+$z-index-modal: 2;
+$z-index-on-top: 3;
+
+@import "_mixins";

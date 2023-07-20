@@ -22,11 +22,13 @@
  */
 import axios from "axios";
 import Config from "@/config/config";
+import { getFromStorage, setInStorage } from "@/utils/local-storage";
+
+const STORED_MUTED_SETTING = "ps_as_am";
 
 let inited  = false;
 let playing = false;
-// @ts-expect-error Property 'env' does not exist on type 'ImportMeta', Vite takes care of it
-let muted   = import.meta.env.MODE !== "production";
+let muted   = getFromStorage( STORED_MUTED_SETTING ) === "true";
 let queuedTrackId: string | null = null;
 let playingTrackId: string | null = null;
 let scheduledFrequency = 0;
@@ -134,6 +136,21 @@ export const setFrequency = ( value = 22050 ): void => {
 
         filter.frequency.cancelScheduledValues( audioContext.currentTime );
         filter.frequency.linearRampToValueAtTime( scheduledFrequency, audioContext.currentTime + 1.5 )
+    }
+};
+
+export const getMuted = (): boolean => {
+    return muted;
+};
+
+export const setMuted = ( value: boolean ): void => {
+    muted = value;
+    setInStorage( STORED_MUTED_SETTING, muted.toString() );
+
+    if ( muted && playing ) {
+        stop();
+    } else if ( !muted && playing && queuedTrackId ) {
+        enqueueTrack( queuedTrackId );
     }
 };
 

@@ -41,8 +41,9 @@ npm run typecheck
 
 ## TODO
 
+* add loader animation
 * underworld should be set on game and only unlocked after certain event
-* create menu to configure audio
+* add full-screen button
 * implement high score mechanism
 * add underworld triggers
 * should we update Actor constructors to accept on-screen coordinates which are internally transformed (see actor unit test for bounds)

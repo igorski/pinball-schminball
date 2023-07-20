@@ -21,23 +21,43 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 <template>
-    <p>
-        <span v-t="'credits.introduction'"></span>
-        <a href="https://www.igorski.nl" target="_blank" title="igorski.nl website">igorski</a>.<br />
-    </p>
-    <p
-        v-for="(credit, index) in credits" :key="`c_${index}`"
-    >
-        {{ credit.type }} <a :href="credit.url" target="_blank">{{ credit.title }}</a> <span v-t="'by'"></span> {{ credit.author }}
-    </p>
+    <fieldset class="settings-fieldset">
+        <div class="settings-wrapper">
+            <label v-t="'settings.sound'"></label>
+            <Toggle v-model="playSound" />
+        </div>
+    </fieldset>
 </template>
 
 <script lang="ts">
+import Toggle from "@vueform/toggle";
+import { getMuted, setMuted } from "@/services/audio-service";
+
 export default {
-    created(): void {
-        this.credits = [
-            { type: this.$t( "credits.font" ), title: "Clubland", url: "https://www.dafont.com/clubland.font", author: "Joseph Gibson" }
-        ];
+    components: {
+        Toggle,
+    },
+    data: () => ({
+        playSound: !getMuted()
+    }),
+    watch: {
+        playSound( value: boolean ): void {
+            setMuted( !value );
+        },
     },
 };
 </script>
+
+<style src="@vueform/toggle/themes/default.css"></style>
+
+<style lang="scss" scoped>
+.settings-fieldset {
+    border: none;
+    padding: 0;
+}
+
+.settings-wrapper {
+    display: flex;
+    justify-content: space-between;
+}
+</style>
