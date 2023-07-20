@@ -25,7 +25,7 @@ import type { canvas as zCanvas } from "zcanvas";
 import type { GameDef, TableDef, FlipperType } from "@/definitions/game";
 import {
     BALL_WIDTH, BALL_HEIGHT, MAX_BUMPS, BUMP_TIMEOUT, BUMP_IMPULSE,
-    TriggerTarget, AwardablePoints, ActorLabels
+    GameMessages, TriggerTarget, AwardablePoints, ActorLabels
 } from "@/definitions/game";
 import Tables from "@/definitions/tables";
 import Actor from "@/model/actor";
@@ -40,6 +40,8 @@ import type { IPhysicsEngine, CollisionEvent } from "@/model/physics/engine";
 import { enqueueTrack, setFrequency } from "@/services/audio-service";
 import SpriteCache from "@/utils/sprite-cache";
 
+type IMessageHandler = ( message: GameMessages, optDuration?: number ) => void;
+
 let engine: IPhysicsEngine;
 let engineStep: number = 1000 / 60;
 let ball: Ball;
@@ -53,6 +55,7 @@ let flippers: Flipper[] = []; // separate list for quick access to Flipper Actor
 
 let canvas: zCanvas;
 let backgroundRenderer: sprite;
+let messageHandler: IMessageHandler;
 let panOffset = 0;
 let viewportWidth = 0;
 let viewportHeight = 0; // cached in scaleCanvas()
@@ -61,8 +64,10 @@ let underworldOffset = 0;
 let bumpAmount = 0;
 let tilt = false;
 
-export const init = async ( canvasRef: zCanvas, game: GameDef ): Promise<void> => {
+export const init = async ( canvasRef: zCanvas, game: GameDef, messageHandlerRef: IMessageHandler ): Promise<void> => {
     canvas = canvasRef;
+    messageHandler = messageHandlerRef;
+
     engineStep = 1000 / canvas.getFrameRate();
 
     table = Tables[ game.table ];
@@ -110,12 +115,14 @@ export const init = async ( canvasRef: zCanvas, game: GameDef ): Promise<void> =
                             case TriggerTarget.MULTIPLIER: {
                                 triggerGroup.unsetTriggers();
                                 game.multiplier = Math.min( 2 * game.multiplier, 32 );
+                                messageHandler( GameMessages.MULTIPLIER );
                                 break;
                             }
                             case TriggerTarget.MULTIBALL: {
                                 awardPoints( game, AwardablePoints.TRIGGER_GROUP_COMPLETE );
                                 triggerGroup.unsetTriggers();
                                 createMultiball( 5, table.popper.left, table.popper.top );
+                                messageHandler( GameMessages.MULTIBALL );
                                 break;
                             }
                         }
@@ -208,6 +215,7 @@ export const bumpTable = (): void => {
         engine.applyForce( ball.body, Math.random() * force, force );
     }
     if ( ++bumpAmount >= MAX_BUMPS ) {
+        messageHandler( GameMessages.TILT, 5000 );
         tilt = true;
     }
     setTimeout(() => {

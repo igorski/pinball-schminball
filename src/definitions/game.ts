@@ -45,6 +45,12 @@ export const AwardablePoints = {
     TRIGGER_GROUP_COMPLETE: 500,
 };
 
+export enum GameMessages {
+    MULTIPLIER,
+    MULTIBALL,
+    TILT,
+};
+
 /**
  * All the different Actors inside a game
  */

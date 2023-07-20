@@ -1,0 +1,9 @@
+{
+    "en": {
+        "messages": {
+            "tilt": "Tilt",
+            "multiball": "Multiball",
+            "multiplier": "{count}x multiplier"
+        }
+    }
+}

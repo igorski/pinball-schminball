@@ -42,7 +42,6 @@ npm run typecheck
 ## TODO
 
 * underworld should be set on game and only unlocked after certain event
-* pinball-table status display should flash messages on certain events
 * create menu to configure audio
 * implement high score mechanism
 * add underworld triggers
@@ -50,4 +49,4 @@ npm run typecheck
 * add invisible loop trigger multipliers (repeated loops give more points)
 * isInsideViewport check should take angle into account for rects and flippers
 * Switches to toggle score multiplier ("x when lit")
-* Feedback messages when trigger groups are completed
+* on occasion ball goes up the ramp left from the flippers

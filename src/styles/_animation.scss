@@ -1,0 +1,10 @@
+@mixin animationBlink( $interval: 1s) {
+    animation: blink-animation $interval steps( 5, start ) infinite;
+    -webkit-animation: blink-animation $interval steps( 5, start ) infinite;
+}
+
+@keyframes blink-animation {
+    to {
+        visibility: hidden;
+    }
+}

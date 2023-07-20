@@ -34,11 +34,16 @@
         class="status-display"
     >
         <div class="status-display__container">
-            <div class="status-display__game-details">
-                <div class="status-display__balls">BALLS: {{ game.balls }}</div>
-                <div class="status-display__multiplier">MULTIPLIER: {{ game.multiplier }}x</div>
+            <div v-if="message" class="status-display__message">
+                {{ message }}
             </div>
-            <div class="status-display__score">{{ game.score }}</div>
+            <template v-else>
+                <div class="status-display__game-details">
+                    <div class="status-display__balls">BALLS: {{ game.balls }}</div>
+                    <div class="status-display__multiplier">MULTIPLIER: {{ game.multiplier }}x</div>
+                </div>
+                <div class="status-display__score">{{ game.score }}</div>
+            </template>
         </div>
     </div>
     <div v-if="!game.active" class="overlay">
@@ -50,8 +55,9 @@
 <script lang="ts">
 import { canvas } from "zcanvas";
 import type { GameDef } from "@/definitions/game";
-import { ActorTypes } from "@/definitions/game";
+import { GameMessages, ActorTypes } from "@/definitions/game";
 import { init, scaleCanvas, setFlipperState, bumpTable, update } from "@/model/game";
+import { i18n } from "../../i18n";
 
 let leftTouchId = -1;
 let rightTouchId = -1;
@@ -71,6 +77,7 @@ export default {
             multiplier: 1,
             underworld: false,
         },
+        message: "",
     }),
     mounted(): void {
         this.canvas = new canvas({
@@ -105,7 +112,7 @@ export default {
                 balls: 3,
                 multiplier: 1,
             };
-            init( this.canvas, this.game );
+            init( this.canvas, this.game, this.flashMessage.bind( this ));
         },
         handleResize(): void {
             const { clientWidth, clientHeight } = document.documentElement;
@@ -160,11 +167,49 @@ export default {
                     break;
             }
         },
+        flashMessage( message: GameMessages | null, optTimeout = 2000 ): void {
+            this.clearMessage();
+
+            if ( message !== null ) {
+                this.message = this.i18nForMessage( message );
+                this.messageTimeout = window.setTimeout(() => {
+                    this.clearMessage();
+                }, optTimeout );
+            }
+        },
+        clearMessage(): void {
+            if ( !this.messageTimeout ) {
+                return;
+            }
+            clearTimeout( this.messageTimeout );
+            this.messageTimeout = null;
+            this.message = null;
+        },
+        i18nForMessage( message: GameMessages ): string {
+            let key: string = "";
+            let optData: any;
+            switch ( message ) {
+                default:
+                    break
+                case GameMessages.TILT:
+                    key = "tilt";
+                    break;
+                case GameMessages.MULTIBALL:
+                    key = "multiball";
+                    break;
+                case GameMessages.MULTIPLIER:
+                    key = "multiplier";
+                    optData = { count: this.game.multiplier };
+                    break;
+            }
+            return i18n.t( `messages.${key}`, optData );
+        },
     }
 };
 </script>
 
 <style lang="scss" scoped>
+@import "@/styles/_animation";
 @import "@/styles/_typography";
 
 .canvas-container {
@@ -214,6 +259,12 @@ export default {
 
     &__score {
         max-width: 350px;
+        font-size: 64px;
+    }
+
+    &__message {
+        @include animationBlink( 0.25s );
+        text-transform: uppercase;
         font-size: 64px;
     }
 }
