@@ -7,6 +7,8 @@ describe( "Actor", () => {
     const engine = getMockPhysicsEngine();
     const canvas = getMockCanvas();
 
+    const ACTOR_OPTS = { left: 50, top: 50, width: 30, height: 30 };
+
     afterEach(() => {
         vi.restoreAllMocks();
     });
@@ -62,9 +64,17 @@ describe( "Actor", () => {
         expect( actor.renderer ).toBeNull();
     });
 
+    it( "should transform the initial bounds given in the constructor to on-screen coordinates relative to the physics Body", () => {
+        const actor = new Actor( ACTOR_OPTS, engine, canvas );
+        actor.cacheBounds();
+
+        const { left, top, width, height } = ACTOR_OPTS;
+        expect( actor.bounds ).toEqual({ left: left - width, top: top - height, width, height });
+    });
+
     it( `when the bounds are cached, it should be able to translate the Actors physics body
          coordinates to the Actors on-screen bounding box coordinates`, () => {
-        const actor = new Actor({ left: 50, top: 50, width: 30, height: 30 }, engine, canvas );
+        const actor = new Actor( ACTOR_OPTS, engine, canvas );
         actor.cacheBounds();
 
         expect( actor.getOutline() ).toEqual([ 20, 20, 50, 20, 50, 50, 20, 50 ]);

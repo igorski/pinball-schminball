@@ -60,7 +60,6 @@ export default class TriggerGroup extends Actor {
         if ( trigger === undefined ) {
             return false;
         }
-
         this.activeTriggers.add( triggerBodyId );
         trigger.setActive( true );
 
