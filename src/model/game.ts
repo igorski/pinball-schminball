@@ -290,6 +290,7 @@ function handleEngineUpdate( engine: IPhysicsEngine, game: GameDef ): void {
                         createBall( table.popper.left, table.popper.top );
                         setFrequency();
                         inUnderworld = false;
+                        game.underworld = false;
                     }, 2500 );
                 }
             }

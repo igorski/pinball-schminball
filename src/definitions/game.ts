@@ -69,11 +69,12 @@ export enum ActorLabels {
  * @see pinball-table.vue, model/game.ts
  */
 export type GameDef = {
-    active: boolean;
-    table: number;
-    score: number;
-    balls: number;
-    multiplier: number;
+    active: boolean;     // whether the game is running or over
+    table: number;       // identifier of the table in the tables list
+    score: number;       // the score awarded in this game
+    balls: number;       // amount of balls left
+    multiplier: number;  // bonus multiplier for each awarded point
+    underworld: boolean; // whether underworld is accessible below the table
 };
 
 export type FlipperType = ActorTypes.LEFT_FLIPPER | ActorTypes.RIGHT_FLIPPER;
@@ -132,7 +133,7 @@ export type TriggerDef = {
  * of the definitions above to define the table contents and "game world".
  */
 export type TableDef = {
-    soundtrackId: string;
+    soundtrackId: string; // Soundcloud track id as we use Soundcloud as our "Media streaming platform"
     width: number;
     height: number;
     underworld: number; // at which y coordinate the "underworld"-section starts

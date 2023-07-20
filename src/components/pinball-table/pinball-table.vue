@@ -69,6 +69,7 @@ export default {
             score: 0,
             balls: 3,
             multiplier: 1,
+            underworld: false,
         },
     }),
     mounted(): void {
