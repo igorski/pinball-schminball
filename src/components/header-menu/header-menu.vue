@@ -37,14 +37,6 @@
             <ul class="menu__items">
                 <li>
                     <button
-                        v-t="'menu.newGame'"
-                        type="button"
-                        :title="$t('menu.newGame')"
-                        @click="openScreen('newGame')"
-                    ></button>
-                </li>
-                <li>
-                    <button
                         v-t="'menu.settings'"
                         type="button"
                         :title="$t('menu.settings')"

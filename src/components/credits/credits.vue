@@ -26,7 +26,7 @@
         <a href="https://www.igorski.nl" target="_blank" title="igorski.nl website">igorski</a>.<br />
     </p>
     <p v-for="( credit, index ) in credits" :key="`c_${index}`">
-        {{ credit.type }} <a :href="credit.url" target="_blank">"{{ credit.title }}"</a> <span v-t="'by'"></span> {{ credit.author }}
+        {{ credit.type }} <a :href="credit.url" target="_blank">"{{ credit.title }}"</a> <span v-t="'credits.by'"></span> {{ credit.author }}
     </p>
 </template>
 

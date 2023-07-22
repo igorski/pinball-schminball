@@ -1,17 +1,18 @@
 {
     "en": {
         "menu": {
-            "newGame": "New game",
             "settings": "Settings",
             "credits": "Credits"
         },
         "ui": {
+            "newGame": "New game",
             "closeWindow": "Close window"
         },
         "messages": {
             "tilt": "Tilt",
             "multiball": "Multiball",
-            "multiplier": "{count}x multiplier"
+            "multiplier": "{count}x multiplier",
+            "gameOver": "Game over"
         },
         "settings": {
             "sound": "Play sound"

@@ -21,38 +21,37 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 <template>
-    <div
-        ref="canvasContainer"
-        class="canvas-container"
-        :class="{'canvas-container--active': game.active}"
-        @touchstart="handleTouch"
-        @touchend="handleTouch"
-        @touchcancel="handleTouch"
-    ></div>
-    <div
-        ref="statusDisplay"
-        class="status-display"
-    >
-        <div class="status-display__container">
-            <div v-if="message" class="status-display__message">
-                {{ message }}
-            </div>
-            <template v-else>
-                <div class="status-display__game-details">
-                    <div class="status-display__balls">BALLS: {{ game.balls }}</div>
-                    <div class="status-display__multiplier">MULTIPLIER: {{ game.multiplier }}x</div>
+    <div>
+        <div
+            ref="canvasContainer"
+            class="canvas-container"
+            :class="{'canvas-container--active': modelValue.active}"
+            @touchstart="handleTouch"
+            @touchend="handleTouch"
+            @touchcancel="handleTouch"
+        ></div>
+        <div
+            ref="statusDisplay"
+            class="status-display"
+        >
+            <div class="status-display__container">
+                <div v-if="message" class="status-display__message">
+                    {{ message }}
                 </div>
-                <div class="status-display__score">{{ game.score }}</div>
-            </template>
+                <template v-else>
+                    <div class="status-display__game-details">
+                        <div class="status-display__balls">BALLS: {{ modelValue.balls }}</div>
+                        <div class="status-display__multiplier">MULTIPLIER: {{ modelValue.multiplier }}x</div>
+                    </div>
+                    <div class="status-display__score">{{ modelValue.score }}</div>
+                </template>
+            </div>
         </div>
-    </div>
-    <div v-if="!game.active" class="overlay">
-        GAME OVER
-        <button @click="initGame()">New game</button>
     </div>
 </template>
 
 <script lang="ts">
+import { PropType } from "vue";
 import { canvas } from "zcanvas";
 import type { GameDef } from "@/definitions/game";
 import { GameMessages, ActorTypes } from "@/definitions/game";
@@ -64,26 +63,25 @@ let rightTouchId = -1;
 let touch;
 
 interface ComponentData {
-    game: GameDef;
     message: string;
 };
 
 export default {
-    data: (): ComponentData => ({
-        game: {
-            active: false,
-            table: 0,
-            score: 0,
-            balls: 3,
-            multiplier: 1,
-            underworld: false,
+    props: {
+        modelValue: {
+            type: Object as PropType<GameDef>,
+            required: true,
         },
+    },
+    data: (): ComponentData => ({
         message: "",
     }),
     watch: {
-        'game.active'( value: boolean ): void {
-            this.$emit( "game-active", value );
-        }
+        'modelValue.active'( active: boolean, prevActive?: boolean): void {
+            if ( active && !prevActive ) {
+                this.initGame();
+            }
+        },
     },
     mounted(): void {
         this.canvas = new canvas({
@@ -108,14 +106,7 @@ export default {
     },
     methods: {
         initGame(): void {
-            this.game = {
-                active: true,
-                table: 0,
-                score: 0,
-                balls: 3,
-                multiplier: 1,
-            };
-            init( this.canvas, this.game, this.flashMessage.bind( this ));
+            init( this.canvas, this.modelValue, this.flashMessage.bind( this ));
             this.handleResize();
         },
         handleResize(): void {
@@ -205,7 +196,7 @@ export default {
                     break;
                 case GameMessages.MULTIPLIER:
                     key = "multiplier";
-                    optData = { count: this.game.multiplier };
+                    optData = { count: this.modelValue.multiplier };
                     break;
             }
             return i18n.t( `messages.${key}`, optData );
@@ -230,18 +221,6 @@ export default {
     @include mobile() {
         margin-top: $menu-height;
     }
-}
-
-.overlay {
-    position: fixed;
-    z-index: $z-index-on-top;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    border-radius: 7px;
-    border: 3px solid #000;
-    background-color: #FFF;
-    padding: 16px;
 }
 
 .status-display {

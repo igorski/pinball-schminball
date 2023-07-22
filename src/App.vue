@@ -24,10 +24,10 @@
     <loader v-if="loading" />
     <template v-else>
         <header-menu
-            :collapsable="gameActive"
+            :collapsable="game.active"
             @open="activeScreen = $event"
         />
-        <PinballTable @game-active="gameActive = $event" />
+        <PinballTable v-model="game" />
     </template>
     <modal
         v-if="hasScreen"
@@ -37,16 +37,31 @@
         <ScreenCredits v-if="activeScreen === 'credits'" />
         <ScreenSettings v-else-if="activeScreen === 'settings'" />
     </modal>
+    <div v-else-if="!game.active" class="overlay">
+        {{ $t( "messages.gameOver" )}}
+        <button
+            v-t="'ui.newGame'"
+            type="button"
+            @click="initGame()"
+        ></button>
+    </div>
 </template>
 
 <script lang="ts">
 import { defineAsyncComponent } from "vue";
 import type { Component } from "vue";
+import type { GameDef } from "@/definitions/game";
 import { preloadAssets } from "@/services/asset-preloader";
 import { init } from "@/services/audio-service";
 import HeaderMenu from "./components/header-menu/header-menu.vue";
 import Loader from "@/components/loader/loader.vue";
 import Modal from "@/components/modal/modal.vue";
+
+interface ComponentData {
+    loading: boolean;
+    activeScreen: string;
+    game: GameDef;
+};
 
 export default {
     components: {
@@ -65,8 +80,14 @@ export default {
     },
     data: () => ({
         loading: true,
-        gameActive: false,
         activeScreen: "",
+        game: {
+            active: false,
+            table: 0,
+            score: 0,
+            balls: 3,
+            multiplier: 1,
+        },
     }),
     computed: {
         hasScreen(): boolean {
@@ -90,6 +111,17 @@ export default {
         document.addEventListener( "click", handler );
         document.addEventListener( "keydown", handler );
     },
+    methods: {
+        initGame(): void {
+            this.game = {
+                active: true,
+                table: 0,
+                score: 0,
+                balls: 3,
+                multiplier: 1,
+            };
+        },
+    },
 };
 </script>
 
@@ -106,5 +138,21 @@ body {
     padding: 0;
     overflow: hidden;
     background-color: #222;
+}
+</style>
+
+<style lang="scss" scoped>
+@import "@/styles/_variables";
+
+.overlay {
+    position: fixed;
+    z-index: $z-index-on-top;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 7px;
+    border: 3px solid #000;
+    background-color: #FFF;
+    padding: 16px;
 }
 </style>
