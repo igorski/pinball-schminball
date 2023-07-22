@@ -21,10 +21,13 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 <template>
-    <p v-if="loading">Loading...</p>
+    <loader v-if="loading" />
     <template v-else>
-        <header-menu @open="activeScreen = $event"/>
-        <PinballTable />
+        <header-menu
+            :collapsable="gameActive"
+            @open="activeScreen = $event"
+        />
+        <PinballTable @game-active="gameActive = $event" />
     </template>
     <modal
         v-if="hasScreen"
@@ -42,11 +45,13 @@ import type { Component } from "vue";
 import { preloadAssets } from "@/services/asset-preloader";
 import { init } from "@/services/audio-service";
 import HeaderMenu from "./components/header-menu/header-menu.vue";
+import Loader from "@/components/loader/loader.vue";
 import Modal from "@/components/modal/modal.vue";
 
 export default {
     components: {
         HeaderMenu,
+        Loader,
         Modal,
         PinballTable: defineAsyncComponent(() => {
             return import( "./components/pinball-table/pinball-table.vue" );
@@ -60,6 +65,7 @@ export default {
     },
     data: () => ({
         loading: true,
+        gameActive: false,
         activeScreen: "",
     }),
     computed: {
@@ -99,5 +105,6 @@ body {
     margin: 0;
     padding: 0;
     overflow: hidden;
+    background-color: #222;
 }
 </style>

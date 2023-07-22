@@ -25,8 +25,9 @@ import SpriteCache from "@/utils/sprite-cache";
 
 const assetRoot = `./assets/sprites/`;
 const queue = [
-    { src: `${assetRoot}ball.png`,          target: SpriteCache.BALL },
-    { src: `${assetRoot}flipper_left.png`,  target: SpriteCache.FLIPPER_LEFT },
+    { src: `${assetRoot}table1_background.png`, target: SpriteCache.BACKGROUND },
+    { src: `${assetRoot}ball.png`, target: SpriteCache.BALL },
+    { src: `${assetRoot}flipper_left.png`, target: SpriteCache.FLIPPER_LEFT },
     { src: `${assetRoot}flipper_right.png`, target: SpriteCache.FLIPPER_RIGHT },
 ];
 const loadContainer: HTMLElement = document.createElement( "div" );

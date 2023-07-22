@@ -25,10 +25,8 @@
         <span v-t="'credits.introduction'"></span>
         <a href="https://www.igorski.nl" target="_blank" title="igorski.nl website">igorski</a>.<br />
     </p>
-    <p
-        v-for="(credit, index) in credits" :key="`c_${index}`"
-    >
-        {{ credit.type }} <a :href="credit.url" target="_blank">{{ credit.title }}</a> <span v-t="'by'"></span> {{ credit.author }}
+    <p v-for="( credit, index ) in credits" :key="`c_${index}`">
+        {{ credit.type }} <a :href="credit.url" target="_blank">"{{ credit.title }}"</a> <span v-t="'by'"></span> {{ credit.author }}
     </p>
 </template>
 
@@ -36,7 +34,18 @@
 export default {
     created(): void {
         this.credits = [
-            { type: this.$t( "credits.font" ), title: "Clubland", url: "https://www.dafont.com/clubland.font", author: "Joseph Gibson" }
+            {
+                title: "Loader",
+                author: "Nikhil Krishnan",
+                type: this.$t( "credits.animation" ),
+                url: "https://codepen.io/nikhil8krishnan/pen/rVoXJa",
+            },
+            {
+                title: "Clubland",
+                author: "Joseph Gibson",
+                type: this.$t( "credits.font" ),
+                url: "https://www.dafont.com/clubland.font",
+            }
         ];
     },
 };

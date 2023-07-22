@@ -41,11 +41,10 @@ npm run typecheck
 
 ## TODO
 
-* add loader animation
-* underworld should be set on game and only unlocked after certain event
+* underworld should be set on game and only unlocked after certain event, add the trigger for it
 * add full-screen button
+* trapezoid deflectors by flippers
 * implement high score mechanism
-* add underworld triggers
 * should we update Actor constructors to accept on-screen coordinates which are internally transformed (see actor unit test for bounds)
 * add invisible loop trigger multipliers (repeated loops give more points)
 * isInsideViewport check should take angle into account for rects and flippers

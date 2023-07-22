@@ -23,7 +23,10 @@
 <template>
     <header
         class="header"
-        :class="{ 'header--expanded': menuOpened }"
+        :class="{
+            'header--expanded': menuOpened,
+            'header--collapsable': collapsable
+        }"
     >
         <nav class="menu">
             <div class="menu__toggle"
@@ -64,6 +67,12 @@
 
 <script lang="ts">
 export default {
+    props: {
+        collapsable: {
+            type: Boolean,
+            default: false
+        }
+    },
     data: () => ({
         menuOpened: false,
     }),
@@ -98,6 +107,17 @@ export default {
 
         &--expanded {
             height: 100%;
+        }
+    }
+
+    @include large() {
+        &--collapsable {
+            top: -( $menu-height - $spacing-small );
+            transition: top 0.35s ease-in-out;
+
+            &:hover {
+                top: 0;
+            }
         }
     }
 }

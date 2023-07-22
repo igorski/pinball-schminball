@@ -80,6 +80,11 @@ export default {
         },
         message: "",
     }),
+    watch: {
+        'game.active'( value: boolean ): void {
+            this.$emit( "game-active", value );
+        }
+    },
     mounted(): void {
         this.canvas = new canvas({
             width       : 600,
@@ -95,9 +100,6 @@ export default {
         window.addEventListener( "keydown", this.keyListener );
         window.addEventListener( "keyup",   this.keyListener );
         window.addEventListener( "resize",  this.handleResize );
-
-        this.initGame();
-        this.handleResize();
     },
     unmounted(): void {
         window.removeEventListener( "keydown", this.keyListener );
@@ -114,11 +116,14 @@ export default {
                 multiplier: 1,
             };
             init( this.canvas, this.game, this.flashMessage.bind( this ));
+            this.handleResize();
         },
         handleResize(): void {
             const { clientWidth, clientHeight } = document.documentElement;
             const statusHeight = this.$refs.statusDisplay.offsetHeight;
-            scaleCanvas( clientWidth, clientHeight - ( 58 /* is $menu-height */ + statusHeight ));
+            const isMobileView = clientWidth <= 685; // see _variables.scss
+            const uiHeight = isMobileView ? 58 /* is $menu-height */ + statusHeight : statusHeight;
+            scaleCanvas( clientWidth, clientHeight - uiHeight );
             this.halfWidth = clientWidth / 2;
         },
         handleTouch( event: TouchEvent ): void {
@@ -217,10 +222,13 @@ export default {
 .canvas-container {
     overflow: hidden;
     text-align: center;
-    margin-top: $menu-height;
 
     &--active {
         cursor: none;
+    }
+
+    @include mobile() {
+        margin-top: $menu-height;
     }
 }
 
