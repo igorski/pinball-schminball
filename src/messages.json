@@ -1,12 +1,16 @@
 {
     "en": {
         "menu": {
+            "highScores": "High scores",
             "settings": "Settings",
             "credits": "Credits"
         },
         "ui": {
             "newGame": "New game",
-            "closeWindow": "Close window"
+            "yourName": "What's your name",
+            "playerName": "Player name",
+            "closeWindow": "Close window",
+            "nameExplanation": "*Entering your name is only mandatory if you want to compete in the high scores."
         },
         "messages": {
             "tilt": "Tilt",

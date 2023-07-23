@@ -208,7 +208,7 @@ export const setFlipperState = ( type: FlipperType, isPointerDown: boolean ): vo
         return;
     }
     for ( group of triggerGroups ) {
-        if ( flipper.type === ActorTypes.LEFT_FLIPPER ) {
+        if ( type === ActorTypes.LEFT_FLIPPER ) {
             group.moveTriggersLeft();
         } else {
             group.moveTriggersRight();

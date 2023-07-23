@@ -37,6 +37,14 @@
             <ul class="menu__items">
                 <li>
                     <button
+                        v-t="'menu.highScores'"
+                        type="button"
+                        :title="$t('menu.highScores')"
+                        @click="openScreen('highScores')"
+                    ></button>
+                </li>
+                <li>
+                    <button
                         v-t="'menu.settings'"
                         type="button"
                         :title="$t('menu.settings')"

@@ -75,6 +75,7 @@ export enum ActorLabels {
  * @see pinball-table.vue, model/game.ts
  */
 export type GameDef = {
+    id: string | null;
     active: boolean;     // whether the game is running or over
     table: number;       // identifier of the table in the tables list
     score: number;       // the score awarded in this game

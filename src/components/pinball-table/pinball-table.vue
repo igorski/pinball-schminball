@@ -225,6 +225,8 @@ export default {
 
 .status-display {
     @include displayFont();
+    @include noSelect();
+    @include noEvents();
     width: 100%;
     height: 100px;
     background-color: #000;

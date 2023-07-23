@@ -34,16 +34,19 @@
         :title="$t(`menu.${activeScreen}`)"
         @close="activeScreen = null"
     >
+        <ScreenHighScores v-if="activeScreen === 'highScores'" />
+        <ScreenSettings v-if="activeScreen === 'settings'" />
         <ScreenCredits v-if="activeScreen === 'credits'" />
-        <ScreenSettings v-else-if="activeScreen === 'settings'" />
     </modal>
     <div v-else-if="!game.active" class="overlay">
-        {{ $t( "messages.gameOver" )}}
-        <button
-            v-t="'ui.newGame'"
-            type="button"
-            @click="initGame()"
-        ></button>
+        <h3
+            v-if="hasPlayed"
+            v-t="'messages.gameOver'"
+        ></h3>
+        <new-game-window
+            v-model="playerName"
+            @start="initGame()"
+        />
     </div>
 </template>
 
@@ -53,14 +56,18 @@ import type { Component } from "vue";
 import type { GameDef } from "@/definitions/game";
 import { preloadAssets } from "@/services/asset-preloader";
 import { init } from "@/services/audio-service";
+import { isSupported, startGame, stopGame } from "@/services/high-scores-service";
 import HeaderMenu from "./components/header-menu/header-menu.vue";
 import Loader from "@/components/loader/loader.vue";
 import Modal from "@/components/modal/modal.vue";
+import NewGameWindow from "@/components/new-game-window/new-game-window.vue";
 
 interface ComponentData {
     loading: boolean;
     activeScreen: string;
+    playerName: string;
     game: GameDef;
+    hasPlayed: boolean;
 };
 
 export default {
@@ -68,19 +75,25 @@ export default {
         HeaderMenu,
         Loader,
         Modal,
+        NewGameWindow,
         PinballTable: defineAsyncComponent(() => {
             return import( "./components/pinball-table/pinball-table.vue" );
         }),
-        ScreenCredits: defineAsyncComponent(() => {
-            return import( "./components/credits/credits.vue" );
+        ScreenHighScores: defineAsyncComponent(() => {
+            return import( "./components/high-scores/high-scores.vue" );
         }),
         ScreenSettings: defineAsyncComponent(() => {
             return import( "./components/settings/settings.vue" );
+        }),
+        ScreenCredits: defineAsyncComponent(() => {
+            return import( "./components/credits/credits.vue" );
         }),
     },
     data: () => ({
         loading: true,
         activeScreen: "",
+        playerName: "",
+        hasPlayed: false,
         game: {
             active: false,
             table: 0,
@@ -92,6 +105,16 @@ export default {
     computed: {
         hasScreen(): boolean {
             return !!this.activeScreen;
+        },
+        canUseHighScores(): boolean {
+            return isSupported() && !!this.playerName;
+        },
+    },
+    watch: {
+        'game.active'( value: boolean, prevValue: boolean ): void {
+            if ( !value && prevValue && this.game.id ) {
+                stopGame( this.game.id, this.game.score, this.playerName );
+            }
         },
     },
     async mounted(): Promise<void> {
@@ -112,14 +135,17 @@ export default {
         document.addEventListener( "keydown", handler );
     },
     methods: {
-        initGame(): void {
+        async initGame(): Promise<void> {
+            const id = this.canUseHighScores ? await startGame() : null;
             this.game = {
+                id,
                 active: true,
                 table: 0,
                 score: 0,
                 balls: 3,
                 multiplier: 1,
             };
+            this.hasPlayed = true;
         },
     },
 };
