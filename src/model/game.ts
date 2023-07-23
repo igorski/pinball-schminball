@@ -25,7 +25,7 @@ import type { canvas as zCanvas } from "zcanvas";
 import type { GameDef, TableDef, FlipperType } from "@/definitions/game";
 import {
     BALL_WIDTH, BALL_HEIGHT, MAX_BUMPS, BUMP_TIMEOUT, BUMP_IMPULSE,
-    GameMessages, TriggerTarget, AwardablePoints, ActorLabels
+    GameMessages, TriggerTarget, AwardablePoints, ActorLabels, ActorTypes,
 } from "@/definitions/game";
 import Tables from "@/definitions/tables";
 import Actor from "@/model/actor";
@@ -51,6 +51,8 @@ let table: TableDef;
 let inUnderworld = false;
 const actorMap: Map<number, Actor> = new Map(); // mapping all Actors to their physics body id
 const balls: Ball[] = []; // separate list for quick access to Ball Actors
+let triggerGroups: TriggerGroup[] = []; // separate list for quick access to TriggerGroups
+let group: TriggerGroup;
 let flippers: Flipper[] = []; // separate list for quick access to Flipper Actors
 
 let canvas: zCanvas;
@@ -150,17 +152,18 @@ export const init = async ( canvasRef: zCanvas, game: GameDef, messageHandlerRef
         mapActor( new Bumper( bumperOpts, engine, canvas ));
     }
 
-    for ( const triggerDef of table.triggerGroups ) {
-        const group = new TriggerGroup( triggerDef, engine, canvas );
+    triggerGroups = table.triggerGroups.map( triggerDef => {
+        group = new TriggerGroup( triggerDef, engine, canvas );
         // individual Trigger bodies' ids are mapped to their parent TriggerGroup
         group.triggers.map( trigger => mapActor( group, trigger.body.id ));
-    }
+        return group;
+    });
 
     for ( const rectOpts of table.rects ) {
         mapActor( new Rect( rectOpts, engine, canvas ));
     }
 
-    createBall( table.popper.left, table.popper.top );
+    createBall( table.popper.left, table.popper.top - BALL_HEIGHT );
 
     // 5. and get the music goin'
     enqueueTrack( table.soundtrackId );
@@ -192,15 +195,25 @@ export const scaleCanvas = ( clientWidth: number, clientHeight: number ): void =
     underworldOffset = table.underworld - viewportHeight;
 };
 
-export const setFlipperState = ( type: FlipperType, up: boolean ): void => {
+export const setFlipperState = ( type: FlipperType, isPointerDown: boolean ): void => {
     if ( tilt ) {
         return;
     }
-    flippers.forEach( flipper => {
+    for ( flipper of flippers ) {
         if ( flipper.type === type ) {
-            flipper.trigger( up );
+            flipper.trigger( isPointerDown );
         }
-    });
+    }
+    if ( isPointerDown ) {
+        return;
+    }
+    for ( group of triggerGroups ) {
+        if ( flipper.type === ActorTypes.LEFT_FLIPPER ) {
+            group.moveTriggersLeft();
+        } else {
+            group.moveTriggersRight();
+        }
+    }
 };
 
 export const bumpTable = (): void => {
@@ -295,7 +308,7 @@ function handleEngineUpdate( engine: IPhysicsEngine, game: GameDef ): void {
                     game.active = false;
                 } else {
                     setTimeout(() => {
-                        createBall( table.popper.left, table.popper.top );
+                        createBall( table.popper.left, table.popper.top - BALL_HEIGHT );
                         setFrequency();
                         inUnderworld = false;
                         game.underworld = false;

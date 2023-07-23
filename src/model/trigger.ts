@@ -31,7 +31,9 @@ export default class Trigger extends Actor {
     public active = false;
 
     constructor( opts: ActorOpts, engine: IPhysicsEngine, canvas: zCanvas ) {
-        super({ ...opts, type: ActorTypes.CIRCULAR, radius: opts.radius ?? opts.width / 2 }, engine, canvas );
+        super({
+            ...opts, type: ActorTypes.CIRCULAR, radius: opts.radius ?? opts.width / 2
+        }, engine, canvas );
     }
 
     setActive( value: boolean ): void {

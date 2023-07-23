@@ -98,6 +98,14 @@ export const createEngine = async (
         friction: 0,
     }, true ));
 
+    for ( const reflector of table.reflectors ) {
+        const bodyVertices = await loadVertices( reflector.source );
+        Matter.Composite.add( engine.world, Matter.Bodies.fromVertices( reflector.left, reflector.top, bodyVertices, {
+            isStatic: true,
+            restitution: 0.5
+        }, true ));
+    }
+
     return {
         engine,
         update( ticks: number ): void {

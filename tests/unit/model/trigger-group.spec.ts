@@ -29,6 +29,16 @@ describe( "Trigger Group", () => {
         ]
     };
 
+    const TRIGGER_DEF_LARGE_GROUP = {
+        ...TRIGGER_DEF,
+        triggers: [
+            { left: 0, top: 0, width: 10, height: 10 },
+            { left: 10, top: 0, width: 10, height: 10 },
+            { left: 20, top: 0, width: 10, height: 10 },
+            { left: 30, top: 0, width: 10, height: 10 },
+        ]
+    };
+
     it( "should store the trigger groups target and type upon construction", () => {
         const triggerGroup = new TriggerGroup( TRIGGER_DEF, engine, canvas );
 
@@ -156,6 +166,68 @@ describe( "Trigger Group", () => {
                 expect( unsetTriggerSpy ).toHaveBeenCalled();
                 expect( triggerGroup.triggerTimeoutStart ).toEqual( 0 );
             });
+        });
+    });
+
+    describe( "when moving the active trigger states left/right when the flippers are up", () => {
+        const FIRST_TRIGGER_BODY_ID = 1;
+        const SECOND_TRIGGER_BODY_ID = 2;
+        const THIRD_TRIGGER_BODY_ID = 3;
+        const FOURTH_TRIGGER_BODY_ID = 4;
+
+        let triggerGroup: TriggerGroup;
+        let first: Trigger;
+        let second: Trigger;
+        let third: Trigger;
+        let fourth: Trigger;
+
+        beforeEach(() => {
+            triggerGroup = new TriggerGroup({
+                ...TRIGGER_DEF_LARGE_GROUP, type: TriggerTypes.BOOL
+            }, engine, canvas );
+
+            [ first, second, third, fourth ] = triggerGroup.triggers;
+
+            first.body.id = FIRST_TRIGGER_BODY_ID;
+            second.body.id = SECOND_TRIGGER_BODY_ID;
+            third.body.id = THIRD_TRIGGER_BODY_ID;
+            fourth.body.id = FOURTH_TRIGGER_BODY_ID;
+
+            // triggers are now configured as XXX-
+
+            triggerGroup.trigger( FIRST_TRIGGER_BODY_ID );
+            triggerGroup.trigger( SECOND_TRIGGER_BODY_ID );
+            triggerGroup.trigger( THIRD_TRIGGER_BODY_ID );
+        });
+
+        it( "should be able to move the active triggers state left inside the group", () => {
+            triggerGroup.moveTriggersLeft();
+
+            // expected triggers to be configured as XX-X
+
+            expect( first.active ).toBe( true );
+            expect( second.active ).toBe( true );
+            expect( third.active ).toBe( false );
+            expect( fourth.active ).toBe( true );
+
+            expect( Array.from( triggerGroup.activeTriggers )).toEqual([
+                FIRST_TRIGGER_BODY_ID, SECOND_TRIGGER_BODY_ID, FOURTH_TRIGGER_BODY_ID
+            ]);
+        });
+
+        it( "should be able to move the active triggers state right inside the group", () => {
+            triggerGroup.moveTriggersRight();
+
+            // expected triggers to be configured as -XXX
+
+            expect( first.active ).toBe( false );
+            expect( second.active ).toBe( true );
+            expect( third.active ).toBe( true );
+            expect( fourth.active ).toBe( true );
+
+            expect( Array.from( triggerGroup.activeTriggers )).toEqual([
+                SECOND_TRIGGER_BODY_ID, THIRD_TRIGGER_BODY_ID, FOURTH_TRIGGER_BODY_ID
+            ]);
         });
     });
 });

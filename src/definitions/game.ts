@@ -29,7 +29,7 @@ export const BALL_HEIGHT = BALL_WIDTH;
 
 export const GRAVITY       = 0.75;
 export const FLIPPER_FORCE = 0.002;
-export const LAUNCH_SPEED  = 28;
+export const LAUNCH_SPEED  = 25;
 export const MAX_SPEED     = 45;
 
 // the table will tilt when more than MAX_BUMPS have occurred
@@ -134,6 +134,12 @@ export type TriggerDef = {
     triggers: ObjectDef[];
 };
 
+export type ShapeDef = {
+    source: string;
+    left: number;
+    top: number;
+};
+
 /**
  * The data model for a pinball table, it combines all
  * of the definitions above to define the table contents and "game world".
@@ -144,13 +150,10 @@ export type TableDef = {
     height: number;
     underworld: number; // at which y coordinate the "underworld"-section starts
     background: string,
-    body: {
-        source: string;
-        left: number;
-        top: number;
-    },
+    body: ShapeDef,
     popper: { left: number, top: number, width: number };
     flippers: FlipperDef[];
+    reflectors: ShapeDef[];
     rects: ObjectDef[];
     bumpers: ObjectDef[];
     triggerGroups: TriggerDef[];

@@ -66,6 +66,28 @@ export default class TriggerGroup extends Actor {
         return this.activeTriggers.size === this.triggers.length;
     }
 
+    moveTriggersLeft(): void {
+        if ( this.activeTriggers.size === 0 ) {
+            return;
+        }
+        const activeValues = this.triggers.map( trigger => trigger.active );
+        const first = activeValues.shift();
+        activeValues.push( first );
+
+        this.updateTriggers( activeValues );
+    }
+
+    moveTriggersRight(): void {
+        if ( this.activeTriggers.size === 0 ) {
+            return;
+        }
+        const activeValues = this.triggers.map( trigger => trigger.active );
+        const last = activeValues.pop();
+        activeValues.unshift( last );
+
+        this.updateTriggers( activeValues );
+    }
+
     /**
      * Unset the active state of all triggers
      */
@@ -104,5 +126,19 @@ export default class TriggerGroup extends Actor {
 
     protected override getLabel(): string {
         return ActorLabels.TRIGGER_GROUP;
+    }
+
+    protected updateTriggers( activeValues: boolean[] ): void {
+        this.activeTriggers.clear();
+
+        for ( let i = 0, l = this.triggers.length; i < l; ++i ) {
+            const trigger = this.triggers[ i ];
+            const isActive = activeValues[ i ];
+
+            trigger.setActive( isActive );
+            if ( isActive ) {
+                this.activeTriggers.add( trigger.body.id );
+            }
+        }
     }
 }
