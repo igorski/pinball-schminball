@@ -51,10 +51,12 @@ export const startGame = async (): Promise<string | null> => {
     if ( !startEndpoint ) {
         return null;
     }
-    const { data } = await axios.get( startEndpoint );
-    if ( data?.success === true && typeof data.id === "string" ) {
-        return data.id;
-    }
+    try {
+        const { data } = await axios.get( startEndpoint );
+        if ( data?.success === true && typeof data.id === "string" ) {
+            return data.id;
+        }
+    } catch {}
     return null;
 };
 
@@ -63,11 +65,14 @@ export const stopGame = async ( gameId: string, score: number, playerName?: stri
     if ( !stopEndpoint ) {
         return [];
     }
-    const { data } = await axios.post( `${stopEndpoint}${gameId}`, {
-        score,
-        name: playerName,
-    });
-    return data?.scores ?? [];
+    try {
+        const { data } = await axios.post( `${stopEndpoint}${gameId}`, {
+            score,
+            name: playerName,
+        });
+        return data?.scores ?? [];
+    } catch {}
+    return [];
 };
 
 export const getHighScores = async (): Promise<HighScoreDef[]> => {
@@ -75,8 +80,11 @@ export const getHighScores = async (): Promise<HighScoreDef[]> => {
     if ( !listEndpoint ) {
         return null;
     }
-    const { data } = await axios.get( listEndpoint );
-    return data?.scores ?? [];
+    try {
+        const { data } = await axios.get( listEndpoint );
+        return data?.scores ?? [];
+    } catch {}
+    return [];
 };
 
 /* internal methods */
