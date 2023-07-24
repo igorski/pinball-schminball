@@ -65,6 +65,7 @@ let underworldOffset = 0;
 
 let bumpAmount = 0;
 let tilt = false;
+let paused = false;
 
 export const init = async ( canvasRef: zCanvas, game: GameDef, messageHandlerRef: IMessageHandler ): Promise<void> => {
     canvas = canvasRef;
@@ -123,7 +124,7 @@ export const init = async ( canvasRef: zCanvas, game: GameDef, messageHandlerRef
                             case TriggerTarget.MULTIBALL: {
                                 awardPoints( game, AwardablePoints.TRIGGER_GROUP_COMPLETE );
                                 triggerGroup.unsetTriggers();
-                                createMultiball( 5, table.popper.left, table.popper.top );
+                                createMultiball( 5, pair.bodyB.position.x, pair.bodyB.position.y );
                                 messageHandler( GameMessages.MULTIBALL );
                                 break;
                             }
@@ -242,7 +243,7 @@ export const bumpTable = (): void => {
 export const update = ( timestamp: DOMHighResTimeStamp, framesSinceLastRender: number ): void => {
     ball = balls[ 0 ];
 
-    if ( !ball ) {
+    if ( !ball || paused ) {
         return; // no ball means no game, keep last screen contents indefinitely
     }
 
@@ -260,6 +261,14 @@ export const update = ( timestamp: DOMHighResTimeStamp, framesSinceLastRender: n
     const y = top - panOffset;
 
     canvas.panViewport( 0, y > underworldOffset && top < underworld ? underworld - viewportHeight : y );
+};
+
+export const togglePause = (): void => {
+    paused = !paused;
+};
+
+export const panViewport = ( yDelta: number ): void => {
+    canvas.panViewport( 0, canvas.getViewport().top + yDelta );
 };
 
 /* internal methods */

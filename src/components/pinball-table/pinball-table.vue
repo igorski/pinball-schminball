@@ -55,7 +55,7 @@ import { PropType } from "vue";
 import { canvas } from "zcanvas";
 import type { GameDef } from "@/definitions/game";
 import { GameMessages, ActorTypes } from "@/definitions/game";
-import { init, scaleCanvas, setFlipperState, bumpTable, update } from "@/model/game";
+import { init, scaleCanvas, setFlipperState, bumpTable, update, panViewport, togglePause } from "@/model/game";
 import { i18n } from "../../i18n";
 
 let leftTouchId = -1;
@@ -149,6 +149,24 @@ export default {
             const { type, keyCode } = event;
             switch ( keyCode ) {
                 default:
+                    // @ts-expect-error Property 'env' does not exist on type 'ImportMeta', Vite takes care of it
+                    if ( import.meta.env.MODE !== "production" ) {
+                        if ( type === "keyup" ) {
+                            return;
+                        }
+                        // some debug interactions
+                        switch ( keyCode ) {
+                            case 80: // P
+                                togglePause();
+                                break;
+                            case 38: // up
+                                panViewport( -25 );
+                                break;
+                            case 40: // down
+                                panViewport( 25 );
+                                break;
+                        }
+                    }
                     return;
                 case 32:
                     bumpTable();
