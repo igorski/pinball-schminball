@@ -26,6 +26,7 @@
     "pathseg": "^1.2.1",
     "poly-decomp": "^0.3.0",
     "sass": "^1.51.0",
+    "tiny-script-loader": "^2.2.1",
     "typescript": "^4.7.4",
     "vite": "^4.1.4",
     "vite-plugin-static-copy": "^0.13.1",

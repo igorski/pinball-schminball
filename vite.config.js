@@ -3,6 +3,7 @@ import path from "path";
 import vue from "@vitejs/plugin-vue";
 import { viteStaticCopy } from "vite-plugin-static-copy";
 
+const dirLib    = `${__dirname}/node_modules`;
 const dirSrc    = `${__dirname}/src`;
 const dirAssets = `${dirSrc}/assets`;
 const dest      = `${__dirname}/dist`;
@@ -12,12 +13,12 @@ export default defineConfig({
     base: "./",
     plugins: [
         vue(),
-        // viteStaticCopy({
-        //     targets: [{
-        //         src: dirAssets,
-        //         dest: path.resolve( dest ),
-        //     }]
-        // }),
+        viteStaticCopy({
+            targets: [{
+                src: `${dirLib}/pathseg/pathseg.js`,
+                dest: "./",
+            }]
+        }),
     ],
     resolve: {
         alias: {

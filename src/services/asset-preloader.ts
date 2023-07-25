@@ -20,6 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import loadScript from "tiny-script-loader/loadScriptPromised";
 import { loader }  from "zcanvas";
 import SpriteCache from "@/utils/sprite-cache";
 
@@ -32,9 +33,12 @@ const queue = [
 ];
 const loadContainer: HTMLElement = document.createElement( "div" );
 
-export const preloadAssets = (): Promise<void> =>
+export const preloadAssets = async (): Promise<void> =>
 {
     console.log( "PRELOAD ASSETS" );
+
+    // load PathSeg library for use with importing SVG as collision paths
+    await loadScript( "./pathseg.js" );
 
     // we create a container (positioned off-screen) to append the images to, this is to
     // overcome mobile browsers not actually loading the Images until they are inside the DOM and
