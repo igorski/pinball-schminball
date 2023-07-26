@@ -43,8 +43,6 @@ export default class Rect extends Actor {
     constructor( opts: ActorOpts, engine: IPhysicsEngine, canvas: zCanvas ) {
         super({ ...opts, type: opts.type ?? ActorTypes.RECTANGULAR }, engine, canvas );
 
-        this.body.restitution = 0.5;
-
         this._centerX = opts.width  / 2;
         this._centerY = opts.height / 2;
 

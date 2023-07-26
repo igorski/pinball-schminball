@@ -20,7 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import { sprite, collision } from "zcanvas";
+import { sprite } from "zcanvas";
 import type { Viewport } from "zcanvas";
 import { ActorTypes } from "@/definitions/game";
 import type Flipper from "@/model/flipper";
@@ -38,7 +38,7 @@ export default class FlipperRenderer extends sprite {
     }
 
     draw( ctx: CanvasRenderingContext2D, viewport: Viewport ): void {
-        if ( !this._bitmapReady || !collision.isInsideViewport( this.actor.bounds, viewport )) {
+        if ( !this._bitmapReady || !this.actor.isInsideViewport( viewport )) {
             return;
         }
 

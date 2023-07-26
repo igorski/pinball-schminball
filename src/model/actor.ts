@@ -20,10 +20,11 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import type { Point, Rectangle, sprite, canvas as zCanvas } from "zcanvas";
+import type { Point, Rectangle, Viewport, sprite, canvas as zCanvas } from "zcanvas";
+import { collision } from "zcanvas";
 import { ActorTypes } from "@/definitions/game";
 import type { IPhysicsEngine } from "@/model/physics/engine";
-import { degToRad, rectangleToPolygon } from "@/utils/math-util";
+import { degToRad, rectangleToPolygon, rotateRectangle } from "@/utils/math-util";
 
 // @ts-expect-error Property 'env' does not exist on type 'ImportMeta', Vite takes care of it
 const DEBUG = import.meta.env.MODE !== "production";
@@ -60,6 +61,7 @@ export default class Actor {
     public halfHeight: number;
 
     protected _opts: any;
+    protected _rotatedBounds: Rectangle;
     protected _outline: number[]; // debug only
 
     constructor({
@@ -78,6 +80,10 @@ export default class Actor {
 
         this.bounds = { left, top, width, height };
 
+        if ( this.angle !== 0 ) {
+            this._rotatedBounds = rotateRectangle( this.bounds, this.angle );
+        }
+
         this.halfWidth  = width  / 2;
         this.halfHeight = height / 2;
 
@@ -92,6 +98,10 @@ export default class Actor {
         this.bounds.left = this.body.position.x - this.halfWidth;
         this.bounds.top  = this.body.position.y - this.halfHeight;
 
+        if ( this.angle !== 0 ) {
+            this._rotatedBounds = rotateRectangle( this.bounds, this.angle );
+        }
+
         if ( DEBUG ) {
             this._outline = rectangleToPolygon( this.bounds );
         }
@@ -100,6 +110,13 @@ export default class Actor {
 
     getOutline(): number[] {
         return this._outline;
+    }
+
+    isInsideViewport( viewport: Viewport ): boolean {
+        return collision.isInsideViewport(
+            this.angle !== 0 ? this._rotatedBounds : this.bounds,
+            viewport
+        );
     }
 
     dispose( engine: IPhysicsEngine ): void {

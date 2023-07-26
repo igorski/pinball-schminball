@@ -20,7 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import { sprite, collision } from "zcanvas";
+import { sprite } from "zcanvas";
 import type { Viewport } from "zcanvas";
 import type Rect from "@/model/rect";
 import SpriteCache from "@/utils/sprite-cache";
@@ -36,7 +36,7 @@ export default class RectRenderer extends sprite {
     }
 
     draw( ctx: CanvasRenderingContext2D, viewport: Viewport ): void {
-        if ( !collision.isInsideViewport( this.actor.bounds, viewport )) {
+        if ( !this.actor.isInsideViewport( viewport )) {
             return;
         }
 
