@@ -64,6 +64,7 @@ let touch;
 
 interface ComponentData {
     message: string;
+    _inited: boolean;
 };
 
 export default {
@@ -75,6 +76,7 @@ export default {
     },
     data: (): ComponentData => ({
         message: "",
+        _inited: false,
     }),
     watch: {
         'modelValue.active'( active: boolean, prevActive?: boolean): void {
@@ -107,9 +109,13 @@ export default {
     methods: {
         initGame(): void {
             init( this.canvas, this.modelValue, this.flashMessage.bind( this ));
+            this._inited = true;
             this.handleResize();
         },
         handleResize(): void {
+            if ( !this._inited ) {
+                return;
+            }
             const { clientWidth, clientHeight } = document.documentElement;
             const statusHeight = this.$refs.statusDisplay.offsetHeight;
             const isMobileView = clientWidth <= 685; // see _variables.scss
@@ -216,6 +222,14 @@ export default {
                     key = "multiplier";
                     optData = { count: this.modelValue.multiplier };
                     break;
+                case GameMessages.LOOP:
+                    key = "loop";
+                    optData = { count: this.modelValue.multiplier };
+                    break;
+                case GameMessages.TRICK_SHOT:
+                    key = "trickShot";
+                    optData = { count: this.modelValue.multiplier };
+                    break;
             }
             return i18n.t( `messages.${key}`, optData );
         },
@@ -245,10 +259,17 @@ export default {
     @include displayFont();
     @include noSelect();
     @include noEvents();
+    position: fixed;
+    left: 0;
+    bottom: 0;
     width: 100%;
-    height: 100px;
     background-color: #000;
     color: #FFF;
+    height: 79px;
+
+    @include large() {
+        height: 100px;
+    }
 
     &__container {
         max-width: 800px;
@@ -257,26 +278,43 @@ export default {
         display: flex;
         justify-content: space-around;
         align-items: center;
+
+        @include mobile() {
+            flex-direction: column;
+        }
     }
 
     &__game-details {
         display: flex;
         justify-content: space-around;
-        flex-direction: column;
-        width: 40%;
-        height: 60%;
+        width: 100%;
         font-size: 18px;
+        padding-top: $spacing-small;
+
+        @include large() {
+            flex-direction: column;
+            height: 60%;
+            padding: 0;
+        }
     }
 
     &__score {
         max-width: 350px;
-        font-size: 64px;
+        font-size: 48px;
+
+        @include large() {
+            font-size: 64px;
+        }
     }
 
     &__message {
         @include animationBlink( 0.25s );
         text-transform: uppercase;
-        font-size: 64px;
+        font-size: 36px;
+
+        @include large() {
+            font-size: 64px;
+        }
     }
 }
 </style>
