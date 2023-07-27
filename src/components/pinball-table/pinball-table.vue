@@ -30,6 +30,11 @@
             @touchend="handleTouch"
             @touchcancel="handleTouch"
         ></div>
+        <round-results
+            v-if="activeRound.ended"
+            :score="activeRound.total"
+            :remaining-balls="Math.max( 0, modelValue.balls - 1 )"
+        />
         <div
             ref="statusDisplay"
             class="status-display"
@@ -53,21 +58,32 @@
 <script lang="ts">
 import { PropType } from "vue";
 import { canvas } from "zcanvas";
-import type { GameDef } from "@/definitions/game";
-import { GameMessages, ActorTypes } from "@/definitions/game";
+import type { GameDef, GameMessages} from "@/definitions/game";
+import { ActorTypes } from "@/definitions/game";
 import { init, scaleCanvas, setFlipperState, bumpTable, update, panViewport, togglePause } from "@/model/game";
-import { i18n } from "../../i18n";
+import RoundResults from "./round-results.vue";
+import { i18nForMessage } from "./message-localizer";
 
+let changeTimeout = null;
 let leftTouchId = -1;
 let rightTouchId = -1;
 let touch;
 
 interface ComponentData {
     message: string;
-    _inited: boolean;
+    inited: boolean;
+    activeRound: {
+        balls: number;
+        score: number;
+        total: number;
+        ended: boolean;
+    }
 };
 
 export default {
+    components: {
+        RoundResults,
+    },
     props: {
         modelValue: {
             type: Object as PropType<GameDef>,
@@ -76,10 +92,16 @@ export default {
     },
     data: (): ComponentData => ({
         message: "",
-        _inited: false,
+        inited: false,
+        activeRound: {
+            balls: 0,
+            score: 0,
+            total: 0,
+            ended: false,
+        },
     }),
     watch: {
-        'modelValue.active'( active: boolean, prevActive?: boolean): void {
+        "modelValue.active"( active: boolean, prevActive?: boolean): void {
             if ( active && !prevActive ) {
                 this.initGame();
             }
@@ -87,11 +109,10 @@ export default {
     },
     mounted(): void {
         this.canvas = new canvas({
-            width       : 600,
-            height      : 800,
-            animate     : true,
-            onUpdate    : update,
-            backgroundColor: "#000" // TODO can be removed when sprite is used for bg
+            width    : 600,
+            height   : 800,
+            animate  : true,
+            onUpdate : update,
         });
         this.canvas.insertInPage( this.$refs.canvasContainer );
 
@@ -108,25 +129,26 @@ export default {
     },
     methods: {
         initGame(): void {
-            init( this.canvas, this.modelValue, this.flashMessage.bind( this ));
-            this._inited = true;
+            init( this.canvas, this.modelValue, this.handleRoundEnd.bind( this ), this.flashMessage.bind( this ));
+            this.activeRound = { balls: this.modelValue.balls, score: 0, total: 0, ended: false };
+            this.inited = true;
             this.handleResize();
         },
         handleResize(): void {
-            if ( !this._inited ) {
+            if ( !this.inited ) {
                 return;
             }
             const { clientWidth, clientHeight } = document.documentElement;
             const statusHeight = this.$refs.statusDisplay.offsetHeight;
             const isMobileView = clientWidth <= 685; // see _variables.scss
             const uiHeight = isMobileView ? 58 /* is $menu-height */ + statusHeight : statusHeight;
-            scaleCanvas( clientWidth, clientHeight - uiHeight );
             this.halfWidth = clientWidth / 2;
+
+            scaleCanvas( clientWidth, clientHeight - uiHeight );
         },
         handleTouch( event: TouchEvent ): void {
             switch ( event.type ) {
-                // touch cancel, end
-                default:
+                default: // touch(cancel|end)
                     const eventTouches = [ ...event.touches ];
                     if ( leftTouchId >= 0 && !eventTouches.includes( leftTouchId )) {
                         setFlipperState( ActorTypes.LEFT_FLIPPER, false );
@@ -137,7 +159,6 @@ export default {
                         rightTouchId = -1;
                     }
                     break;
-                // touch start
                 case "touchstart":
                     for ( touch of event.touches ) {
                         if ( touch.pageX < this.halfWidth ) {
@@ -175,7 +196,7 @@ export default {
                     }
                     return;
                 case 32:
-                    bumpTable();
+                    bumpTable( this.modelValue );
                     event.preventDefault();
                     break;
                 case 37:
@@ -188,50 +209,37 @@ export default {
                     break;
             }
         },
+        handleRoundEnd( readyCallback: () => void, timeout: number ): void {
+            if ( changeTimeout !== null ) {
+                return; // existing round end pending (e.g.: ball fell after tilt triggered round end)
+            }
+            this.activeRound.total = this.modelValue.score - this.activeRound.score;
+            this.activeRound.ended = true;
+
+            changeTimeout = setTimeout(() => {
+                readyCallback();
+
+                this.activeRound.ended = false;
+                this.activeRound.balls = this.modelValue.balls;
+                this.activeRound.score = this.modelValue.score;
+
+                changeTimeout = null;
+            }, timeout );
+        },
         flashMessage( message: GameMessages | null, optTimeout = 2000 ): void {
             this.clearMessage();
 
             if ( message !== null ) {
-                this.message = this.i18nForMessage( message );
+                this.message = i18nForMessage( message, this.modelValue );
                 this.messageTimeout = window.setTimeout(() => {
                     this.clearMessage();
                 }, optTimeout );
             }
         },
         clearMessage(): void {
-            if ( !this.messageTimeout ) {
-                return;
-            }
             clearTimeout( this.messageTimeout );
             this.messageTimeout = null;
             this.message = null;
-        },
-        i18nForMessage( message: GameMessages ): string {
-            let key: string = "";
-            let optData: any;
-            switch ( message ) {
-                default:
-                    break
-                case GameMessages.TILT:
-                    key = "tilt";
-                    break;
-                case GameMessages.MULTIBALL:
-                    key = "multiball";
-                    break;
-                case GameMessages.MULTIPLIER:
-                    key = "multiplier";
-                    optData = { count: this.modelValue.multiplier };
-                    break;
-                case GameMessages.LOOP:
-                    key = "loop";
-                    optData = { count: this.modelValue.multiplier };
-                    break;
-                case GameMessages.TRICK_SHOT:
-                    key = "trickShot";
-                    optData = { count: this.modelValue.multiplier };
-                    break;
-            }
-            return i18n.t( `messages.${key}`, optData );
         },
     }
 };

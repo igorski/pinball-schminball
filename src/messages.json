@@ -10,7 +10,10 @@
             "yourName": "What's your name",
             "playerName": "Player name",
             "closeWindow": "Close window",
-            "nameExplanation": "*Entering your name is only mandatory if you want to compete in the high scores."
+            "nameExplanation": "*Entering your name is only mandatory if you want to compete in the high scores list",
+            "roundUp": "Round up",
+            "totalPoints": "Total points",
+            "remainingBalls": "Remaining balls"
         },
         "messages": {
             "tilt": "Tilt",

@@ -40,6 +40,7 @@ import type { IPhysicsEngine, CollisionEvent } from "@/model/physics/engine";
 import { enqueueTrack, setFrequency } from "@/services/audio-service";
 import SpriteCache from "@/utils/sprite-cache";
 
+type IRoundEndHandler = ( readyCallback: () => void, timeout: number ) => void;
 type IMessageHandler = ( message: GameMessages, optDuration?: number ) => void;
 
 let engine: IPhysicsEngine;
@@ -57,6 +58,7 @@ let flippers: Flipper[] = []; // separate list for quick access to Flipper Actor
 
 let canvas: zCanvas;
 let backgroundRenderer: sprite;
+let roundEndHandler: IRoundEndHandler;
 let messageHandler: IMessageHandler;
 let panOffset = 0;
 let viewportWidth = 0;
@@ -67,11 +69,15 @@ let bumpAmount = 0;
 let tilt = false;
 let paused = false;
 
-export const init = async ( canvasRef: zCanvas, game: GameDef, messageHandlerRef: IMessageHandler ): Promise<void> => {
-    canvas = canvasRef;
-    messageHandler = messageHandlerRef;
+export const init = async (
+    canvasRef: zCanvas, game: GameDef, roundEndHandlerRef: IRoundEndHandler, messageHandlerRef: IMessageHandler
+): Promise<void> => {
 
+    canvas = canvasRef;
     engineStep = 1000 / canvas.getFrameRate();
+
+    roundEndHandler = roundEndHandlerRef;
+    messageHandler  = messageHandlerRef;
 
     table = Tables[ game.table ];
     const { width, height } = table;
@@ -170,7 +176,7 @@ export const init = async ( canvasRef: zCanvas, game: GameDef, messageHandlerRef
         mapActor( new Rect( rectOpts, engine, canvas ));
     }
 
-    createBall( table.popper.left, table.popper.top - BALL_HEIGHT );
+    startRound( game );
 
     // 5. and get the music goin'
     enqueueTrack( table.soundtrackId );
@@ -223,7 +229,7 @@ export const setFlipperState = ( type: FlipperType, isPointerDown: boolean ): vo
     }
 };
 
-export const bumpTable = (): void => {
+export const bumpTable = ( game: GameDef ): void => {
     if ( tilt ) {
         return;
     }
@@ -235,8 +241,9 @@ export const bumpTable = (): void => {
         engine.applyForce( ball.body, Math.random() * force, force );
     }
     if ( ++bumpAmount >= MAX_BUMPS ) {
-        messageHandler( GameMessages.TILT, 5000 );
         tilt = true;
+        messageHandler( GameMessages.TILT, 5000 );
+        endRound( game, 5000 );
     }
     setTimeout(() => {
         bumpAmount = Math.max( 0, bumpAmount - 1 );
@@ -255,7 +262,7 @@ export const update = ( timestamp: DOMHighResTimeStamp, framesSinceLastRender: n
 
     // update physics engine
     engine.update( engineStep * Math.round( framesSinceLastRender ));
-    
+
     // update Actors
 
     actorMap.forEach( actor => actor.update( timestamp ));
@@ -288,7 +295,7 @@ function awardPoints( game: GameDef, points: number ): void {
 function handleEngineUpdate( engine: IPhysicsEngine, game: GameDef ): void {
     const singleBall = balls.length === 1;
 
-    for ( const ball of balls ) {
+    for ( ball of balls ) {
         engine.capSpeed( ball.body );
         const { left, top } = ball.bounds;
 
@@ -309,20 +316,9 @@ function handleEngineUpdate( engine: IPhysicsEngine, game: GameDef ): void {
 
         if ( top > table.height ) {
             removeBall( ball );
-            game.multiplier = 1;
-            tilt = false;
 
             if ( singleBall ) {
-                if ( --game.balls === 0 ) {
-                    game.active = false;
-                } else {
-                    setTimeout(() => {
-                        createBall( table.popper.left, table.popper.top - BALL_HEIGHT );
-                        setFrequency();
-                        inUnderworld = false;
-                        game.underworld = false;
-                    }, 2500 );
-                }
+                endRound( game );
             }
         }
     }
@@ -354,4 +350,28 @@ function createMultiball( amount: number, left: number, top: number ): void {
         const m = ( i + 1 ) * BALL_WIDTH;
         createBall( left, top - m );
     }
+}
+
+function endRound( game: GameDef, timeout = 3500 ): void {
+    setFrequency( 1000 );
+    roundEndHandler( () => {
+        for ( ball of balls ) {
+            removeBall( ball ); // in case round ended on tilt without ball dropping
+        }
+        if ( --game.balls === 0 ) {
+            game.active = false;
+        } else {
+            startRound( game );
+        }
+    }, timeout );
+}
+
+function startRound( game: GameDef ): void {
+    createBall( table.popper.left, table.popper.top - BALL_HEIGHT );
+    setFrequency();
+
+    tilt = false;
+    inUnderworld = false;
+    game.underworld = false;
+    game.multiplier = 1;
 }
