@@ -21,8 +21,8 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import type { canvas as zCanvas } from "zcanvas";
-import type { ObjectDef, TriggerDef, TriggerTarget } from "@/definitions/game";
-import { ActorLabels, TriggerTypes, TRIGGER_EXPIRY } from "@/definitions/game";
+import type { ObjectDef, TriggerDef, GameMessages } from "@/definitions/game";
+import { ActorLabels, TriggerTypes, TriggerTarget, TRIGGER_EXPIRY, SEQUENCE_REPEAT_WINDOW } from "@/definitions/game";
 import Actor from "@/model/actor";
 import type { ActorOpts } from "@/model/actor";
 import type { IPhysicsEngine } from "@/model/physics/engine";
@@ -32,6 +32,8 @@ export default class TriggerGroup extends Actor {
     public triggerTarget: TriggerTarget;
     public triggerType: TriggerTypes;
     public triggers: Trigger[];
+    public completeMessage: GameMessages;
+    public completions = 0;
 
     private activeTriggers = new Set<number>(); // Body ids of active triggers
     private triggerTimeoutStart = 0;
@@ -39,8 +41,9 @@ export default class TriggerGroup extends Actor {
     constructor( private opts: TriggerDef, engine: IPhysicsEngine, canvas: zCanvas ) {
         super({ fixed: true, opts }, engine, canvas );
 
-        this.triggerTarget = opts.target;
-        this.triggerType   = opts.type;
+        this.triggerTarget   = opts.target;
+        this.triggerType     = opts.type;
+        this.completeMessage = opts.message;
     }
 
     dispose( engine: IPhysicsEngine ): void {
@@ -63,11 +66,16 @@ export default class TriggerGroup extends Actor {
         this.activeTriggers.add( triggerBodyId );
         trigger.setActive( true );
 
-        return this.activeTriggers.size === this.triggers.length;
+        const isComplete = this.activeTriggers.size === this.triggers.length;
+
+        if ( isComplete ) {
+            ++this.completions;
+        }
+        return isComplete;
     }
 
     moveTriggersLeft(): void {
-        if ( this.activeTriggers.size === 0 ) {
+        if ( this.activeTriggers.size === 0 || this.triggerType === TriggerTypes.SERIES ) {
             return;
         }
         const activeValues = this.triggers.map( trigger => trigger.active );
@@ -78,7 +86,7 @@ export default class TriggerGroup extends Actor {
     }
 
     moveTriggersRight(): void {
-        if ( this.activeTriggers.size === 0 ) {
+        if ( this.activeTriggers.size === 0 || this.triggerType === TriggerTypes.SERIES ) {
             return;
         }
         const activeValues = this.triggers.map( trigger => trigger.active );
@@ -110,17 +118,26 @@ export default class TriggerGroup extends Actor {
         if ( this.triggerType === TriggerTypes.SERIES ) {
             if ( this.triggerTimeoutStart === 0 ) {
                 this.triggerTimeoutStart = timestamp;
-            } else if ( timestamp - this.triggerTimeoutStart >= TRIGGER_EXPIRY ) {
-                this.unsetTriggers();
-                this.triggerTimeoutStart = 0;
+            } else {
+                if ( this.triggerTarget === TriggerTarget.SEQUENCE_COMPLETION &&
+                     timestamp - this.triggerTimeoutStart >= SEQUENCE_REPEAT_WINDOW ) {
+                     this.completions = 0;
+                }
+                if ( timestamp - this.triggerTimeoutStart >= TRIGGER_EXPIRY ) {
+                    this.unsetTriggers();
+                    this.triggerTimeoutStart = 0;
+                    this.completions = 0;
+                }
             }
         }
     }
 
     protected override register( engine: IPhysicsEngine, canvas: zCanvas ): void {
         const triggerObjectDefs = this._opts.triggers as never as ObjectDef[];
+        const isVisible = ( this._opts as TriggerDef ).target !== TriggerTarget.SEQUENCE_COMPLETION;
+
         this.triggers = triggerObjectDefs.map( trigger => {
-            return new Trigger( trigger, engine, canvas );
+            return new Trigger({ ...trigger, opts: { isVisible }}, engine, canvas );
         });
     }
 

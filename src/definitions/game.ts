@@ -40,14 +40,17 @@ export const BUMP_IMPULSE = 4;
 export const BUMP_TIMEOUT = 2500;
 
 export const AwardablePoints = {
-    BUMPER: 100,
-    TRIGGER: 50,
-    TRIGGER_GROUP_COMPLETE: 500,
+    BUMPER: 500,
+    TRIGGER: 100,
+    TRIGGER_GROUP_COMPLETE: 2500,
+    TRIGGER_GROUP_SEQUENCE_COMPLETE: 25000,
 };
 
 export enum GameMessages {
     MULTIPLIER,
     MULTIBALL,
+    LOOP,
+    TRICK_SHOT,
     TILT,
 };
 
@@ -110,6 +113,7 @@ export type ObjectDef = Rectangle & {
 export enum TriggerTarget {
     MULTIPLIER,
     MULTIBALL,
+    SEQUENCE_COMPLETION,
 };
 
 /**
@@ -129,10 +133,17 @@ export enum TriggerTypes {
  */
 export const TRIGGER_EXPIRY = 5000;
 
+/**
+ * The amount of milliseconds within which the same sequence can be completed
+ * for the same Trigger group to be awarded extra points
+ */
+export const SEQUENCE_REPEAT_WINDOW = 3000;
+
 export type TriggerDef = {
     target: TriggerTarget;
     type: TriggerTypes;
     triggers: ObjectDef[];
+    message?: GameMessages;
 };
 
 export type ShapeDef = {

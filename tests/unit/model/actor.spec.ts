@@ -3,6 +3,15 @@ import type { sprite } from "zcanvas";
 import Actor from "@/model/actor";
 import { getMockCanvas, getMockPhysicsEngine } from "../__mocks";
 
+vi.mock( "zcanvas", () => ({
+    sprite: class {
+        dispose() {}
+    },
+    collision: {
+        isInsideViewport: vi.fn(() => true ),
+    },
+}));
+
 describe( "Actor", () => {
     const engine = getMockPhysicsEngine();
     const canvas = getMockCanvas();

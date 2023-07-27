@@ -41,13 +41,16 @@ npm run typecheck
 
 ## TODO
 
-* high scores not visible in mobile view?
-* multiballs should iteratively be added
-* animate bumpers on hit
 * after tilt, new ball should be launched without falling (ball can tilt and keep in a fixed position)
+* when ball is lost, show stats for round
+* update Actor constructors to accept on-screen coordinates which are internally transformed (see actor unit test for bounds)
+* multiballs should iteratively be added
+* add one-time poppers on the areas left and right of the flippers to work only once per game
+* animate bumpers on hit
 * underworld should be set on game and only unlocked after certain event, add the trigger for it
 * add full-screen button
-* should we update Actor constructors to accept on-screen coordinates which are internally transformed (see actor unit test for bounds)
 * add invisible loop trigger multipliers (repeated loops give more points)
 * Switches to toggle score multiplier ("x when lit")
-* on occasion ball goes up the ramp left from the flippers
+* on occasion ball goes up the ramp left from the flippers < maybe fixed with higher positionIterations (up from default 6)
+* ball can move back up ramp next to flipper, maybe move flipper down a tad
+* keep ball within bounds (likely widen the outer walls off-screen so the collision is detected earlier)

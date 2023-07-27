@@ -16,6 +16,8 @@
             "tilt": "Tilt",
             "multiball": "Multiball",
             "multiplier": "{count}x multiplier",
+            "loop": "loop #{count}",
+            "trickShot": "trickShot #{count}",
             "gameOver": "Game over"
         },
         "settings": {

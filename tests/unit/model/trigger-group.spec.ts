@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { TriggerTarget, TriggerTypes, TRIGGER_EXPIRY } from "@/definitions/game";
+import { TriggerTarget, TriggerTypes, TRIGGER_EXPIRY, SEQUENCE_REPEAT_WINDOW } from "@/definitions/game";
 import TriggerGroup from "@/model/trigger-group";
 import { getMockCanvas, getMockPhysicsEngine } from "../__mocks";
 
@@ -98,28 +98,34 @@ describe( "Trigger Group", () => {
             expect( trigger2setActiveSpy ).not.toHaveBeenCalled();
         });
 
-        it( "should return false as long as not all triggers have been triggered", () => {
+        it( "should return false and keep the completion counter as long as not all triggers have been triggered", () => {
             const result = triggerGroup.trigger( FIRST_TRIGGER_BODY_ID );
+
+            expect( triggerGroup.completions ).toEqual( 0 );
             expect( result ).toBe( false );
         });
 
-        it( "should return true when all triggers in the group have been triggered", () => {
+        it( "should return true and increment the completion counter when all triggers in the group have been triggered", () => {
             triggerGroup.trigger( FIRST_TRIGGER_BODY_ID );
             const result = triggerGroup.trigger( SECOND_TRIGGER_BODY_ID );
 
+            expect( triggerGroup.completions ).toEqual( 1 );
             expect( result ).toBe( true );
         });
 
-        it( "should be able to unset the active state of all triggers and clear the active triggers", () => {
+        it( "should be able to unset the active state of all triggers and clear the active triggers but keep the completion counter", () => {
             triggerGroup.trigger( FIRST_TRIGGER_BODY_ID );
             triggerGroup.trigger( SECOND_TRIGGER_BODY_ID );
 
             const trigger1setActiveSpy = vi.spyOn( triggerGroup.triggers[ 0 ], "setActive" );
             const trigger2setActiveSpy = vi.spyOn( triggerGroup.triggers[ 1 ], "setActive" );
 
+            expect( triggerGroup.completions ).toEqual( 1 );
+
             triggerGroup.unsetTriggers();
 
             expect( triggerGroup.activeTriggers ).toHaveLength( 0 );
+            expect( triggerGroup.completions ).toEqual( 1 );
 
             expect( trigger1setActiveSpy ).toHaveBeenCalledWith( false );
             expect( trigger2setActiveSpy ).toHaveBeenCalledWith( false );
@@ -148,6 +154,8 @@ describe( "Trigger Group", () => {
 
             it( "should store the timeout timestamp only on the first trigger, when the timeout is still pending", () => {
                 triggerGroup.activeTriggers.add( triggerGroup.triggers[ 0 ].body.id );
+                triggerGroup.completions = 1;
+
                 triggerGroup.update( FIRST_TIMESTAMP );
 
                 expect( triggerGroup.triggerTimeoutStart ).toEqual( FIRST_TIMESTAMP );
@@ -156,15 +164,52 @@ describe( "Trigger Group", () => {
 
                 expect( triggerGroup.triggerTimeoutStart ).toEqual( FIRST_TIMESTAMP );
                 expect( unsetTriggerSpy ).not.toHaveBeenCalled();
+                expect( triggerGroup.completions ).toEqual( 1 );
             });
 
-            it( "should unset the triggers once more time has expired since the first timestamp than allowed", () => {
+            it( "should unset the triggers and reset the completion counter once more time has expired since the first timestamp than allowed", () => {
                 triggerGroup.activeTriggers.add( triggerGroup.triggers[ 0 ].body.id );
+                triggerGroup.completions = 1;
+
                 triggerGroup.update( FIRST_TIMESTAMP );
                 triggerGroup.update( FIRST_TIMESTAMP + TRIGGER_EXPIRY );
 
                 expect( unsetTriggerSpy ).toHaveBeenCalled();
                 expect( triggerGroup.triggerTimeoutStart ).toEqual( 0 );
+                expect( triggerGroup.completions ).toEqual( 0 );
+            });
+
+            describe( "and the group has the SEQUENCE_COMPLETION target", () => {
+                beforeEach(() => {
+                    triggerGroup = new TriggerGroup({
+                        ...TRIGGER_DEF, type: TriggerTypes.SERIES, target: TriggerTarget.SEQUENCE_COMPLETION
+                    }, engine, canvas );
+                    unsetTriggerSpy = vi.spyOn( triggerGroup, "unsetTriggers" );
+                });
+
+                it( "should not reset the completions counter if the maximum repeat timeout has not yet passed", () => {
+                    triggerGroup.activeTriggers.add( triggerGroup.triggers[ 0 ].body.id );
+                    triggerGroup.completions = 1;
+
+                    triggerGroup.update( FIRST_TIMESTAMP );
+                    triggerGroup.update( FIRST_TIMESTAMP + ( SEQUENCE_REPEAT_WINDOW - 1 ));
+
+                    expect( triggerGroup.triggerTimeoutStart ).toEqual( FIRST_TIMESTAMP );
+                    expect( unsetTriggerSpy ).not.toHaveBeenCalled();
+                    expect( triggerGroup.completions ).toEqual( 1 );
+                });
+
+                it( "should reset the completions counter when the maximum repeat timeout has passed", () => {
+                    triggerGroup.activeTriggers.add( triggerGroup.triggers[ 0 ].body.id );
+                    triggerGroup.completions = 1;
+
+                    triggerGroup.update( FIRST_TIMESTAMP );
+                    triggerGroup.update( FIRST_TIMESTAMP + SEQUENCE_REPEAT_WINDOW );
+
+                    expect( triggerGroup.triggerTimeoutStart ).toEqual( FIRST_TIMESTAMP );
+                    expect( unsetTriggerSpy ).not.toHaveBeenCalled();
+                    expect( triggerGroup.completions ).toEqual( 0 );
+                });
             });
         });
     });

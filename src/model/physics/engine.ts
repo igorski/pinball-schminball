@@ -72,6 +72,7 @@ export const createEngine = async (
         min: { x: 0, y: 0 },
         max: { x: width, y: height }
     };
+    engine.positionIterations = 10;
 
     Matter.Events.on( engine, "collisionStart", collisionHandler );
     Matter.Events.on( engine, "beforeUpdate", beforeUpdateHandler );
@@ -139,7 +140,7 @@ export const createEngine = async (
                         },
                     });
                     if ( isBumper ) {
-                        body.restitution = 1.5;
+                        body.restitution = 1.0;
                     }
                     break;
 

@@ -41,7 +41,7 @@ export default class Trigger extends Actor {
     }
 
     protected override getRendererClass(): IRendererClass | null {
-        return TriggerRenderer;
+        return this._opts.isVisible ? TriggerRenderer : null;
     }
 
     protected override getLabel(): string {

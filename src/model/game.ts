@@ -128,6 +128,12 @@ export const init = async ( canvasRef: zCanvas, game: GameDef, messageHandlerRef
                                 messageHandler( GameMessages.MULTIBALL );
                                 break;
                             }
+                            case TriggerTarget.SEQUENCE_COMPLETION: {
+                                awardPoints( game, AwardablePoints.TRIGGER_GROUP_SEQUENCE_COMPLETE * triggerGroup.completions );
+                                triggerGroup.unsetTriggers();
+                                messageHandler( triggerGroup.completeMessage );
+                                break;
+                            }
                         }
                     }
                     break;
@@ -249,7 +255,7 @@ export const update = ( timestamp: DOMHighResTimeStamp, framesSinceLastRender: n
 
     // update physics engine
     engine.update( engineStep * Math.round( framesSinceLastRender ));
-
+    
     // update Actors
 
     actorMap.forEach( actor => actor.update( timestamp ));
@@ -262,6 +268,8 @@ export const update = ( timestamp: DOMHighResTimeStamp, framesSinceLastRender: n
 
     canvas.panViewport( 0, y > underworldOffset && top < underworld ? underworld - viewportHeight : y );
 };
+
+/* DEBUG methods */
 
 export const togglePause = (): void => {
     paused = !paused;
@@ -297,14 +305,6 @@ function handleEngineUpdate( engine: IPhysicsEngine, game: GameDef ): void {
         } else if ( enteringUnderworld ) {
             removeBall( ball );
             continue;
-        }
-
-        const halfWidth = table.width / 2;
-        if ( left < -halfWidth ) {
-            // TODO keep in bounds or push back
-            console.warn("--- Ball out of horizontal bounds, this should not happen!! TODO correct" );
-            engine.updateBodyPosition( ball.body, { x: -halfWidth + BALL_WIDTH, y: ball.body.position.y });
-            ball.body.isStatic = true; // TODO
         }
 
         if ( top > table.height ) {
