@@ -25,7 +25,7 @@ import type { canvas as zCanvas } from "zcanvas";
 import type { GameDef, TableDef, FlipperType } from "@/definitions/game";
 import {
     BALL_WIDTH, BALL_HEIGHT, MAX_BUMPS, BUMP_TIMEOUT, BUMP_IMPULSE,
-    GameMessages, TriggerTarget, AwardablePoints, ActorLabels, ActorTypes,
+    GameMessages, TriggerTarget, TriggerTypes, AwardablePoints, ActorLabels, ActorTypes,
 } from "@/definitions/game";
 import Tables from "@/definitions/tables";
 import Actor from "@/model/actor";
@@ -115,7 +115,10 @@ export const init = async (
                 case ActorLabels.TRIGGER:
                     const triggerGroup = actorMap.get( pair.bodyA.id ) as TriggerGroup;
                     const groupHit = triggerGroup?.trigger( pair.bodyA.id );
-                    awardPoints( game, AwardablePoints.TRIGGER );
+
+                    if ( triggerGroup.triggerType !== TriggerTypes.SERIES ) {
+                        awardPoints( game, AwardablePoints.TRIGGER );
+                    }
 
                     if ( groupHit ) {
                         switch ( triggerGroup.triggerTarget ) {

@@ -2,7 +2,7 @@
 
 _Pinball Schminball_ is a retro-style vertically scrolling pinball game created to showcase the
 possibilities of creating a game using the open source [zCanvas library](https://github.com/igorski/zCanvas)
-for graphics rendering, enriched by Matter JS as a physics engine.
+for graphics rendering, this time enriched by using Matter JS as a physics engine.
 
 You can play the game directly in your browser by [navigating here](https://www.igorski.nl/application/pinball-schminball).
 
@@ -16,7 +16,10 @@ switching and application settings, keeping the game logic outside of any centra
 
 `App.vue` maintains a (reactive) reference to an active `GameDef`, which describes the current game.
 `pinball-table.vue` manages the game screen, holds a reference to the rendering zCanvas and ties
-the game in with the model. All game related code is managed by the Actors and `@/model/game.ts`.
+the game in with the model.
+
+All game related code is actually managed by the Actors and `@/model/game.ts`. All graphics rendering
+is managed by the Actor-specific renderers inside the `@/renderers`-folder.
 
 ## Project setup
 
@@ -52,7 +55,6 @@ npm run typecheck
 
 ## TODO
 
-* don't count points for hitting triggers in series configuration
 * update Actor constructors to accept on-screen coordinates which are internally transformed (see actor unit test for bounds)
 * multiballs should iteratively be added
 * add one-time poppers on the areas left and right of the flippers to work only once per game
