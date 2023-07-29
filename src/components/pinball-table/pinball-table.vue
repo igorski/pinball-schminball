@@ -106,8 +106,8 @@ export default {
         },
     }),
     watch: {
-        "modelValue.active"( active: boolean, prevActive?: boolean): void {
-            if ( active && !prevActive ) {
+        "modelValue.id"( gameId: string, prevGameId?: string ): void {
+            if ( gameId !== prevGameId ) {
                 this.initGame();
             }
         },

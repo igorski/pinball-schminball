@@ -19,6 +19,7 @@
         "messages": {
             "gotLucky": "Got lucky",
             "underworldUnlocked": "Underworld unlocked",
+            "escapedUnderworld": "Escaped",
             "tilt": "Tilt",
             "multiball": "Multiball",
             "multiplier": "{count}x multiplier",

@@ -45,6 +45,7 @@ export const AwardablePoints = {
     TRIGGER_GROUP_COMPLETE: 2500,
     TRIGGER_GROUP_SEQUENCE_COMPLETE: 25000,
     UNDERWORLD_UNLOCKED: 10000,
+    ESCAPED_UNDERWORLD: 25000,
 };
 
 export enum GameMessages {
@@ -53,6 +54,7 @@ export enum GameMessages {
     LOOP,
     TRICK_SHOT,
     UNDERWORLD_UNLOCKED,
+    ESCAPED_UNDERWORLD,
     GOT_LUCKY,
     TILT,
 };
@@ -107,6 +109,7 @@ export type ObjectDef = Rectangle & {
     angle?: number;
     radius?: number;
     sensor?: boolean; // detects collision but does not reflect balls
+    visible?: boolean;
 };
 
 export type ShapeDef = Rectangle & {

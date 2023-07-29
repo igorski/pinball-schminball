@@ -55,7 +55,6 @@ npm run typecheck
 
 ## TODO
 
-* multiballs should iteratively be added
 * animate bumpers on hit
 * add full-screen button
 * on occasion ball goes up the ramp left from the flippers < maybe fixed with higher positionIterations (up from default 6)

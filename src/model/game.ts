@@ -133,7 +133,7 @@ export const init = async (
                                 messageHandler( GameMessages.UNDERWORLD_UNLOCKED );
                                 setTimeout(() => {
                                     const { x, y } = pair.bodyB.velocity;
-                                    if ( x < 2 && y < 2 ) {
+                                    if ( Math.abs( x ) < 2 && Math.abs( y ) < 2 ) {
                                         engine.launchBall( pair.bodyB );
                                     }
                                 }, 2500 );
@@ -196,10 +196,12 @@ export const init = async (
         mapActor( new Rect( rectOpts, engine, canvas ));
     }
 
-    startRound( game );
-
     // 5. and get the music goin'
     enqueueTrack( table.soundtrackId );
+
+    game.active = true;
+
+    startRound( game );
 };
 
 export const scaleCanvas = ( clientWidth: number, clientHeight: number ): void => {
@@ -329,6 +331,9 @@ function handleEngineUpdate( engine: IPhysicsEngine, game: GameDef ): void {
                 }
             } else if ( inUnderworld && top < table.underworld ) {
                 inUnderworld = false;
+                game.underworld = false;
+                awardPoints( game, AwardablePoints.ESCAPED_UNDERWORLD );
+                messageHandler( GameMessages.ESCAPED_UNDERWORLD );
                 setFrequency();
             }
         } else if ( enteringUnderworld ) {
@@ -375,8 +380,7 @@ function createBall( left: number, top: number ): Ball {
 
 function createMultiball( amount: number, left: number, top: number ): void {
     for ( let i = 0; i < amount; ++i ) {
-        const m = ( i + 1 ) * BALL_WIDTH;
-        createBall( left, top - m );
+        setTimeout(() => createBall( left - ( BALL_WIDTH * i ), top ), 150 * i );
     }
 }
 

@@ -112,7 +112,10 @@ export default {
     },
     watch: {
         'game.active'( value: boolean, prevValue: boolean ): void {
-            if ( !value && prevValue && this.game.id ) {
+            if ( !this.hasPlayed && value ) {
+                this.hasPlayed = true;
+            }
+            if ( !value && prevValue && this.canUseHighScores ) {
                 stopGame( this.game.id, this.game.score, this.playerName );
             }
         },
@@ -136,17 +139,16 @@ export default {
     },
     methods: {
         async initGame(): Promise<void> {
-            const id = this.canUseHighScores ? await startGame() : null;
+            const id = this.canUseHighScores ? await startGame() : Math.random().toString();
             this.game = {
                 id,
-                active: true,
+                active: false,
                 table: 0,
                 score: 0,
                 balls: 3,
                 multiplier: 1,
-                underworld: false
+                underworld: false,
             };
-            this.hasPlayed = true;
         },
     },
 };
