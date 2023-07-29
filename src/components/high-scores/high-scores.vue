@@ -40,8 +40,6 @@ interface ComponentData {
     scores: HighScoreDef[];
 };
 
-const NAMES = "ABCDEFGHIJ";
-
 export default {
     data: (): ComponentData => ({
         isSupported: false,
@@ -49,15 +47,15 @@ export default {
     }),
     computed: {
         formattedScores(): HighScoreDef[] {
-            if ( this.scores.length === 10 ) {
+            if ( this.scores.length > 0 ) {
                 return this.scores;
             }
-            const scores = [ ...this.scores ];
-            const lastScore = scores[ scores.length - 1 ] ?? 5000;
+            const names = "JIHGFEDCBA";
+            const scores = [];
             for ( let i = scores.length; i < 10; ++i ) {
-                scores.push({ name: new Array( 4 ).fill( NAMES[ i ] ).join( "" ), score: lastScore });
+                scores.push({ name: new Array( 4 ).fill( names[ i ] ).join( "" ), score: 1000 * ( i + 1 ) });
             }
-            return scores;
+            return scores.reverse();
         },
     },
     async mounted(): Promise<void> {

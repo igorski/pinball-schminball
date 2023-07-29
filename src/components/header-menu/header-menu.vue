@@ -53,6 +53,15 @@
                 </li>
                 <li>
                     <button
+                        v-t="'menu.howToPlay'"
+                        type="button"
+                        :title="$t('menu.howToPlay')"
+                        @click="openScreen('howToPlay')"
+                    >
+                    </button>
+                </li>
+                <li>
+                    <button
                         v-t="'menu.credits'"
                         type="button"
                         :title="$t('menu.credits')"

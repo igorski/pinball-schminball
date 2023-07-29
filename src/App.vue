@@ -36,6 +36,7 @@
     >
         <ScreenHighScores v-if="activeScreen === 'highScores'" />
         <ScreenSettings v-if="activeScreen === 'settings'" />
+        <ScreenHowToPlay v-if="activeScreen === 'howToPlay'" />
         <ScreenCredits v-if="activeScreen === 'credits'" />
     </modal>
     <div v-else-if="!game.active" class="overlay">
@@ -84,6 +85,9 @@ export default {
         }),
         ScreenSettings: defineAsyncComponent(() => {
             return import( "./components/settings/settings.vue" );
+        }),
+        ScreenHowToPlay: defineAsyncComponent(() => {
+            return import( "./components/how-to-play/how-to-play.vue" );
         }),
         ScreenCredits: defineAsyncComponent(() => {
             return import( "./components/credits/credits.vue" );

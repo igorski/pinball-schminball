@@ -3,6 +3,7 @@
         "menu": {
             "highScores": "High scores",
             "settings": "Settings",
+            "howToPlay": "How to play",
             "credits": "Credits"
         },
         "ui": {
@@ -27,6 +28,13 @@
         },
         "settings": {
             "sound": "Play sound"
+        },
+        "howToPlay": {
+            "gameplay": "Basic pinball rules apply: hit bumpers and make loops to get points. There are hidden triggers in the table that can unlock further possibilities that allow you to increase your score even more. The higher your score, the higher your satisfaction in life. You can also choose to bump the table if you wish to give your ball an added impulse, but don't do it too often or the machine will tilt and you will lose a round!",
+            "keyboard": "Keyboard",
+            "keyboardDescr": "Use the left and right arrow keys to toggle the left and right flippers. Press the spacebar to bump the table.",
+            "touchscreen": "Touchscreen",
+            "touchscreenDescr": "Tap the left or right side of the screen to toggle the left and right flippers. Swipe up to bump the table."
         },
         "credits": {
             "introduction": "Unless otherwise stated, programming, illustrations and music by:",

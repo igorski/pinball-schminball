@@ -23,7 +23,7 @@
 <template>
     <div class="modal">
         <div class="modal__header">
-            <h3>{{ title }}</h3>
+            <h2>{{ title }}</h2>
             <button
                 v-if="dismissible"
                 type="button"
