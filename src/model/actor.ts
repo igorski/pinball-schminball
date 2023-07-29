@@ -78,17 +78,32 @@ export default class Actor {
         this.radius = radius;
         this.type   = type;
 
-        this.bounds = { left, top, width, height };
-
-        if ( this.angle !== 0 ) {
-            this._rotatedBounds = rotateRectangle( this.bounds, this.angle );
-        }
-
         this.halfWidth  = width  / 2;
         this.halfHeight = height / 2;
 
+        // the bounds supplied to the constructor correspond to the top-left
+        // coordinate of the Actor as rendered visually on-screen. The MatterJS Body
+        // representing this Actor is however offset by its centre of mass
+        // as such we "correct" this internally before syncing with the
+        // MatterJS Body during the simulation (see cacheBounds())
+
+        this.bounds = {
+            left : left + this.halfWidth,
+            top  : top  + this.halfHeight,
+            width,
+            height
+        };
+
+        if ( this.angle !== 0 ) {
+            this._rotatedBounds = rotateRectangle( this.bounds, this.angle );
+
+            this.bounds.left -= ( width  - this._rotatedBounds.width ) / 2;
+            this.bounds.top  -= ( height - this._rotatedBounds.height ) / 2;
+        }
+
         // instance variables used by getters (prevents garbage collector hit)
         // invocation of cacheBounds() on position update will set the values properly
+
         this._outline = [];
 
         this.register( engine, canvas );

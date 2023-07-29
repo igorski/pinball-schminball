@@ -25,7 +25,7 @@
         High scores are not supported in this environment.
     </p>
     <div v-else>
-        <p v-for="( entry, index ) in scores" :key="`c_${index}`">
+        <p v-for="( entry, index ) in formattedScores" :key="`c_${index}`">
             {{ index + 1 }}: {{ entry.score }} {{ entry.name }}
         </p>
     </div>
@@ -40,11 +40,26 @@ interface ComponentData {
     scores: HighScoreDef[];
 };
 
+const NAMES = "ABCDEFGHIJ";
+
 export default {
     data: (): ComponentData => ({
         isSupported: false,
         scores: []
     }),
+    computed: {
+        formattedScores(): HighScoreDef[] {
+            if ( this.scores.length === 10 ) {
+                return this.scores;
+            }
+            const scores = [ ...this.scores ];
+            const lastScore = scores[ scores.length - 1 ] ?? 5000;
+            for ( let i = scores.length; i < 10; ++i ) {
+                scores.push({ name: new Array( 4 ).fill( NAMES[ i ] ).join( "" ), score: lastScore });
+            }
+            return scores;
+        },
+    },
     async mounted(): Promise<void> {
         this.isSupported = isSupported();
 

@@ -98,11 +98,16 @@ export type FlipperDef = {
  * An ObjectDef is the serialized version of an Actor (where the actor
  * type is inferred from the parent property, see TableDef) it basically
  * describes the position and dimensions of an Actor relative to its Table
+ * Rectangle coordinates are from the top left of the object, taking rotation into account
  */
 export type ObjectDef = Rectangle & {
     angle?: number;
     radius?: number;
     sensor?: boolean; // detects collision but does not reflect balls
+};
+
+export type ShapeDef = Rectangle & {
+    source: string;
 };
 
 /**
@@ -144,12 +149,6 @@ export type TriggerDef = {
     type: TriggerTypes;
     triggers: ObjectDef[];
     message?: GameMessages;
-};
-
-export type ShapeDef = {
-    source: string;
-    left: number;
-    top: number;
 };
 
 /**

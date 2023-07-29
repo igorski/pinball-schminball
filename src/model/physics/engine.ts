@@ -94,14 +94,16 @@ export const createEngine = async (
     };
 
     const bodyVertices = await loadVertices( table.body.source );
-    Matter.Composite.add( engine.world, Matter.Bodies.fromVertices( table.body.left, table.body.top, bodyVertices, {
+    Matter.Composite.add( engine.world,
+        Matter.Bodies.fromVertices( table.body.left + table.body.width / 2, table.body.top + table.body.height / 2, bodyVertices, {
         isStatic: true,
         friction: 0,
     }, true ));
 
     for ( const reflector of table.reflectors ) {
         const bodyVertices = await loadVertices( reflector.source );
-        Matter.Composite.add( engine.world, Matter.Bodies.fromVertices( reflector.left, reflector.top, bodyVertices, {
+        Matter.Composite.add( engine.world,
+            Matter.Bodies.fromVertices( reflector.left + reflector.width / 2, reflector.top + reflector.height / 2, bodyVertices, {
             isStatic: true,
             restitution: 0.5
         }, true ));
@@ -131,7 +133,7 @@ export const createEngine = async (
 
                 case ActorTypes.CIRCULAR:
                     const isBumper = label !== ActorLabels.BALL;
-                    body = Matter.Bodies.circle( left, top, width / 2, {
+                    body = Matter.Bodies.circle( left + width / 2, top + height / 2, width / 2, {
                         label,
                         isSensor: actor.sensor,
                         isStatic: actor.fixed,

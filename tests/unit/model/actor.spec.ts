@@ -78,7 +78,7 @@ describe( "Actor", () => {
         actor.cacheBounds();
 
         const { left, top, width, height } = ACTOR_OPTS;
-        expect( actor.bounds ).toEqual({ left: left - width, top: top - height, width, height });
+        expect( actor.bounds ).toEqual({ left: left - width / 2, top: top - height / 2, width, height });
     });
 
     it( `when the bounds are cached, it should be able to translate the Actors physics body
@@ -86,6 +86,6 @@ describe( "Actor", () => {
         const actor = new Actor( ACTOR_OPTS, engine, canvas );
         actor.cacheBounds();
 
-        expect( actor.getOutline() ).toEqual([ 20, 20, 50, 20, 50, 50, 20, 50 ]);
+        expect( actor.getOutline() ).toEqual([ 35, 35, 65, 35, 65, 65, 35, 65 ]);
     });
 });

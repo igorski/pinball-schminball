@@ -33,16 +33,18 @@ export default [{
     background : `${SPRITE_PATH}/table1_background.png`,
     body : {
         source : `${SPRITE_PATH}/table1_shape.svg`,
-        left   : 299,
-        top    : 376
+        left   : -101,
+        top    : -845,
+        width  : 800,
+        height : 2441,
     },
-    popper : { left: 780, top: 1380, width: 40 },
+    popper : { left: 744, top: 1387, width: 40 },
     flippers : [
-        { type: ActorTypes.LEFT_FLIPPER,  left: 120, top: 575, angle: 20 },
-        { type: ActorTypes.RIGHT_FLIPPER, left: 650, top: 700, angle: -20 },
+        { type: ActorTypes.LEFT_FLIPPER,  left: 54, top: 533, angle: 20 },
+        { type: ActorTypes.RIGHT_FLIPPER, left: 582, top: 650, angle: -20 },
 
-        { type: ActorTypes.LEFT_FLIPPER,  left: 270, top: 1335 },
-        { type: ActorTypes.RIGHT_FLIPPER, left: 480, top: 1335 },
+        { type: ActorTypes.LEFT_FLIPPER,  left: 220, top: 1320 },
+        { type: ActorTypes.RIGHT_FLIPPER, left: 410, top: 1320 },
 
         // underworld
 
@@ -50,34 +52,34 @@ export default [{
         { type: ActorTypes.LEFT_FLIPPER,  left: 280, top: 2270 },
     ],
     reflectors: [
-        { source: `${SPRITE_PATH}/table1_reflector_left.svg`, left: 170, top: 1175 },
-        { source: `${SPRITE_PATH}/table1_reflector_right.svg`, left: 592, top: 1175 },
+        { source: `${SPRITE_PATH}/table1_reflector_left.svg`,  left: 117, top: 1089, width: 106, height: 171 },
+        { source: `${SPRITE_PATH}/table1_reflector_right.svg`, left: 539, top: 1089, width: 106, height: 171 },
     ],
     rects: [
         // top
-        { left: 400, top: 175, width: 25, height: 75, radius: 15 },
-        { left: 470, top: 185, width: 25, height: 75, radius: 15 },
-        { left: 540, top: 175, width: 25, height: 75, radius: 15 },
+        { left: 388, top: 138, width: 25, height: 75, radius: 15 },
+        { left: 458, top: 148, width: 25, height: 75, radius: 15 },
+        { left: 528, top: 138, width: 25, height: 75, radius: 15 },
 
         // outer walls
-        { left: 400, top: -10, width: 800, height: 50 },
-        { left: -20, top: 1220, width: 50, height: 2000 },
-        { left: 819, top: 1220, width: 50, height: 2000 },
+        { left: 0, top: -50, width: 800, height: 50 },
+        { left: -50, top: 0, width: 50, height: 2000 },
+        { left: 800, top: 0, width: 50, height: 2000 },
 
-        { left: 775, top: 900, width: 70, height: 10, angle: 45 },
+        { left: 744, top: 930, width: 70, height: 10, angle: 45 },
 
         // reflectors
         // { left: 191, top: 1175, width: 160, height: 10, angle: 62, bounce: true },
         // { left: 570, top: 1175, width: 160, height: 10, angle: -62, bounce: true },
 
         // bottom left flipper area
-        { left: 58,  top: 1168, width: 10, height: 145 },
-        { left: 127, top: 1283, width: 170, height: 10, angle: 34 },
+        { left: 62, top: 1097, width: 10, height: 145 },
+        { left: 62, top: 1233, width: 170, height: 10, angle: 34 },
         // bottom right flipper area
-        { left: 691, top: 1168, width: 10, height: 145 },
-        { left: 622, top: 1283, width: 170, height: 10, angle: -34 },
+        { left: 688, top: 1097, width: 10, height: 145 },
+        { left: 552, top: 1233, width: 170, height: 10, angle: -34 },
         // bottom flipper area
-        { left: 370, top: 1440, width: 5, height: 5 },
+        { left: 375, top: 1438, width: 5, height: 5 },
 
         // underworld
 
@@ -86,9 +88,9 @@ export default [{
         { left: 125, top: 2200, width: 165, height: 10, angle: 34 },
     ],
     bumpers: [
-        { left: 375, top: 365, width: 65, height: 65 },
-        { left: 480, top: 330, width: 65, height: 65 },
-        { left: 458, top: 435, width: 65, height: 65 },
+        { left: 343, top: 333, width: 65, height: 65 },
+        { left: 448, top: 298, width: 65, height: 65 },
+        { left: 426, top: 403, width: 65, height: 65 },
 
         // underworld
 
@@ -102,28 +104,28 @@ export default [{
             target: TriggerTarget.MULTIBALL,
             type: TriggerTypes.BOOL,
             triggers: [
-                { left: 355, top: 140, width: 24, height: 24, sensor: true },
-                { left: 425, top: 140, width: 24, height: 24, sensor: true },
-                { left: 490, top: 140, width: 24, height: 24, sensor: true },
-                { left: 560, top: 140, width: 24, height: 24, sensor: true },
+                { left: 343, top: 128, width: 24, height: 24, sensor: true },
+                { left: 413, top: 128, width: 24, height: 24, sensor: true },
+                { left: 478, top: 128, width: 24, height: 24, sensor: true },
+                { left: 548, top: 128, width: 24, height: 24, sensor: true },
             ]
         },
         {
             target: TriggerTarget.MULTIPLIER,
             type: TriggerTypes.BOOL,
             triggers: [
-                { left: 320, top: 765, width: 24, height: 24 },
-                { left: 430, top: 765, width: 24, height: 24 },
-                { left: 375, top: 810, width: 24, height: 24 },
+                { left: 308, top: 753, width: 24, height: 24 },
+                { left: 418, top: 753, width: 24, height: 24 },
+                { left: 363, top: 798, width: 24, height: 24 },
             ]
         },
         {
             target: TriggerTarget.MULTIPLIER,
             type: TriggerTypes.BOOL,
             triggers: [
-                { left: 25, top: 705, width: 24, height: 24 },
-                { left: 35, top: 750, width: 24, height: 24 },
-                { left: 60, top: 795, width: 24, height: 24 },
+                { left: 13, top: 693, width: 24, height: 24 },
+                { left: 23, top: 738, width: 24, height: 24 },
+                { left: 48, top: 783, width: 24, height: 24 },
             ]
         },
         {
@@ -131,10 +133,10 @@ export default [{
             type: TriggerTypes.SERIES,
             message: GameMessages.LOOP,
             triggers: [
-                { left: 95, top: 505, width: 20, height: 20, sensor: true },
-                { left: 65, top: 305, width: 20, height: 20, sensor: true  },
-                { left: 150, top: 125, width: 20, height: 20, sensor: true  },
-                { left: 295, top: 50, width: 20, height: 20, sensor: true  },
+                { left: 85, top: 495, width: 20, height: 20, sensor: true },
+                { left: 55, top: 295, width: 20, height: 20, sensor: true  },
+                { left: 130, top: 115, width: 20, height: 20, sensor: true  },
+                { left: 285, top: 40, width: 20, height: 20, sensor: true  },
             ]
         },
         {
@@ -142,9 +144,9 @@ export default [{
             type: TriggerTypes.SERIES,
             message: GameMessages.LOOP,
             triggers: [
-                { left: 195, top: 505, width: 20, height: 20, sensor: true },
-                { left: 140, top: 305, width: 20, height: 20, sensor: true  },
-                { left: 245, top: 90, width: 20, height: 20, sensor: true  },
+                { left: 185, top: 495, width: 20, height: 20, sensor: true },
+                { left: 130, top: 295, width: 20, height: 20, sensor: true  },
+                { left: 235, top: 80, width: 20, height: 20, sensor: true  },
             ]
         },
         {
@@ -152,9 +154,9 @@ export default [{
             type: TriggerTypes.SERIES,
             message: GameMessages.TRICK_SHOT,
             triggers: [
-                { left: 355, top: 455, width: 20, height: 20, sensor: true  },
-                { left: 295, top: 340, width: 20, height: 20, sensor: true  },
-                { left: 280, top: 250, width: 20, height: 20, sensor: true  },
+                { left: 345, top: 445, width: 20, height: 20, sensor: true  },
+                { left: 285, top: 330, width: 20, height: 20, sensor: true  },
+                { left: 270, top: 240, width: 20, height: 20, sensor: true  },
             ]
         }
     ],
