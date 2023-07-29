@@ -70,8 +70,7 @@ export default {
     &__content {
         @include displayFont();
         @include center();
-        width: 50%;
-        min-width: 400px;
+        width: 100%;
         color: #FFF;
 
         &-title {
@@ -79,6 +78,10 @@ export default {
             text-align: center;
             font-size: 48px;
             font-weight: normal;
+        }
+
+        @include large() {
+            width: 400px;
         }
     }
 
@@ -88,6 +91,11 @@ export default {
         justify-content: space-between;
         font-size: 24px;
         margin-bottom: $spacing-medium;
+
+        @include mobile() {
+            padding: 0 $spacing-large;
+            font-size: 16px;
+        }
     }
 }
 </style>

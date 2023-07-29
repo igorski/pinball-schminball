@@ -44,7 +44,6 @@ type IRoundEndHandler = ( readyCallback: () => void, timeout: number ) => void;
 type IMessageHandler = ( message: GameMessages, optDuration?: number ) => void;
 
 let engine: IPhysicsEngine;
-let engineStep: number = 1000 / 60;
 let ball: Ball;
 let flipper: Flipper;
 let otherBall: Ball;
@@ -74,7 +73,6 @@ export const init = async (
 ): Promise<void> => {
 
     canvas = canvasRef;
-    engineStep = 1000 / canvas.getFrameRate();
 
     roundEndHandler = roundEndHandlerRef;
     messageHandler  = messageHandlerRef;
@@ -264,7 +262,7 @@ export const update = ( timestamp: DOMHighResTimeStamp, framesSinceLastRender: n
     }
 
     // update physics engine
-    engine.update( engineStep * Math.round( framesSinceLastRender ));
+    engine.update(( 1000 / canvas.getActualFrameRate()) * Math.round( framesSinceLastRender ));
 
     // update Actors
 

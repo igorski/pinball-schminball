@@ -57,6 +57,7 @@
 
 <script lang="ts">
 import { PropType } from "vue";
+import throttle from "lodash/throttle";
 import { canvas } from "zcanvas";
 import type { GameDef, GameMessages} from "@/definitions/game";
 import { ActorTypes } from "@/definitions/game";
@@ -64,6 +65,10 @@ import { init, scaleCanvas, setFlipperState, bumpTable, update, panViewport, tog
 import RoundResults from "./round-results.vue";
 import { i18nForMessage } from "./message-localizer";
 
+const touchStart = {
+    y: 0,
+    time: 0
+};
 let changeTimeout = null;
 let leftTouchId = -1;
 let rightTouchId = -1;
@@ -116,8 +121,11 @@ export default {
         });
         this.canvas.insertInPage( this.$refs.canvasContainer );
 
-        this.keyListener = this.handleKey.bind( this );
+        this.bumpHandler = throttle((): void => {
+            bumpTable( this.modelValue );
+        }, 250 );
 
+        this.keyListener = this.handleKey.bind( this );
         window.addEventListener( "keydown", this.keyListener );
         window.addEventListener( "keyup",   this.keyListener );
         window.addEventListener( "resize",  this.handleResize );
@@ -158,6 +166,12 @@ export default {
                         setFlipperState( ActorTypes.RIGHT_FLIPPER, false );
                         rightTouchId = -1;
                     }
+                    if ( event.type === "touchend" && ( window.performance.now() - touchStart.time ) < 400 ) {
+                        const movedBy = event.changedTouches[ 0 ]?.pageY - touchStart.y;
+                        if ( movedBy < -150 ) {
+                            this.bumpHandler();
+                        }
+                    }
                     break;
                 case "touchstart":
                     for ( touch of event.touches ) {
@@ -168,6 +182,8 @@ export default {
                             setFlipperState( ActorTypes.RIGHT_FLIPPER, true );
                             rightTouchId = touch.identifier;
                         }
+                        touchStart.y = touch.pageY;
+                        touchStart.time = window.performance.now();
                     }
                     break;
             }
@@ -196,7 +212,9 @@ export default {
                     }
                     return;
                 case 32:
-                    bumpTable( this.modelValue );
+                    if ( type === "keydown" ) {
+                        this.bumpHandler();
+                    }
                     event.preventDefault();
                     break;
                 case 37:
