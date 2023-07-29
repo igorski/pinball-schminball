@@ -45,10 +45,10 @@ export default [{
     ],
     flippers : [
         { type: ActorTypes.LEFT_FLIPPER,  left: 54, top: 533, angle: 20 },
-        { type: ActorTypes.RIGHT_FLIPPER, left: 577, top: 650, angle: -20 },
+        { type: ActorTypes.RIGHT_FLIPPER, left: 572, top: 650, angle: -20 },
 
-        { type: ActorTypes.LEFT_FLIPPER,  left: 220, top: 1315 },
-        { type: ActorTypes.RIGHT_FLIPPER, left: 410, top: 1315 },
+        { type: ActorTypes.LEFT_FLIPPER,  left: 215, top: 1305 },
+        { type: ActorTypes.RIGHT_FLIPPER, left: 410, top: 1305 },
 
         // underworld
 
@@ -56,8 +56,8 @@ export default [{
         { type: ActorTypes.RIGHT_FLIPPER, left: 530, top: 2075 },
     ],
     reflectors: [
-        { source: `${SPRITE_PATH}/table1_reflector_left.svg`,  left: 117, top: 1089, width: 106, height: 171 },
-        { source: `${SPRITE_PATH}/table1_reflector_right.svg`, left: 539, top: 1089, width: 106, height: 171 },
+        { source: `${SPRITE_PATH}/table1_reflector_left.svg`,  left: 117, top: 1079, width: 106, height: 171 },
+        { source: `${SPRITE_PATH}/table1_reflector_right.svg`, left: 539, top: 1079, width: 106, height: 171 },
     ],
     rects: [
         // top
@@ -66,9 +66,9 @@ export default [{
         { left: 528, top: 138, width: 25, height: 75, radius: 15 },
 
         // outer walls
-        { left: 0, top: -50, width: 800, height: 50 },
-        { left: -50, top: 0, width: 50, height: 2000 },
-        { left: 800, top: 0, width: 50, height: 2000 },
+        { left: 0, top: -30, width: 800, height: 50,  visible: false },
+        { left: -44, top: 0, width: 50, height: 1930, visible: false },
+        { left: 794, top: 0, width: 50, height: 1930, visible: false },
 
         { left: 744, top: 930, width: 70, height: 10, angle: 45 },
 
@@ -78,13 +78,13 @@ export default [{
 
         // bottom left flipper area
 
-        { left: 62, top: 1092, width: 10, height: 145 },
-        { left: 62, top: 1228, width: 170, height: 10, angle: 34 },
+        { left: 62, top: 1097, width: 10, height: 130 },
+        { left: 62, top: 1218, width: 170, height: 10, angle: 34 },
 
         // bottom right flipper area
 
-        { left: 688, top: 1092, width: 10, height: 145 },
-        { left: 552, top: 1228, width: 170, height: 10, angle: -34 },
+        { left: 688, top: 1097, width: 10, height: 130 },
+        { left: 552, top: 1218, width: 170, height: 10, angle: -34 },
 
         // bottom flipper area
 
@@ -125,7 +125,7 @@ export default [{
             target: TriggerTarget.UNDERWORLD,
             type: TriggerTypes.BOOL,
             triggers: [
-                { left: 335, top: 655, width: 50, height: 50, sensor: true },
+                { left: 370, top: 715, width: 15, height: 15, sensor: true, visible: false },
             ]
         },
         {
@@ -142,10 +142,10 @@ export default [{
             type: TriggerTypes.SERIES,
             message: GameMessages.LOOP,
             triggers: [
-                { left: 85, top: 495, width: 20, height: 20, sensor: true },
-                { left: 55, top: 295, width: 20, height: 20, sensor: true  },
-                { left: 130, top: 115, width: 20, height: 20, sensor: true  },
-                { left: 285, top: 40, width: 20, height: 20, sensor: true  },
+                { left: 85,  top: 495, width: 20, height: 20, sensor: true, visible: false },
+                { left: 55,  top: 295, width: 20, height: 20, sensor: true, visible: false },
+                { left: 130, top: 115, width: 20, height: 20, sensor: true, visible: false },
+                { left: 285, top: 40,  width: 20, height: 20, sensor: true, visible: false },
             ]
         },
         {
@@ -153,9 +153,9 @@ export default [{
             type: TriggerTypes.SERIES,
             message: GameMessages.LOOP,
             triggers: [
-                { left: 185, top: 495, width: 20, height: 20, sensor: true },
-                { left: 130, top: 295, width: 20, height: 20, sensor: true  },
-                { left: 235, top: 80, width: 20, height: 20, sensor: true  },
+                { left: 185, top: 495, width: 20, height: 20, sensor: true, visible: false },
+                { left: 130, top: 295, width: 20, height: 20, sensor: true, visible: false },
+                { left: 235, top: 80,  width: 20, height: 20, sensor: true, visible: false },
             ]
         },
         {
@@ -163,9 +163,9 @@ export default [{
             type: TriggerTypes.SERIES,
             message: GameMessages.TRICK_SHOT,
             triggers: [
-                { left: 345, top: 445, width: 20, height: 20, sensor: true  },
-                { left: 285, top: 330, width: 20, height: 20, sensor: true  },
-                { left: 270, top: 240, width: 20, height: 20, sensor: true  },
+                { left: 345, top: 445, width: 20, height: 20, sensor: true, visible: false },
+                { left: 285, top: 330, width: 20, height: 20, sensor: true, visible: false },
+                { left: 270, top: 240, width: 20, height: 20, sensor: true, visible: false },
             ]
         }
     ],

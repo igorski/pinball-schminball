@@ -72,7 +72,7 @@ export const createEngine = async (
         min: { x: 0, y: 0 },
         max: { x: width, y: height }
     };
-    engine.positionIterations = 10;
+    engine.positionIterations = 16;
 
     Matter.Events.on( engine, "collisionStart", collisionHandler );
     Matter.Events.on( engine, "beforeUpdate", beforeUpdateHandler );
