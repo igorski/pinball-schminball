@@ -127,6 +127,18 @@ export const init = async (
                         switch ( triggerGroup.triggerTarget ) {
                             default:
                                 break;
+                            case TriggerTarget.UNDERWORLD: {
+                                game.underworld = true;
+                                awardPoints( game, AwardablePoints.UNDERWORLD_UNLOCKED );
+                                messageHandler( GameMessages.UNDERWORLD_UNLOCKED );
+                                setTimeout(() => {
+                                    const { x, y } = pair.bodyB.velocity;
+                                    if ( x < 2 && y < 2 ) {
+                                        engine.launchBall( pair.bodyB );
+                                    }
+                                }, 2500 );
+                                break;
+                            }
                             case TriggerTarget.MULTIPLIER: {
                                 triggerGroup.unsetTriggers();
                                 game.multiplier = Math.min( 2 * game.multiplier, 32 );
@@ -281,7 +293,7 @@ export const update = ( timestamp: DOMHighResTimeStamp, framesSinceLastRender: n
     const { underworld } = table;
     const y = top - panOffset;
 
-    canvas.panViewport( 0, y > underworldOffset && top < underworld ? underworld - viewportHeight : y );
+    canvas.panViewport( 0, y > underworldOffset && ( top < underworld || !inUnderworld ) ? underworld - viewportHeight : y );
 };
 
 /* DEBUG methods */
@@ -311,8 +323,10 @@ function handleEngineUpdate( engine: IPhysicsEngine, game: GameDef ): void {
 
         if ( singleBall ) {
             if ( enteringUnderworld ) {
-                inUnderworld = true;
-                setFrequency( 2000 );
+                if ( game.underworld ) {
+                    inUnderworld = true;
+                    setFrequency( 2000 );
+                }
             } else if ( inUnderworld && top < table.underworld ) {
                 inUnderworld = false;
                 setFrequency();
@@ -322,7 +336,9 @@ function handleEngineUpdate( engine: IPhysicsEngine, game: GameDef ): void {
             continue;
         }
 
-        if ( top > table.height ) {
+        const tableBottom = game.underworld ? table.height : table.underworld;
+
+        if ( top > tableBottom ) {
             removeBall( ball );
 
             if ( singleBall ) {

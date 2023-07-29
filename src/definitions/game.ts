@@ -44,6 +44,7 @@ export const AwardablePoints = {
     TRIGGER: 100,
     TRIGGER_GROUP_COMPLETE: 2500,
     TRIGGER_GROUP_SEQUENCE_COMPLETE: 25000,
+    UNDERWORLD_UNLOCKED: 10000,
 };
 
 export enum GameMessages {
@@ -51,6 +52,7 @@ export enum GameMessages {
     MULTIBALL,
     LOOP,
     TRICK_SHOT,
+    UNDERWORLD_UNLOCKED,
     GOT_LUCKY,
     TILT,
 };
@@ -120,6 +122,7 @@ export enum TriggerTarget {
     MULTIPLIER,
     MULTIBALL,
     SEQUENCE_COMPLETION,
+    UNDERWORLD,
 };
 
 /**

@@ -66,7 +66,7 @@ interface ComponentData {
     loading: boolean;
     activeScreen: string;
     playerName: string;
-    game: GameDef;
+    game: Partial<GameDef>;
     hasPlayed: boolean;
 };
 
@@ -96,10 +96,6 @@ export default {
         hasPlayed: false,
         game: {
             active: false,
-            table: 0,
-            score: 0,
-            balls: 3,
-            multiplier: 1,
         },
     }),
     computed: {
@@ -144,6 +140,7 @@ export default {
                 score: 0,
                 balls: 3,
                 multiplier: 1,
+                underworld: false
             };
             this.hasPlayed = true;
         },

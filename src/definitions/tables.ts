@@ -122,6 +122,13 @@ export default [{
             ]
         },
         {
+            target: TriggerTarget.UNDERWORLD,
+            type: TriggerTypes.BOOL,
+            triggers: [
+                { left: 335, top: 655, width: 50, height: 50, sensor: true },
+            ]
+        },
+        {
             target: TriggerTarget.MULTIPLIER,
             type: TriggerTypes.BOOL,
             triggers: [
