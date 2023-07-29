@@ -27,8 +27,12 @@ import type { ActorOpts } from "@/model/actor";
 import type { IPhysicsEngine } from "@/model/physics/engine";
 
 export default class Popper extends Actor {
+    public once: boolean;
+
     constructor( opts: ActorOpts, engine: IPhysicsEngine, canvas: zCanvas ) {
         super({ ...opts, fixed: true }, engine, canvas );
+
+        this.once = opts.once ?? false;
     }
 
     protected override getLabel(): string {

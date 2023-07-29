@@ -61,5 +61,3 @@ npm run typecheck
 * underworld should be set on game and only unlocked after certain event, add the trigger for it
 * add full-screen button
 * on occasion ball goes up the ramp left from the flippers < maybe fixed with higher positionIterations (up from default 6)
-* ball can move back up ramp next to flipper, maybe move flipper down a tad
-* keep ball within bounds (likely widen the outer walls off-screen so the collision is detected earlier)

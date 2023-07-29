@@ -105,7 +105,12 @@ export const init = async (
             }
 			switch ( pair.bodyA.label ) {
                 case ActorLabels.POPPER:
+                    const popper = actorMap.get( pair.bodyA.id );
                     engine.launchBall( pair.bodyB );
+                    if (( popper as Popper ).once ) {
+                        messageHandler( GameMessages.GOT_LUCKY );
+                        removeActor( popper );
+                    }
                     break;
                 case ActorLabels.BUMPER:
                     awardPoints( game, AwardablePoints.BUMPER );
@@ -154,7 +159,9 @@ export const init = async (
     canvas.addChild( backgroundRenderer );
 
     // 4. generate Actors
-    mapActor( new Popper( table.popper, engine, canvas ));
+    table.poppers.map( popperOpts => {
+        mapActor( new Popper( popperOpts, engine, canvas ));
+    });
 
     flippers = table.flippers.map( flipperOpts => {
         const flipper = new Flipper( flipperOpts, engine, canvas );
@@ -329,13 +336,17 @@ function mapActor( actor: Actor, optId?: number ): void {
     actorMap.set( optId ?? actor.body.id, actor );
 }
 
+function removeActor( actor: Actor ): void {
+    actorMap.delete( actor.body.id );
+    actor.dispose( engine );
+}
+
 function removeBall( ball: Ball ): void {
     const index = balls.indexOf( ball );
     if ( index >= 0 ) {
         balls.splice( index, 1 );
     }
-    actorMap.delete( ball.body.id );
-    ball.dispose( engine );
+    removeActor( ball );
 }
 
 function createBall( left: number, top: number ): Ball {
@@ -368,7 +379,7 @@ function endRound( game: GameDef, timeout = 3500 ): void {
 }
 
 function startRound( game: GameDef ): void {
-    createBall( table.popper.left, table.popper.top - BALL_HEIGHT );
+    createBall( table.poppers[ 0 ].left, table.poppers[ 0 ].top - BALL_HEIGHT );
     setFrequency();
 
     tilt = false;

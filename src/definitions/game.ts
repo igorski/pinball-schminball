@@ -51,6 +51,7 @@ export enum GameMessages {
     MULTIBALL,
     LOOP,
     TRICK_SHOT,
+    GOT_LUCKY,
     TILT,
 };
 
@@ -152,6 +153,21 @@ export type TriggerDef = {
 };
 
 /**
+ * A Popper is a mechanism that can launch the ball. There should be at least
+ * one popper per table as otherwise the ball cannot be launched (it's coordinates
+ * are used to place the ball upon the start of each round).
+ *
+ * Multiple poppers can be added to a table. Poppers that are defined to only work
+ * once will be removed from the active game upon first use.
+ */
+export type PopperDef = {
+    left: number;
+    top: number;
+    width: number;
+    once?: boolean;
+};
+
+/**
  * The data model for a pinball table, it combines all
  * of the definitions above to define the table contents and "game world".
  */
@@ -162,7 +178,7 @@ export type TableDef = {
     underworld: number; // at which y coordinate the "underworld"-section starts
     background: string,
     body: ShapeDef,
-    popper: { left: number, top: number, width: number };
+    poppers: PopperDef[];
     flippers: FlipperDef[];
     reflectors: ShapeDef[];
     rects: ObjectDef[];

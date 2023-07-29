@@ -38,7 +38,11 @@ export default [{
         width  : 800,
         height : 2441,
     },
-    popper : { left: 744, top: 1387, width: 40 },
+    poppers : [
+        { left: 744, top: 1387, width: 40 },
+        { left: 18, top: 1282, width: 40, once: true },
+        { left: 703, top: 1282, width: 40, once: true },
+    ],
     flippers : [
         { type: ActorTypes.LEFT_FLIPPER,  left: 54, top: 533, angle: 20 },
         { type: ActorTypes.RIGHT_FLIPPER, left: 582, top: 650, angle: -20 },
@@ -117,15 +121,6 @@ export default [{
                 { left: 308, top: 753, width: 24, height: 24 },
                 { left: 418, top: 753, width: 24, height: 24 },
                 { left: 363, top: 798, width: 24, height: 24 },
-            ]
-        },
-        {
-            target: TriggerTarget.MULTIPLIER,
-            type: TriggerTypes.BOOL,
-            triggers: [
-                { left: 13, top: 693, width: 24, height: 24 },
-                { left: 23, top: 738, width: 24, height: 24 },
-                { left: 48, top: 783, width: 24, height: 24 },
             ]
         },
         {

@@ -31,6 +31,9 @@ export const i18nForMessage = ( message: GameMessages, game: GameDef ): string =
     switch ( message ) {
         default:
             break
+        case GameMessages.GOT_LUCKY:
+            key = "gotLucky";
+            break;
         case GameMessages.TILT:
             key = "tilt";
             break;

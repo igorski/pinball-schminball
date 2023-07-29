@@ -16,6 +16,7 @@
             "remainingBalls": "Remaining balls"
         },
         "messages": {
+            "gotLucky": "Got lucky",
             "tilt": "Tilt",
             "multiball": "Multiball",
             "multiplier": "{count}x multiplier",

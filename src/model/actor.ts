@@ -39,6 +39,7 @@ export type ActorOpts = {
     type?: ActorTypes;
     fixed?: boolean;
     sensor?: boolean;
+    once?: boolean;
     opts?: any;
 };
 
