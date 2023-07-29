@@ -32,23 +32,12 @@ import { rectangleToPolygon, rectangleToRotatedPolygon } from "@/utils/math-util
 const DEBUG = import.meta.env.MODE !== "production";
 
 export default class Rect extends Actor {
-    private _centerX: number;
-    private _centerY: number;
-    private _pivot: Point;
-
     /**
      * a Rect is an Actor that can adjust its angle and
      * rotate around a custom pivot point
      */
     constructor( opts: ActorOpts, engine: IPhysicsEngine, canvas: zCanvas ) {
-        super({ ...opts, type: opts.type ?? ActorTypes.RECTANGULAR }, engine, canvas );
-
-        this._centerX = opts.width  / 2;
-        this._centerY = opts.height / 2;
-
-        // instance variables used by getters (prevents garbage collector hit)
-        // invocation of cacheBounds() on position update will set the value appropriately
-        this._pivot = { x: 0, y: 0 };
+        super({ ...opts, type: opts.type ?? ActorTypes.RECTANGULAR, fixed: opts.fixed ?? true }, engine, canvas );
 
         this.cacheBounds();
     }
@@ -58,10 +47,13 @@ export default class Rect extends Actor {
     }
 
     cacheBounds(): Rectangle {
+        if ( this._cached ) {
+            return this.bounds;
+        }
         const { left, top } = super.cacheBounds();
 
-        this._pivot.x = left + this._centerX;
-        this._pivot.y = top  + this._centerY;
+        this._pivot.x = left + this.halfWidth;
+        this._pivot.y = top  + this.halfHeight;
 
         if ( DEBUG ) {
             if ( this.angle === 0 ) {
@@ -74,6 +66,6 @@ export default class Rect extends Actor {
     }
 
     protected override getRendererClass(): IRendererClass | null {
-        return RectRenderer;
+        return this.visible ? RectRenderer : null;
     }
 }

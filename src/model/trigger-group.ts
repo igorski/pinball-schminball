@@ -28,8 +28,6 @@ import type { ActorOpts } from "@/model/actor";
 import type { IPhysicsEngine } from "@/model/physics/engine";
 import Trigger from "@/model/trigger";
 
-const INVISIBLE_TRIGGERS = [ TriggerTarget.SEQUENCE_COMPLETION, TriggerTarget.UNDERWORLD ];
-
 export default class TriggerGroup extends Actor {
     public triggerTarget: TriggerTarget;
     public triggerType: TriggerTypes;
@@ -136,10 +134,9 @@ export default class TriggerGroup extends Actor {
 
     protected override register( engine: IPhysicsEngine, canvas: zCanvas ): void {
         const triggerObjectDefs = this._opts.triggers as never as ObjectDef[];
-        const isVisible = !INVISIBLE_TRIGGERS.includes(( this._opts as TriggerDef ).target );
 
         this.triggers = triggerObjectDefs.map( trigger => {
-            return new Trigger({ ...trigger, opts: { isVisible }}, engine, canvas );
+            return new Trigger( trigger, engine, canvas );
         });
     }
 

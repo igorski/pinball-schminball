@@ -32,7 +32,7 @@ export default class Trigger extends Actor {
 
     constructor( opts: ActorOpts, engine: IPhysicsEngine, canvas: zCanvas ) {
         super({
-            ...opts, type: ActorTypes.CIRCULAR, radius: opts.radius ?? opts.width / 2
+            ...opts, type: ActorTypes.CIRCULAR, radius: opts.radius ?? opts.width / 2, fixed: true
         }, engine, canvas );
     }
 
@@ -41,7 +41,7 @@ export default class Trigger extends Actor {
     }
 
     protected override getRendererClass(): IRendererClass | null {
-        return this._opts.isVisible ? TriggerRenderer : null;
+        return this.visible ? TriggerRenderer : null;
     }
 
     protected override getLabel(): string {

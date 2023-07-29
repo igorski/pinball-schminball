@@ -30,7 +30,7 @@ import BumperRenderer from "@/renderers/bumper-renderer";
 export default class Bumper extends Actor {
     constructor( opts: ActorOpts, engine: IPhysicsEngine, canvas: zCanvas ) {
         super({
-            ...opts, type: ActorTypes.CIRCULAR, radius: opts.radius ?? opts.width / 2
+            ...opts, type: ActorTypes.CIRCULAR, radius: opts.radius ?? opts.width / 2, fixed: true,
         }, engine, canvas );
     }
 

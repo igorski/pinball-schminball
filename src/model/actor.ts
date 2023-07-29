@@ -37,6 +37,7 @@ export type ActorOpts = {
     radius?: number;
     angle?: number; // provide in degrees
     type?: ActorTypes;
+    visible?: boolean;
     fixed?: boolean;
     sensor?: boolean;
     once?: boolean;
@@ -55,6 +56,7 @@ export default class Actor {
     public type: ActorTypes;
     public fixed: boolean;
     public sensor: boolean;
+    public visible: boolean;
     public angle: number; // internally in radians
 
     public body: Matter.Body | null;
@@ -63,21 +65,24 @@ export default class Actor {
 
     protected _opts: any;
     protected _rotatedBounds: Rectangle;
+    protected _pivot: Point;
+    protected _cached: boolean;
     protected _outline: number[]; // debug only
 
     constructor({
         left = 0, top = 0, width = 1, height = 1, angle = 0, radius = 0,
-        fixed = true, sensor = false, opts = null, type = ActorTypes.RECTANGULAR
+        fixed = true, sensor = false, opts = null, visible = true, type = ActorTypes.RECTANGULAR
     }: ActorOpts = {}, protected engine: IPhysicsEngine, canvas: zCanvas )
     {
         this.id = ++INSTANCE_NUM;
 
-        this._opts  = opts;
-        this.fixed  = fixed;
-        this.sensor = sensor;
-        this.angle  = degToRad( angle );
-        this.radius = radius;
-        this.type   = type;
+        this._opts   = opts;
+        this.fixed   = fixed;
+        this.sensor  = sensor;
+        this.angle   = degToRad( angle );
+        this.radius  = radius;
+        this.type    = type;
+        this.visible = visible;
 
         this.halfWidth  = width  / 2;
         this.halfHeight = height / 2;
@@ -95,6 +100,8 @@ export default class Actor {
             height
         };
 
+        this._pivot = { x: 0, y: 0 };
+
         if ( this.angle !== 0 ) {
             this._rotatedBounds = rotateRectangle( this.bounds, this.angle );
 
@@ -108,9 +115,16 @@ export default class Actor {
         this._outline = [];
 
         this.register( engine, canvas );
+        if ( this.body ) {
+            this.cacheBounds();
+        }
+        this._cached = this.fixed;
     }
 
     cacheBounds(): Rectangle {
+        if ( this._cached ) {
+            return this.bounds;
+        }
         this.bounds.left = this.body.position.x - this.halfWidth;
         this.bounds.top  = this.body.position.y - this.halfHeight;
 

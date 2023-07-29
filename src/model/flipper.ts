@@ -31,11 +31,9 @@ export default class Flipper extends Rect {
     private isUp: boolean;
 
     constructor( opts: ActorOpts, engine: IPhysicsEngine, canvas: zCanvas ) {
-        super({ ...opts, width: 132, height: 41 }, engine, canvas );
+        super({ ...opts, width: 132, height: 41, fixed: false }, engine, canvas );
 
         this.isUp = false;
-
-        this.cacheBounds();
     }
 
     trigger( up: boolean ): void {
