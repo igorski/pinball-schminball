@@ -27,6 +27,9 @@ import SpriteCache from "@/utils/sprite-cache";
 const assetRoot = `./assets/sprites/`;
 const queue = [
     { src: `${assetRoot}table1_background.png`, target: SpriteCache.BACKGROUND },
+    { src: `${assetRoot}table1_shape.svg` },
+    { src: `${assetRoot}table1_reflector_left.svg` },
+    { src: `${assetRoot}table1_reflector_right.svg` },
     { src: `${assetRoot}ball.png`, target: SpriteCache.BALL },
     { src: `${assetRoot}flipper_left.png`, target: SpriteCache.FLIPPER_LEFT },
     { src: `${assetRoot}flipper_right.png`, target: SpriteCache.FLIPPER_RIGHT },
@@ -35,8 +38,6 @@ const loadContainer: HTMLElement = document.createElement( "div" );
 
 export const preloadAssets = async (): Promise<void> =>
 {
-    console.log( "PRELOAD ASSETS" );
-
     // load PathSeg library for use with importing SVG as collision paths
     await loadScript( "./pathseg.js" );
 
@@ -59,7 +60,7 @@ export const preloadAssets = async (): Promise<void> =>
                 resolve();
             } else {
                 const asset = queue.shift();
-                const image = asset.target;
+                const image = asset.target || new Image();
 
                 image.crossOrigin = "anonymous";
                 loadContainer.appendChild( image );

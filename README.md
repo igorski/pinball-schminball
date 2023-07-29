@@ -56,7 +56,6 @@ npm run typecheck
 ## TODO
 
 * multiballs should iteratively be added
-* add one-time poppers on the areas left and right of the flippers to work only once per game
 * animate bumpers on hit
 * underworld should be set on game and only unlocked after certain event, add the trigger for it
 * add full-screen button

@@ -45,15 +45,15 @@ export default [{
     ],
     flippers : [
         { type: ActorTypes.LEFT_FLIPPER,  left: 54, top: 533, angle: 20 },
-        { type: ActorTypes.RIGHT_FLIPPER, left: 582, top: 650, angle: -20 },
+        { type: ActorTypes.RIGHT_FLIPPER, left: 577, top: 650, angle: -20 },
 
-        { type: ActorTypes.LEFT_FLIPPER,  left: 220, top: 1320 },
-        { type: ActorTypes.RIGHT_FLIPPER, left: 410, top: 1320 },
+        { type: ActorTypes.LEFT_FLIPPER,  left: 220, top: 1315 },
+        { type: ActorTypes.RIGHT_FLIPPER, left: 410, top: 1315 },
 
         // underworld
 
-        { type: ActorTypes.RIGHT_FLIPPER, left: 570, top: 2000 },
-        { type: ActorTypes.LEFT_FLIPPER,  left: 280, top: 2270 },
+        { type: ActorTypes.LEFT_FLIPPER,  left: 215, top: 2280 },
+        { type: ActorTypes.RIGHT_FLIPPER, left: 530, top: 2075 },
     ],
     reflectors: [
         { source: `${SPRITE_PATH}/table1_reflector_left.svg`,  left: 117, top: 1089, width: 106, height: 171 },
@@ -77,19 +77,24 @@ export default [{
         // { left: 570, top: 1175, width: 160, height: 10, angle: -62, bounce: true },
 
         // bottom left flipper area
-        { left: 62, top: 1097, width: 10, height: 145 },
-        { left: 62, top: 1233, width: 170, height: 10, angle: 34 },
+
+        { left: 62, top: 1092, width: 10, height: 145 },
+        { left: 62, top: 1228, width: 170, height: 10, angle: 34 },
+
         // bottom right flipper area
-        { left: 688, top: 1097, width: 10, height: 145 },
-        { left: 552, top: 1233, width: 170, height: 10, angle: -34 },
+
+        { left: 688, top: 1092, width: 10, height: 145 },
+        { left: 552, top: 1228, width: 170, height: 10, angle: -34 },
+
         // bottom flipper area
+
         { left: 375, top: 1438, width: 5, height: 5 },
 
         // underworld
 
-        { left: 700, top: 1920, width: 170, height: 10, angle: -50 },
-        { left: 58,  top: 2087, width: 10, height: 138 },
-        { left: 125, top: 2200, width: 165, height: 10, angle: 34 },
+        { left: 670, top: 1920, width: 200, height: 10, angle: -50 },
+        { left: 58,  top: 2087, width: 10, height: 115 },
+        { left: 58,  top: 2193, width: 170, height: 10, angle: 34 },
     ],
     bumpers: [
         { left: 343, top: 333, width: 65, height: 65 },
@@ -98,10 +103,12 @@ export default [{
 
         // underworld
 
-        { left: 250, top: 1900, width: 70, height: 70 },
-        { left: 350, top: 1900, width: 70, height: 70 },
-        { left: 300, top: 1970, width: 80, height: 80 },
-        { left: 530, top: 2290, width: 60, height: 60 },
+        { left: 190, top: 1810, width: 65, height: 65 },
+        { left: 300, top: 1770, width: 65, height: 65 },
+        { left: 270, top: 1880, width: 65, height: 65 },
+
+        { left: 530, top: 2280, width: 55, height: 55 },
+        { left: 440, top: 2325, width: 65, height: 65 },
     ],
     triggerGroups: [
         {
