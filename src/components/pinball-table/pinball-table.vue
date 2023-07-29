@@ -168,7 +168,7 @@ export default {
                     }
                     if ( event.type === "touchend" && ( window.performance.now() - touchStart.time ) < 400 ) {
                         const movedBy = event.changedTouches[ 0 ]?.pageY - touchStart.y;
-                        if ( movedBy < -150 ) {
+                        if ( movedBy < -100 ) {
                             this.bumpHandler();
                         }
                     }
