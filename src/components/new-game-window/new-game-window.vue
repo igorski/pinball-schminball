@@ -34,11 +34,13 @@
                 v-model="internalValue"
             />
         </div>
-        <span v-t="'ui.nameExplanation'" class="small"></span>
+        <span v-t="'ui.nameExplanation'" class="name-explanation"></span>
         <div class="new-game-input-wrapper">
+            <label></label>
             <button
                 v-t="'ui.newGame'"
                 type="button"
+                class="start-game-button"
                 @click="startGame()"
             ></button>
         </div>
@@ -76,6 +78,8 @@ export default {
 
 
 <style lang="scss" scoped>
+@import "@/styles/_variables";
+
 .new-game-fieldset {
     border: none;
     padding: 0;
@@ -84,5 +88,33 @@ export default {
 .new-game-input-wrapper {
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    margin: $spacing-medium 0;
+}
+
+#nameInput {
+    width: 200px;
+    padding: $spacing-medium;
+    border-radius: 7px;
+    border: none;
+}
+
+.name-explanation {
+    font-style: italic;
+    font-size: 75%;
+}
+
+.start-game-button {
+    cursor: pointer;
+    padding: $spacing-medium;
+    border-radius: 14px;
+    background-color: transparent;
+    border: 3px solid #000;
+    text-transform: uppercase;
+
+    &:hover {
+        background-color: #000;
+        color: #FFF;
+    }
 }
 </style>

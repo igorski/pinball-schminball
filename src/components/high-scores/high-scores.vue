@@ -25,9 +25,14 @@
         High scores are not supported in this environment.
     </p>
     <div v-else>
-        <p v-for="( entry, index ) in formattedScores" :key="`c_${index}`">
-            {{ index + 1 }}: {{ entry.score }} {{ entry.name }}
-        </p>
+        <div
+            v-for="( entry, index ) in formattedScores"
+            :key="`c_${index}`"
+            class="highscores-entry"
+        >
+            <span class="highscores-entry__name">{{ entry.name }}</span>
+            <span class="highscores-entry__score">{{ entry.score }}</span>
+        </div>
     </div>
 </template>
 
@@ -67,3 +72,17 @@ export default {
     },
 };
 </script>
+
+<style lang="scss" scoped>
+@import "@/styles/_variables";
+
+.highscores-entry {
+    display: flex;
+    justify-content: space-between;
+
+    &__score {
+        max-width: 200px;
+        text-align: right;
+    }
+}
+</style>

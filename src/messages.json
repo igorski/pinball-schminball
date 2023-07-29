@@ -25,6 +25,7 @@
             "multiplier": "{count}x multiplier",
             "loop": "loop #{count}",
             "trickShot": "trickShot #{count}",
+            "newGame": "New game",
             "gameOver": "Game over"
         },
         "settings": {

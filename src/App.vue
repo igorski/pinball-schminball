@@ -39,16 +39,16 @@
         <ScreenHowToPlay v-if="activeScreen === 'howToPlay'" />
         <ScreenCredits v-if="activeScreen === 'credits'" />
     </modal>
-    <div v-else-if="!game.active" class="overlay">
-        <h3
-            v-if="hasPlayed"
-            v-t="'messages.gameOver'"
-        ></h3>
+    <modal
+        v-else-if="!game.active"
+        :title="hasPlayed ? $t('messages.gameOver') : $t('messages.newGame')"
+        :dismissible="false"
+    >
         <new-game-window
             v-model="playerName"
             @start="initGame()"
         />
-    </div>
+    </modal>
 </template>
 
 <script lang="ts">
@@ -167,21 +167,5 @@ body {
     padding: 0;
     overflow: hidden;
     background-color: #222;
-}
-</style>
-
-<style lang="scss" scoped>
-@import "@/styles/_variables";
-
-.overlay {
-    position: fixed;
-    z-index: $z-index-on-top;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    border-radius: 7px;
-    border: 3px solid #000;
-    background-color: #FFF;
-    padding: 16px;
 }
 </style>

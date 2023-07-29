@@ -81,6 +81,8 @@ export default {
     box-sizing: border-box;
     padding: 0 $spacing-large;
     background-color: #FF0099;
+    font-family: Helvetica, sans-serif;
+    line-height: 1.5;
 
     &__content {
         padding-bottom: $spacing-large;
