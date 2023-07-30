@@ -59,8 +59,10 @@ export default class BumperRenderer extends sprite {
         const { collided } = this.actor as Bumper;
         let { radius } = this.actor;
 
-        if ( collided ) {
-            ctx.strokeStyle = "#00FFFF";
+        ctx.save();
+
+        if ( !collided ) {
+            ctx.strokeStyle = "#00AEEF";
             ctx.lineWidth = 3;
 
             radius = this.collisionRadius;
@@ -68,10 +70,9 @@ export default class BumperRenderer extends sprite {
             top = this.collisionOffset.y;
         }
 
-        ctx.save();
         ctx.beginPath();
         ctx.arc(( left - viewport.left ) + radius, ( top - viewport.top ) + radius, radius, 0, 2 * Math.PI );
-        ctx.fillStyle = !collided ? "transparent" : "#00FFFF";
+        ctx.fillStyle = !collided ? "transparent" : "#00AEEF";
         ctx.stroke();
 
         if ( collided ) {
