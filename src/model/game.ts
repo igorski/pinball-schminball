@@ -289,7 +289,12 @@ export const update = ( timestamp: DOMHighResTimeStamp, framesSinceLastRender: n
 
     actorMap.forEach( actor => actor.update( timestamp ));
 
-    // align viewport with main (first) ball
+    // align viewport with main (lowest) ball
+
+    if ( balls.length > 1 ) {
+        balls.sort(( a, b ) => a.bounds.top === b.bounds.top ? 0 : a.bounds.top > b.bounds.top ? -1 : 1 );
+        ball = balls[ 0 ];
+    }
 
     const { top } = ball.bounds;
     const { underworld } = table;

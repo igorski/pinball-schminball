@@ -55,7 +55,6 @@ npm run typecheck
 
 ## TODO
 
-* when multiball, viewport should always follow the lowest ball
 * animate bumpers on hit
 * add full-screen button
 * on occasion ball goes up the ramp left from the flippers
