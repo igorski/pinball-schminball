@@ -69,6 +69,7 @@ interface ComponentData {
     playerName: string;
     game: Partial<GameDef>;
     hasPlayed: boolean;
+    startPending: boolean;
 };
 
 export default {
@@ -98,6 +99,7 @@ export default {
         activeScreen: "",
         playerName: "",
         hasPlayed: false,
+        startPending: false,
         game: {
             active: false,
         },
@@ -111,9 +113,12 @@ export default {
         },
     },
     watch: {
-        'game.active'( value: boolean, prevValue: boolean ): void {
-            if ( !this.hasPlayed && value ) {
-                this.hasPlayed = true;
+        "game.active"( value: boolean, prevValue: boolean ): void {
+            if ( value ) {
+                this.startPending = false;
+                if ( !this.hasPlayed ) {
+                    this.hasPlayed = true;
+                }
             }
             if ( !value && prevValue && this.canUseHighScores ) {
                 stopGame( this.game.id, this.game.score, this.playerName );
@@ -139,16 +144,24 @@ export default {
     },
     methods: {
         async initGame(): Promise<void> {
-            const id = this.canUseHighScores ? await startGame() : Math.random().toString();
-            this.game = {
-                id,
-                active: false,
-                table: 0,
-                score: 0,
-                balls: 3,
-                multiplier: 1,
-                underworld: false,
-            };
+            if ( this.startPending ) {
+                return;
+            }
+            this.startPending = true;
+            try {
+                const id = this.canUseHighScores ? await startGame() : Math.random().toString();
+                this.game = {
+                    id,
+                    active: false,
+                    table: 0,
+                    score: 0,
+                    balls: 3,
+                    multiplier: 1,
+                    underworld: false,
+                };
+            } catch {
+                this.startPending = false;
+            }
         },
     },
 };
