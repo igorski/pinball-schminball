@@ -28,27 +28,24 @@
             @open="activeScreen = $event"
         />
         <PinballTable v-model="game" />
+        <modal
+            v-if="hasScreen"
+            :title="$t(`menu.${activeScreen}`)"
+            @close="activeScreen = null"
+        >
+            <component :is="modalComponent" />
+        </modal>
+        <modal
+            v-else-if="!game.active"
+            :title="hasPlayed ? $t('messages.gameOver') : $t('messages.newGame')"
+            :dismissible="false"
+        >
+            <new-game-window
+                v-model="playerName"
+                @start="initGame()"
+            />
+        </modal>
     </template>
-    <modal
-        v-if="hasScreen"
-        :title="$t(`menu.${activeScreen}`)"
-        @close="activeScreen = null"
-    >
-        <ScreenHighScores v-if="activeScreen === 'highScores'" />
-        <ScreenSettings v-if="activeScreen === 'settings'" />
-        <ScreenHowToPlay v-if="activeScreen === 'howToPlay'" />
-        <ScreenCredits v-if="activeScreen === 'credits'" />
-    </modal>
-    <modal
-        v-else-if="!game.active"
-        :title="hasPlayed ? $t('messages.gameOver') : $t('messages.newGame')"
-        :dismissible="false"
-    >
-        <new-game-window
-            v-model="playerName"
-            @start="initGame()"
-        />
-    </modal>
 </template>
 
 <script lang="ts">
@@ -81,18 +78,6 @@ export default {
         PinballTable: defineAsyncComponent(() => {
             return import( "./components/pinball-table/pinball-table.vue" );
         }),
-        ScreenHighScores: defineAsyncComponent(() => {
-            return import( "./components/high-scores/high-scores.vue" );
-        }),
-        ScreenSettings: defineAsyncComponent(() => {
-            return import( "./components/settings/settings.vue" );
-        }),
-        ScreenHowToPlay: defineAsyncComponent(() => {
-            return import( "./components/how-to-play/how-to-play.vue" );
-        }),
-        ScreenCredits: defineAsyncComponent(() => {
-            return import( "./components/credits/credits.vue" );
-        }),
     },
     data: () => ({
         loading: true,
@@ -107,6 +92,28 @@ export default {
     computed: {
         hasScreen(): boolean {
             return !!this.activeScreen;
+        },
+        modalComponent(): Component | null {
+            switch ( this.activeScreen ) {
+                default:
+                    return null;
+                case "highScores":
+                    return defineAsyncComponent({
+                        loader: () => import( "./components/high-scores/high-scores.vue" )
+                    });
+                case "settings":
+                    return defineAsyncComponent({
+                        loader: () => import( "./components/settings/settings.vue" )
+                    });
+                case "howToPlay":
+                    return defineAsyncComponent({
+                        loader: () => import( "./components/how-to-play/how-to-play.vue" )
+                    });
+                case "about":
+                    return defineAsyncComponent({
+                        loader: () => import( "./components/about/about.vue" )
+                    });
+            }
         },
         canUseHighScores(): boolean {
             return isSupported() && !!this.playerName;
@@ -149,9 +156,9 @@ export default {
             }
             this.startPending = true;
             try {
-                const id = this.canUseHighScores ? await startGame() : Math.random().toString();
+                const id = this.canUseHighScores ? await startGame() : null;
                 this.game = {
-                    id,
+                    id: id ?? Math.random().toString(),
                     active: false,
                     table: 0,
                     score: 0,

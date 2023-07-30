@@ -44,6 +44,7 @@ export default class TriggerRenderer extends sprite {
         const { left, top, width, height } = this.actor.bounds;
         const { radius } = this.actor;
 
+        ctx.save();
         ctx.beginPath();
         ctx.arc(( left - viewport.left ) + radius, ( top - viewport.top ) + radius, radius, 0, 2 * Math.PI );
         ctx.strokeStyle = this.actor.active ? "#FFF" : "#00AEEF";
@@ -64,5 +65,6 @@ export default class TriggerRenderer extends sprite {
             ctx.stroke();
             ctx.restore();
         }
+        ctx.restore();
     }
 };

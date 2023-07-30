@@ -68,6 +68,7 @@ export default class BumperRenderer extends sprite {
             top = this.collisionOffset.y;
         }
 
+        ctx.save();
         ctx.beginPath();
         ctx.arc(( left - viewport.left ) + radius, ( top - viewport.top ) + radius, radius, 0, 2 * Math.PI );
         ctx.fillStyle = !collided ? "transparent" : "#00FFFF";
@@ -99,5 +100,6 @@ export default class BumperRenderer extends sprite {
             ctx.stroke();
             ctx.restore();
         }
+        ctx.restore();
     }
 };

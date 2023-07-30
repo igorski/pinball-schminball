@@ -42,6 +42,7 @@
                 v-t="'ui.newGame'"
                 type="button"
                 class="start-game-button"
+                :disabled="!isValid"
                 @click="startGame()"
             ></button>
         </div>
@@ -49,6 +50,10 @@
 </template>
 
 <script lang="ts">
+import { getFromStorage, setInStorage } from "@/utils/local-storage";
+
+const STORED_PLAYER_NAME = "ps_player_name";
+
 export default {
     props: {
         modelValue: {
@@ -73,7 +78,12 @@ export default {
         },
     },
     mounted(): void {
+        this.internalValue = getFromStorage( STORED_PLAYER_NAME ) || "";
+
         this.$refs.nameInput.focus();
+    },
+    beforeUnmount(): void {
+        setInStorage( STORED_PLAYER_NAME, this.internalValue );
     },
     methods: {
         startGame(): void {

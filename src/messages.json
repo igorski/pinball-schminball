@@ -4,7 +4,7 @@
             "highScores": "High scores",
             "settings": "Settings",
             "howToPlay": "How to play",
-            "credits": "Credits"
+            "about": "About"
         },
         "ui": {
             "newGame": "New game",
@@ -38,11 +38,13 @@
             "touchscreen": "Touchscreen",
             "touchscreenDescr": "Tap the left or right side of the screen to toggle the left and right flippers. Swipe up to bump the table."
         },
-        "credits": {
+        "about": {
+            "credits": "Credits",
             "introduction": "Unless otherwise stated, programming, illustrations and music by:",
             "animation": "Animation",
             "font": "Font",
-            "by": "by"
+            "by": "by",
+            "opensource": "Pinball Schminball is fully open source and can be found on"
         }
     }
 }

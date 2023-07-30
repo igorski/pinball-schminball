@@ -20,33 +20,9 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-<template>
-    <p>
-        <span v-t="'credits.introduction'"></span>
-        &nbsp;<a href="https://www.igorski.nl" target="_blank" title="igorski.nl website">igorski</a>.<br />
-    </p>
-    <p v-for="( credit, index ) in credits" :key="`c_${index}`">
-        {{ credit.type }} <a :href="credit.url" target="_blank">"{{ credit.title }}"</a> <span v-t="'credits.by'"></span> {{ credit.author }}
-    </p>
-</template>
-
-<script lang="ts">
-export default {
-    created(): void {
-        this.credits = [
-            {
-                title: "Loader",
-                author: "Nikhil Krishnan",
-                type: this.$t( "credits.animation" ),
-                url: "https://codepen.io/nikhil8krishnan/pen/rVoXJa",
-            },
-            {
-                title: "Clubland",
-                author: "Joseph Gibson",
-                type: this.$t( "credits.font" ),
-                url: "https://www.dafont.com/clubland.font",
-            }
-        ];
-    },
-};
-</script>
+export const MENU_ITEMS = [
+    "highScores",
+    "settings",
+    "howToPlay",
+    "about"
+];

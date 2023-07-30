@@ -126,21 +126,31 @@ export default {
         }, 250 );
 
         this.keyListener = this.handleKey.bind( this );
-        window.addEventListener( "keydown", this.keyListener );
-        window.addEventListener( "keyup",   this.keyListener );
-        window.addEventListener( "resize",  this.handleResize );
     },
-    unmounted(): void {
-        window.removeEventListener( "keydown", this.keyListener );
-        window.removeEventListener( "keyup",   this.keyListener );
-        window.removeEventListener( "resize",  this.handleResize );
+    beforeUnmount(): void {
+        this.removeListeners();
     },
     methods: {
         initGame(): void {
             init( this.canvas, this.modelValue, this.handleRoundEnd.bind( this ), this.flashMessage.bind( this ));
             this.activeRound = { balls: this.modelValue.balls, score: 0, total: 0, ended: false };
-            this.inited = true;
+
+            this.addListeners();
             this.handleResize();
+        },
+        addListeners(): void {
+            window.addEventListener( "keydown", this.keyListener );
+            window.addEventListener( "keyup",   this.keyListener );
+            window.addEventListener( "resize",  this.handleResize );
+
+            this.inited = true;
+        },
+        removeListeners(): void {
+            window.removeEventListener( "keydown", this.keyListener );
+            window.removeEventListener( "keyup",   this.keyListener );
+            window.removeEventListener( "resize",  this.handleResize );
+
+            this.inited = false;
         },
         handleResize(): void {
             if ( !this.inited ) {
@@ -215,6 +225,7 @@ export default {
                     if ( type === "keydown" ) {
                         this.bumpHandler();
                     }
+                    event.preventDefault();
                     break;
                 case 37:
                     setFlipperState( ActorTypes.LEFT_FLIPPER, type === "keydown" );
@@ -240,6 +251,9 @@ export default {
                 this.activeRound.balls = this.modelValue.balls;
                 this.activeRound.score = this.modelValue.score;
 
+                if ( this.activeRound.balls === 0 ) {
+                    this.removeListeners();
+                }
                 changeTimeout = null;
             }, timeout );
         },

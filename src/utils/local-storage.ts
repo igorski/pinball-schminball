@@ -20,19 +20,31 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+const PINBALL_SCHMINBALL_STORAGE_KEY = "ps_data";
+
 export const getFromStorage = ( storageKey: string ): string | null => {
-    try {
-        return window.localStorage.getItem( storageKey );
-    } catch {
-        return null; // can fail in Safari private mode
-    }
+    return getStoredData()[ storageKey ] ?? null;
 };
 
 export const setInStorage = ( storageKey: string, value: string ): boolean => {
     try {
-        window.localStorage.setItem( storageKey, value );
+        const existingData = getStoredData();
+        existingData[ storageKey ] = value;
+
+        window.localStorage.setItem( PINBALL_SCHMINBALL_STORAGE_KEY, JSON.stringify( existingData ));
+
         return true;
     } catch {
         return false;
     }
 };
+
+/* internal methods */
+
+function getStoredData(): any {
+    try {
+        return JSON.parse( window.localStorage.getItem( PINBALL_SCHMINBALL_STORAGE_KEY ) || "{}" );
+    } catch {
+        return {};
+    }
+}

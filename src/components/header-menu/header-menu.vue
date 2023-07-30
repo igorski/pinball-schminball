@@ -35,39 +35,16 @@
                 <span>&#9776;</span>
             </div>
             <ul class="menu__items">
-                <li>
+                <li
+                    v-for="(item, index) in menuItems"
+                    :key="`menu_item_${index}`"
+                >
                     <button
-                        v-t="'menu.highScores'"
+                        v-t="`menu.${item}`"
                         type="button"
-                        :title="$t('menu.highScores')"
-                        @click="openScreen('highScores')"
+                        :title="$t(`menu.${item}`)"
+                        @click="openScreen( item )"
                     ></button>
-                </li>
-                <li>
-                    <button
-                        v-t="'menu.settings'"
-                        type="button"
-                        :title="$t('menu.settings')"
-                        @click="openScreen('settings')"
-                    ></button>
-                </li>
-                <li>
-                    <button
-                        v-t="'menu.howToPlay'"
-                        type="button"
-                        :title="$t('menu.howToPlay')"
-                        @click="openScreen('howToPlay')"
-                    >
-                    </button>
-                </li>
-                <li>
-                    <button
-                        v-t="'menu.credits'"
-                        type="button"
-                        :title="$t('menu.credits')"
-                        @click="openScreen('credits')"
-                    >
-                    </button>
                 </li>
             </ul>
         </nav>
@@ -75,6 +52,8 @@
 </template>
 
 <script lang="ts">
+import { MENU_ITEMS } from "@/definitions/menu";
+
 export default {
     props: {
         collapsable: {
@@ -85,6 +64,11 @@ export default {
     data: () => ({
         menuOpened: false,
     }),
+    computed: {
+        menuItems(): string[] {
+            return MENU_ITEMS;
+        },
+    },
     methods: {
         toggleMenu(): void {
             this.menuOpened = !this.menuOpened;
