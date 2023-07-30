@@ -215,7 +215,6 @@ export default {
                     if ( type === "keydown" ) {
                         this.bumpHandler();
                     }
-                    event.preventDefault();
                     break;
                 case 37:
                     setFlipperState( ActorTypes.LEFT_FLIPPER, type === "keydown" );

@@ -30,8 +30,9 @@
             <input
                 id="nameInput"
                 ref="nameInput"
-                :placeholder="$t( 'ui.playerName' )"
                 v-model="internalValue"
+                :placeholder="$t( 'ui.playerName' )"
+                :class="{ 'invalid': !isValid }"
             />
         </div>
         <span v-t="'ui.nameExplanation'" class="name-explanation"></span>
@@ -57,12 +58,18 @@ export default {
     },
     computed: {
         internalValue: {
-            get(): void {
+            get(): string {
                 return this.modelValue;
             },
             set( value: string ): void {
                 this.$emit( "update:modelValue", value );
             }
+        },
+        isValid(): boolean {
+            if ( this.modelValue.length === 0 ) {
+                return true;
+            }
+            return this.modelValue.trim( "" ).length > 0;
         },
     },
     mounted(): void {
@@ -70,6 +77,9 @@ export default {
     },
     methods: {
         startGame(): void {
+            if ( !this.isValid ) {
+                return;
+            }
             this.$emit( "start" );
         }
     },
@@ -97,6 +107,11 @@ export default {
     padding: $spacing-medium;
     border-radius: 7px;
     border: none;
+
+    &.invalid {
+        background-color: red;
+        color: #000;
+    }
 }
 
 .name-explanation {
