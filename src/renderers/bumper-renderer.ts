@@ -63,7 +63,7 @@ export default class BumperRenderer extends sprite {
 
         if ( !collided ) {
             ctx.strokeStyle = "#00AEEF";
-            ctx.lineWidth = 3;
+            ctx.lineWidth = 2;
 
             radius = this.collisionRadius;
             left = this.collisionOffset.x;

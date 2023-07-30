@@ -40,7 +40,8 @@ export default [{
     },
     poppers : [
         { left: 744, top: 1387, width: 40 },
-        { left: 18, top: 1282, width: 40, once: true },
+        { left: 18,  top: 1282, width: 40, once: true },
+        { left: 703, top: 1282, width: 40, once: true },
     ],
     flippers : [
         { type: ActorTypes.LEFT_FLIPPER,  left: 54, top: 533, angle: 20 },
@@ -69,7 +70,8 @@ export default [{
         { left: -44, top: 0, width: 50, height: 1930, visible: false },
         { left: 794, top: 0, width: 50, height: 1930, visible: false },
 
-        { left: 744, top: 930, width: 70, height: 10, angle: 45 },
+        { left: 754, top: 895, width: 50, height: 10, angle: -45, visible: false },
+        { left: 754, top: 930, width: 50, height: 10, angle: 45 },
 
         // reflectors
         // { left: 191, top: 1175, width: 160, height: 10, angle: 62, bounce: true },

@@ -29,7 +29,7 @@ export const BALL_HEIGHT = BALL_WIDTH;
 
 export const GRAVITY       = 0.75;
 export const FLIPPER_FORCE = 0.002;
-export const LAUNCH_SPEED  = 25;
+export const LAUNCH_SPEED  = 26;
 export const MAX_SPEED     = 45;
 
 // the table will tilt when more than MAX_BUMPS have occurred
