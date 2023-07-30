@@ -21,7 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import { sprite } from "zcanvas";
-import type { Viewport } from "zcanvas";
+import type { Point, Viewport } from "zcanvas";
 import { BALL_WIDTH, BALL_HEIGHT } from "@/definitions/game";
 import type Actor from "@/model/actor";
 import type Bumper from "@/model/bumper";
@@ -33,8 +33,19 @@ const SPIN_SPEED = 30;
 const DEBUG = false;//import.meta.env.MODE !== "production";
 
 export default class BumperRenderer extends sprite {
+    protected collisionAnimation = false;
+    protected collisionIterations = 0;
+    protected collisionOffset: Point;
+    protected collisionRadius: number;
+
     constructor( private actor: Actor ) {
         super({ width: actor.bounds.width, height: actor.bounds.width });
+
+        this.collisionRadius = this.actor.radius * 1.1;
+        this.collisionOffset = {
+            x: this.actor.bounds.left - (( this.collisionRadius - this.actor.radius ) / 2 ),
+            y: this.actor.bounds.top - (( this.collisionRadius - this.actor.radius ) / 2 )
+        };
     }
 
     draw( ctx: CanvasRenderingContext2D, viewport: Viewport ): void {
@@ -42,13 +53,37 @@ export default class BumperRenderer extends sprite {
             return;
         }
 
-        const { left, top, width, height } = this.actor.bounds;
-        const { radius } = this.actor as Bumper;
+        const { width, height } = this.actor.bounds;
+        let { left, top } = this.actor.bounds;
+
+        const { collided } = this.actor as Bumper;
+        let { radius } = this.actor;
+
+        if ( collided ) {
+            ctx.strokeStyle = "#00FFFF";
+            ctx.lineWidth = 3;
+
+            radius = this.collisionRadius;
+            left = this.collisionOffset.x;
+            top = this.collisionOffset.y;
+        }
 
         ctx.beginPath();
         ctx.arc(( left - viewport.left ) + radius, ( top - viewport.top ) + radius, radius, 0, 2 * Math.PI );
-        ctx.fillStyle = "orange";
-        ctx.fill();
+        ctx.fillStyle = !collided ? "transparent" : "#00FFFF";
+        ctx.stroke();
+
+        if ( collided ) {
+            ctx.fill();
+
+            if ( !this.collisionAnimation ) {
+                this.collisionAnimation = true;
+                this.collisionIterations = 15;
+            } else if ( --this.collisionIterations === 0 ) {
+                this.collisionAnimation = false;
+                ( this.actor as Bumper ).collided = false;
+            }
+        }
 
         if ( DEBUG ) {
             ctx.save();

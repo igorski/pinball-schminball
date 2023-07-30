@@ -41,7 +41,6 @@ export default [{
     poppers : [
         { left: 744, top: 1387, width: 40 },
         { left: 18, top: 1282, width: 40, once: true },
-        { left: 703, top: 1282, width: 40, once: true },
     ],
     flippers : [
         { type: ActorTypes.LEFT_FLIPPER,  left: 54, top: 533, angle: 20 },

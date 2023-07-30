@@ -55,6 +55,5 @@ npm run typecheck
 
 ## TODO
 
-* animate bumpers on hit
 * add full-screen button
 * on occasion ball goes up the ramp left from the flippers

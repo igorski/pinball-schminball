@@ -105,15 +105,16 @@ export const init = async (
             }
 			switch ( pair.bodyA.label ) {
                 case ActorLabels.POPPER:
-                    const popper = actorMap.get( pair.bodyA.id );
+                    const popper = actorMap.get( pair.bodyA.id ) as Popper;
                     engine.launchBall( pair.bodyB );
-                    if (( popper as Popper ).once ) {
+                    if ( popper.once ) {
                         messageHandler( GameMessages.GOT_LUCKY );
                         removeActor( popper );
                     }
                     break;
                 case ActorLabels.BUMPER:
                     awardPoints( game, AwardablePoints.BUMPER );
+                    ( actorMap.get( pair.bodyA.id ) as Bumper ).collided = true;
                     break;
                 case ActorLabels.TRIGGER:
                     const triggerGroup = actorMap.get( pair.bodyA.id ) as TriggerGroup;

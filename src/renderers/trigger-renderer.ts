@@ -46,8 +46,9 @@ export default class TriggerRenderer extends sprite {
 
         ctx.beginPath();
         ctx.arc(( left - viewport.left ) + radius, ( top - viewport.top ) + radius, radius, 0, 2 * Math.PI );
-        ctx.fillStyle = this.actor.active ? "#FFF" : "#6600FF";
-        ctx.fill();
+        ctx.strokeStyle = this.actor.active ? "#FFF" : "#00AEEF";
+        ctx.lineWidth = 2;
+        ctx.stroke();
 
         if ( DEBUG ) {
             ctx.save();

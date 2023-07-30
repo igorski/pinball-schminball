@@ -25,7 +25,7 @@ import Matter from "matter-js";
 import MatterAttractors from "matter-attractors";
 import type { Point } from "zcanvas";
 import {
-    GRAVITY, FLIPPER_FORCE, LAUNCH_SPEED, MAX_SPEED,
+    GRAVITY, FLIPPER_FORCE, MAX_SPEED, LAUNCH_SPEED,
     ActorTypes, ActorLabels
 } from "@/definitions/game";
 import type { TableDef } from "@/definitions/game";
@@ -46,7 +46,7 @@ export interface IPhysicsEngine {
     addBody: ( actor: Actor, label: string ) => Matter.Body;
     removeBody: ( body: Matter.Body ) => void;
     updateBodyPosition: ( body: Matter.Body, position: Point ) => void;
-    launchBall: ( body: Matter.Body ) => void;
+    launchBall: ( body: Matter.Body, speed?: number ) => void;
     triggerFlipper: ( type: ActorTypes, upwards: boolean ) => void;
     capSpeed: ( body: Matter.Body ) => void;
     destroy: () => void;
@@ -67,12 +67,13 @@ export const createEngine = async (
     if ( import.meta.env.MODE !== "production" ) {
         // renderBodies( engine, width, height );
     }
+
+    engine.positionIterations = 16;
     engine.world.gravity.y = GRAVITY;
     engine.world.bounds = {
         min: { x: 0, y: 0 },
         max: { x: width, y: height }
     };
-    engine.positionIterations = 16;
 
     Matter.Events.on( engine, "collisionStart", collisionHandler );
     Matter.Events.on( engine, "beforeUpdate", beforeUpdateHandler );
@@ -211,8 +212,8 @@ export const createEngine = async (
         updateBodyPosition( body: Matter.Body, position: Point ): void {
             Matter.Body.setPosition( body, position );
         },
-        launchBall( body: Matter.Body ): void {
-            Matter.Body.setVelocity( body, { x: 0, y: -LAUNCH_SPEED });
+        launchBall( body: Matter.Body, speed = LAUNCH_SPEED ): void {
+            Matter.Body.setVelocity( body, { x: 0, y: -speed });
         },
         triggerFlipper( type: ActorTypes, isUp: boolean ): void {
             if ( type === ActorTypes.LEFT_FLIPPER ) {
