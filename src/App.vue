@@ -156,7 +156,7 @@ export default {
             }
             this.startPending = true;
             try {
-                const id = this.canUseHighScores ? await startGame() : null;
+                const id = this.canUseHighScores && this.playerName.length > 0 ? await startGame() : null;
                 this.game = {
                     id: id ?? Math.random().toString(),
                     active: false,
