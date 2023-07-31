@@ -24,10 +24,11 @@ import { sprite } from "zcanvas";
 import type { canvas as zCanvas } from "zcanvas";
 import type { GameDef, TableDef, FlipperType } from "@/definitions/game";
 import {
-    BALL_WIDTH, BALL_HEIGHT, MAX_BUMPS, BUMP_TIMEOUT, BUMP_IMPULSE,
+    FRAME_RATE, BALL_WIDTH, BALL_HEIGHT, MAX_BUMPS, BUMP_TIMEOUT, BUMP_IMPULSE,
     GameMessages, TriggerTarget, TriggerTypes, AwardablePoints, ActorLabels, ActorTypes,
 } from "@/definitions/game";
 import Tables from "@/definitions/tables";
+import { STORED_FPS_SETTING } from "@/definitions/settings";
 import Actor from "@/model/actor";
 import Ball from "@/model/ball";
 import Bumper from "@/model/bumper";
@@ -38,12 +39,14 @@ import TriggerGroup from "@/model/trigger-group";
 import { createEngine } from "@/model/physics/engine";
 import type { IPhysicsEngine, CollisionEvent } from "@/model/physics/engine";
 import { enqueueTrack, setFrequency } from "@/services/audio-service";
+import { getFromStorage } from "@/utils/local-storage";
 import SpriteCache from "@/utils/sprite-cache";
 
 type IRoundEndHandler = ( readyCallback: () => void, timeout: number ) => void;
 type IMessageHandler = ( message: GameMessages, optDuration?: number ) => void;
 
 let engine: IPhysicsEngine;
+let throttleFps: boolean;
 let ball: Ball;
 let flipper: Flipper;
 let otherBall: Ball;
@@ -73,6 +76,7 @@ export const init = async (
 ): Promise<void> => {
 
     canvas = canvasRef;
+    throttleFps = getFromStorage( STORED_FPS_SETTING ) === "true";
 
     roundEndHandler = roundEndHandlerRef;
     messageHandler  = messageHandlerRef;
@@ -284,7 +288,8 @@ export const update = ( timestamp: DOMHighResTimeStamp, framesSinceLastRender: n
     }
 
     // update physics engine
-    engine.update(( 1000 / canvas.getActualFrameRate()) * Math.round( framesSinceLastRender ));
+    const engineStep = 1000 / Math.min( FRAME_RATE, canvas.getActualFrameRate()) * ( throttleFps ? framesSinceLastRender : 1 );
+    engine.update( engineStep );
 
     // update Actors
 

@@ -22,9 +22,8 @@
  */
 import axios from "axios";
 import Config from "@/config/config";
+import { STORED_MUTED_SETTING } from "@/definitions/settings";
 import { getFromStorage, setInStorage } from "@/utils/local-storage";
-
-const STORED_MUTED_SETTING = "ps_as_am";
 
 let inited  = false;
 let playing = false;

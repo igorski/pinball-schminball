@@ -60,7 +60,7 @@ import { PropType } from "vue";
 import throttle from "lodash/throttle";
 import { canvas } from "zcanvas";
 import type { GameDef, GameMessages} from "@/definitions/game";
-import { ActorTypes } from "@/definitions/game";
+import { ActorTypes, FRAME_RATE } from "@/definitions/game";
 import { init, scaleCanvas, setFlipperState, bumpTable, update, panViewport, togglePause } from "@/model/game";
 import RoundResults from "./round-results.vue";
 import { i18nForMessage } from "./message-localizer";
@@ -117,6 +117,7 @@ export default {
             width    : 600,
             height   : 800,
             animate  : true,
+            fps      : FRAME_RATE,
             onUpdate : update,
         });
         this.canvas.insertInPage( this.$refs.canvasContainer );

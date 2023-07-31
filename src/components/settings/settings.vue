@@ -26,21 +26,31 @@
             <label v-t="'settings.sound'"></label>
             <Toggle v-model="playSound" />
         </div>
+        <div class="settings-wrapper">
+            <label v-t="'settings.throttleFps'"></label>
+            <Toggle v-model="throttleFps" />
+        </div>
     </fieldset>
 </template>
 
 <script lang="ts">
 import Toggle from "@vueform/toggle";
+import { STORED_FPS_SETTING } from "@/definitions/settings";
 import { getMuted, setMuted } from "@/services/audio-service";
+import { getFromStorage, setInStorage } from "@/utils/local-storage";
 
 export default {
     components: {
         Toggle,
     },
     data: () => ({
-        playSound: !getMuted()
+        throttleFps: getFromStorage( STORED_FPS_SETTING ) === "true",
+        playSound: !getMuted(),
     }),
     watch: {
+        throttleFps( value: boolean ): void {
+            setInStorage( STORED_FPS_SETTING, value.toString() );
+        },
         playSound( value: boolean ): void {
             setMuted( !value );
         },
@@ -51,6 +61,8 @@ export default {
 <style src="@vueform/toggle/themes/default.css"></style>
 
 <style lang="scss" scoped>
+@import "@/styles/_variables";
+
 .settings-fieldset {
     border: none;
     padding: 0;
@@ -59,5 +71,6 @@ export default {
 .settings-wrapper {
     display: flex;
     justify-content: space-between;
+    margin-bottom: $spacing-medium;
 }
 </style>

@@ -22,6 +22,8 @@
  */
 import type { Rectangle } from "zcanvas";
 
+export const FRAME_RATE = 60;
+
 export const BALL_WIDTH  = 40;
 export const BALL_HEIGHT = BALL_WIDTH;
 
