@@ -26,11 +26,13 @@ import SpriteCache from "@/utils/sprite-cache";
 
 const assetRoot = `./assets/sprites/`;
 const queue = [
-    { src: `${assetRoot}table1_background.png`, target: SpriteCache.BACKGROUND },
+    { src: `${assetRoot}title_upper.png` },
+    { src: `${assetRoot}title_lower.png` },
     { src: `${assetRoot}table1_shape.svg` },
     { src: `${assetRoot}table1_reflector_left.svg` },
     { src: `${assetRoot}table1_reflector_right.svg` },
     { src: `${assetRoot}ball.png`, target: SpriteCache.BALL },
+    { src: `${assetRoot}table1_background.png`, target: SpriteCache.BACKGROUND },
     { src: `${assetRoot}flipper_left.png`, target: SpriteCache.FLIPPER_LEFT },
     { src: `${assetRoot}flipper_right.png`, target: SpriteCache.FLIPPER_RIGHT },
 ];

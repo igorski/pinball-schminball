@@ -1,7 +1,17 @@
+@import "./_variables";
+
 @font-face {
     font-family: "clubland";
     src: url( "@@/fonts/clubland-webfont.woff2" ) format( "woff2" ),
          url( "@@/fonts/clubland-webfont.woff" ) format( "woff" );
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "neon_overdriveregular";
+    src: url( "@@/fonts/neon_overdrive-webfont.woff2") format("woff2"),
+         url( "@@/fonts/neon_overdrive-webfont.woff") format("woff");
     font-weight: normal;
     font-style: normal;
 }
@@ -12,4 +22,28 @@
     text-transform: uppercase;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+}
+
+@mixin titleFont( $fontSize: 48px) {
+    font-family: neon_overdriveregular, "Liberation Mono", monospace;
+    text-transform: uppercase;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-size: $fontSize;
+    font-weight: 100;
+}
+
+@mixin titleFontGradient() {
+    @include titleFont();
+    background: -webkit-linear-gradient( $color-titles, $color-titles-sub );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+a {
+    color: $color-anchors;
+
+    &:hover {
+        color: #FFF;
+    }
 }

@@ -36,6 +36,7 @@
             :remaining-balls="Math.max( 0, modelValue.balls - 1 )"
         />
         <div
+            v-if="inited"
             ref="statusDisplay"
             class="status-display"
         >
@@ -137,7 +138,9 @@ export default {
             this.activeRound = { balls: this.modelValue.balls, score: 0, total: 0, ended: false };
 
             this.addListeners();
-            this.handleResize();
+            this.$nextTick(() => {
+                this.handleResize();
+            });
         },
         addListeners(): void {
             window.addEventListener( "keydown", this.keyListener );
@@ -279,6 +282,7 @@ export default {
 
 <style lang="scss" scoped>
 @import "@/styles/_animation";
+@import "@/styles/_mixins";
 @import "@/styles/_typography";
 @import "@/styles/_variables";
 

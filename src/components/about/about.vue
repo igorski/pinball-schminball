@@ -29,8 +29,15 @@
         <span v-t="'about.opensource'"></span>
         &nbsp;<a href="https://www.github.com/igorski/pinball-schminball" target="_blank" noopener>GitHub</a>.
     </p>
-    <h3 v-t="'about.credits'"></h3>
-    <p v-for="( credit, index ) in credits" :key="`c_${index}`">
+    <h3
+        v-t="'about.credits'"
+        class="title-header"
+    ></h3>
+    <p
+        v-for="( credit, index ) in credits"
+        :key="`c_${index}`"
+        class="credit-entry"
+    >
         {{ credit.type }} <a :href="credit.url" target="_blank">"{{ credit.title }}"</a> <span v-t="'about.by'"></span> {{ credit.author }}
     </p>
 </template>
@@ -46,6 +53,12 @@ export default {
                 url: "https://codepen.io/nikhil8krishnan/pen/rVoXJa",
             },
             {
+                title: "Neon overdrive",
+                author: "Darrell Flood",
+                type: this.$t( "about.font" ),
+                url: "https://www.dafont.com/neon-overdrive.font",
+            },
+            {
                 title: "Clubland",
                 author: "Joseph Gibson",
                 type: this.$t( "about.font" ),
@@ -55,3 +68,17 @@ export default {
     },
 };
 </script>
+
+<style lang="scss" scoped>
+@import "@/styles/_typography";
+
+.credit-entry {
+    margin: $spacing-small 0;
+}
+
+.title-header {
+    @include titleFont( 24px );
+    color: $color-titles-sub;
+    letter-spacing: 0.2em;
+}
+</style>

@@ -22,12 +22,28 @@
  */
 <template>
     <p v-t="'howToPlay.gameplay'"></p>
-    <h3 v-t="'howToPlay.keyboard'"></h3>
+    <h3
+        v-t="'howToPlay.keyboard'"
+        class="instruction-title"
+    ></h3>
     <p v-t="'howToPlay.keyboardDescr'"></p>
-    <h3 v-t="'howToPlay.touchscreen'"></h3>
+    <h3
+        v-t="'howToPlay.touchscreen'"
+        class="instruction-title"
+    ></h3>
     <p v-t="'howToPlay.touchscreenDescr'"></p>
 </template>
 
 <script lang="ts">
 export default {};
 </script>
+
+<style lang="scss" scoped>
+@import "@/styles/_typography";
+
+.instruction-title {
+    @include titleFont( 24px );
+    color: $color-titles-sub;
+    letter-spacing: 0.2em;
+}
+</style>

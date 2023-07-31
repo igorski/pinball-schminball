@@ -75,14 +75,22 @@ export default {
 
 <style lang="scss" scoped>
 @import "@/styles/_variables";
+@import "@/styles/_typography";
 
 .highscores-entry {
     display: flex;
     justify-content: space-between;
 
+    &__name {
+        @include titleFont();
+        color: $color-titles;
+    }
+
     &__score {
+        @include titleFont();
         max-width: 200px;
         text-align: right;
+        color: magenta;
     }
 }
 </style>

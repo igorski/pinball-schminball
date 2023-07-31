@@ -22,26 +22,38 @@
  */
 <template>
     <fieldset
-        class="new-game-fieldset"
+        class="ps-fieldset"
         @keydown.enter="startGame()"
     >
-        <div class="new-game-input-wrapper">
-            <label v-t="'ui.yourName'" for="nameInput"></label>
+        <div class="title">
+            <div class="title__wrapper">
+                <img src="@@/sprites/title_upper.png" class="title__upper" />
+                <img src="@@/sprites/title_lower.png" class="title__lower" />
+            </div>
+        </div>
+        <div class="ps-input-wrapper">
+            <label
+                v-t="'ui.yourName'"
+                for="nameInput"
+                class="ps-input-wrapper__label"
+            ></label>
             <input
                 id="nameInput"
                 ref="nameInput"
                 v-model="internalValue"
+                class="ps-input-wrapper__input"
                 :placeholder="$t( 'ui.playerName' )"
-                :class="{ 'invalid': !isValid }"
             />
         </div>
-        <span v-t="'ui.nameExplanation'" class="name-explanation"></span>
-        <div class="new-game-input-wrapper">
-            <label></label>
+        <span
+            v-t="'ui.nameExplanation'"
+            class="ps-input-explanation"
+        ></span>
+        <div class="ps-button-wrapper">
             <button
                 v-t="'ui.newGame'"
                 type="button"
-                class="start-game-button"
+                class="ps-button-wrapper__button"
                 :disabled="!isValid"
                 @click="startGame()"
             ></button>
@@ -50,9 +62,8 @@
 </template>
 
 <script lang="ts">
+import { STORED_PLAYER_NAME } from "@/definitions/settings";
 import { getFromStorage, setInStorage } from "@/utils/local-storage";
-
-const STORED_PLAYER_NAME = "ps_player_name";
 
 export default {
     props: {
@@ -99,47 +110,25 @@ export default {
 
 <style lang="scss" scoped>
 @import "@/styles/_variables";
+@import "@/styles/_forms";
 
-.new-game-fieldset {
-    border: none;
-    padding: 0;
-}
+.title {
+    text-align: center;
+    padding-top: $spacing-medium;
 
-.new-game-input-wrapper {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: $spacing-medium 0;
-}
-
-#nameInput {
-    width: 200px;
-    padding: $spacing-medium;
-    border-radius: 7px;
-    border: none;
-
-    &.invalid {
-        background-color: red;
-        color: #000;
+    &__wrapper {
+        width: 75%;
+        max-width: 400px;
+        margin: $spacing-medium auto 0;
     }
-}
 
-.name-explanation {
-    font-style: italic;
-    font-size: 75%;
-}
+    img {
+        width: inherit;
+    }
 
-.start-game-button {
-    cursor: pointer;
-    padding: $spacing-medium;
-    border-radius: 14px;
-    background-color: transparent;
-    border: 3px solid #000;
-    text-transform: uppercase;
-
-    &:hover {
-        background-color: #000;
-        color: #FFF;
+    &__lower {
+        transform: scale(0.77);
+        margin: -23px 0 0 -8px;
     }
 }
 </style>

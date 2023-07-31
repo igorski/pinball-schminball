@@ -23,14 +23,17 @@
 <template>
     <div class="modal">
         <div class="modal__header">
-            <h2>{{ title }}</h2>
+            <h2
+                v-if="title"
+                class="modal__header-title"
+            >{{ title }}</h2>
             <button
                 v-if="dismissible"
                 type="button"
                 class="close-button"
                 :title="$t('ui.closeWindow')"
                 @click="close()"
-            >&times;</button>
+            >x</button>
         </div>
         <div class="modal__content">
             <slot></slot>
@@ -43,7 +46,7 @@ export default {
     props: {
         title: {
             type: String,
-            required: true,
+            default: null,
         },
         dismissible: {
             type: Boolean,
@@ -71,28 +74,51 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import "@/styles/_mixins";
 @import "@/styles/_variables";
+@import "@/styles/_typography";
 
 .modal {
     position: absolute;
     width: 100%;
+    overflow: hidden;
     left: 0;
     z-index: $z-index-modal;
     box-sizing: border-box;
-    padding: 0 $spacing-large;
-    background-color: #FF0099;
+    padding: 0 $spacing-medium;
+    background-color: $color-modal-bg;
     font-family: Helvetica, sans-serif;
     line-height: 1.5;
+    color: $color-text;
+
+    &__header-title {
+        @include titleFontGradient();
+        margin: 0 0 $spacing-small;
+    }
 
     &__content {
+        @include noSelect();
+        @include scrollableWindow();
         padding-bottom: $spacing-large;
+        color: #e2e2e2;
     }
 
     @include large() {
-        max-width: 600px;
-        max-height: 75%;
-        padding-top: $spacing-medium;
         @include center();
+        padding: $spacing-medium $spacing-large 0 $spacing-xlarge;
+        margin-top: $menu-height / 2;
+        max-width: 600px;
+        border: 3px solid $color-outlines;
+        border-radius: $spacing-large;
+        box-shadow:
+           0 0 15px 7.5px #fff,  /* inner white */
+           0 0 25px 15px #0000ff; /* middle magenta */
+           // 0 0 37.5px 22.5px #0ff; /* outer cyan */
+
+       &__content {
+            max-height: 55vh;
+            padding-right: $spacing-large;
+       }
     }
 
     @include mobile() {
@@ -100,20 +126,33 @@ export default {
         flex-direction: column;
         top: $menu-height;
         height: calc(100% - $menu-height);
-
-        &__content {
-            @include scrollableWindow();
-        }
     }
 }
 
 .close-button {
+    @include button();
+    display: flex;
+    align-items: center;
+    background: transparent;
+    border: 3px solid $color-titles;
+    color: $color-titles;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
     position: absolute;
-    top: $spacing-medium;
-    right: $spacing-medium;
-    cursor: pointer;
-    background: none;
-    border: 0;
+    top: $spacing-large;
+    right: $spacing-large;
     font-size: 150%;
+
+    &:hover {
+        background: transparent;
+        border-color: $color-anchors;
+    }
+
+    @include mobile() {
+        top: $spacing-medium;
+        right: $spacing-medium;
+        transform: scale(0.85);
+    }
 }
 </style>

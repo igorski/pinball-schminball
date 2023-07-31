@@ -82,7 +82,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/_variables";
+@import "@/styles/_mixins";
+@import "@/styles/_typography";
 
 .header {
     position: fixed;
@@ -154,33 +155,18 @@ export default {
         margin: 0 auto;
         display: block;
 
-        &__sub {
-            li button {
-                display: block;
-                margin: $spacing-medium 0;
-            }
-        }
-
         @include large() {
-            text-align: left;
-
-            &__sub {
-                padding-top: $menu-height;
-                background-color: transparent;
-
-                li button {
-                    background-color: #000;
-                }
-            }
+            text-align: center;
         }
     }
 
     li {
         display: inline;
         padding: 0;
-        margin: 0 $spacing-medium;
+        margin: 0 $spacing-large 0 0;
 
         button, a {
+            @include titleFont();
             cursor: pointer;
             border: 0;
             background: none;
@@ -190,7 +176,7 @@ export default {
             padding: 0 $spacing-small;
 
             &:hover {
-                color: #FF6600;
+                color: $color-anchors;
             }
         }
     }
@@ -223,7 +209,8 @@ export default {
 
             li {
                 display: block;
-                margin: 0;
+                font-size: 24px;
+                margin: $spacing-small 0 0;
                 width: 100%;
                 line-height: $spacing-xlarge;
                 padding: 0 $spacing-medium;

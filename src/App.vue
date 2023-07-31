@@ -37,7 +37,6 @@
         </modal>
         <modal
             v-else-if="!game.active"
-            :title="hasPlayed ? $t('messages.gameOver') : $t('messages.newGame')"
             :dismissible="false"
         >
             <new-game-window
@@ -175,6 +174,8 @@ export default {
 </script>
 
 <style lang="scss">
+@import "@/styles/_variables";
+
 html, body {
     overscroll-behavior-x: none; /* disable navigation back/forward swipe on Chrome */
 }
@@ -186,6 +187,6 @@ body {
     margin: 0;
     padding: 0;
     overflow: hidden;
-    background-color: #222;
+    background-color: $color-bg;
 }
 </style>

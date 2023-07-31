@@ -21,7 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 <template>
-    <fieldset class="settings-fieldset">
+    <fieldset class="ps-fieldset">
         <div class="settings-wrapper">
             <label v-t="'settings.sound'"></label>
             <Toggle v-model="playSound" />
@@ -62,15 +62,20 @@ export default {
 
 <style lang="scss" scoped>
 @import "@/styles/_variables";
-
-.settings-fieldset {
-    border: none;
-    padding: 0;
-}
+@import "@/styles/_forms";
 
 .settings-wrapper {
     display: flex;
     justify-content: space-between;
     margin-bottom: $spacing-medium;
+}
+</style>
+
+<style lang="scss">
+@import "@/styles/_variables";
+
+.toggle-off {
+    background-color: $color-titles;
+    border-color: $color-titles;
 }
 </style>

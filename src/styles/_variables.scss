@@ -1,6 +1,6 @@
 /* layout variables */
 
-$app-width: 960px;    // the baseline resolution we strive for (tablet)
+$app-width: 800px;    // the baseline resolution we strive for (tablet)
 $mobile-width: 685px; // the threshold below which we start to use the mobile view
 
 $menu-height: 58px;
@@ -12,9 +12,15 @@ $spacing-medium: 14px;
 $spacing-large: 28px;
 $spacing-xlarge: 56px;
 
+$color-bg: #1b1922;
+$color-modal-bg: #161616;
+$color-outlines: #00AEEF;
+$color-titles: #C9148D;
+$color-titles-sub: #00AEEF; //#6DD0F6
+$color-text: magenta;
+$color-anchors: #00AEEF;
+
 $z-index-game: 0;
 $z-index-modal: 1;
 $z-index-header: 2;
 $z-index-on-top: 3;
-
-@import "_mixins";

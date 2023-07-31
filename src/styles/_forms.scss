@@ -1,0 +1,70 @@
+@import "./_typography";
+@import "./_mixins";
+
+.ps-fieldset {
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
+.ps-input-wrapper {
+    display: flex;
+    // justify-content: space-between;
+    align-items: center;
+    margin: $spacing-medium 0;
+
+    &__label {
+        @include titleFont( 24px );
+    }
+
+    &__input {
+        padding: $spacing-medium;
+        background: none;
+        border: none;
+        border-bottom: 2px solid $color-outlines;
+        color: $color-titles-sub;
+        @include titleFont( 24px );
+
+        &:focus {
+            outline: none;
+        }
+    }
+
+    @include mobile() {
+        flex-direction: column;
+        width: calc(100vw - ( $spacing-large * 2 ));
+
+        &__input {
+            text-align: center;
+        }
+    }
+}
+
+.ps-button-wrapper {
+    &__button {
+        @include button();
+        display: block;
+        margin: $spacing-medium auto;
+        width: 250px;
+
+        @include mobile() {
+            width: 100%;
+        }
+    }
+}
+
+.ps-input-explanation {
+    // font-style: italic;
+    color: #b6b6b6;
+    font-size: 85%;
+    display: block;
+
+    @include large() {
+        margin-left: 150px;
+        width: 350px;
+    }
+
+    @include mobile() {
+        text-align: center;
+    }
+}

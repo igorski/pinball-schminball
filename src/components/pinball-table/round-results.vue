@@ -56,10 +56,12 @@ export default {
 
 <style lang="scss" scoped>
 @import "@/styles/_animation";
+@import "@/styles/_mixins";
 @import "@/styles/_typography";
 @import "@/styles/_variables";
 
 .round-results {
+    @include noSelect();
     position: fixed;
     top: 0;
     left: 0;
