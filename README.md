@@ -56,4 +56,5 @@ npm run typecheck
 ## TODO
 
 * add full-screen button
-* on occasion ball goes up the ramp left from the flippers
+* on occasion ball goes up the ramp left from the flippers (use invisible "pusher")
+* activate throttling by default?

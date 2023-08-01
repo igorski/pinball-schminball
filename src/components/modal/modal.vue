@@ -125,7 +125,12 @@ export default {
         display: flex;
         flex-direction: column;
         top: $menu-height;
-        height: calc(100% - $menu-height);
+        height: calc( 100% - $menu-height );
+
+        &__header-title {
+            font-size: 36px;
+            margin-top: 14px;
+        }
     }
 }
 

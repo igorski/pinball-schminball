@@ -75,6 +75,7 @@ export default {
 
 <style lang="scss" scoped>
 @import "@/styles/_variables";
+@import "@/styles/_mixins";
 @import "@/styles/_typography";
 
 .highscores-entry {
@@ -91,6 +92,13 @@ export default {
         max-width: 200px;
         text-align: right;
         color: magenta;
+    }
+
+    @include mobile() {
+        &__name,
+        &__score {
+            font-size: 24px;
+        }
     }
 }
 </style>

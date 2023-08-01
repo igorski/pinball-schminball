@@ -134,6 +134,8 @@ export default {
         height: $menu-height;
         background-color: #0e1417;
         color: #FFF;
+        box-sizing: border-box;
+        border-bottom: 2px solid #000;
 
         span {
             display: block;
