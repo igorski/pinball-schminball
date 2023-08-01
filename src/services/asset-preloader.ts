@@ -21,18 +21,13 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import loadScript from "tiny-script-loader/loadScriptPromised";
-import { loader }  from "zcanvas";
+import { loader } from "zcanvas";
+import Tables from "@/definitions/tables";
 import SpriteCache from "@/utils/sprite-cache";
 
 const assetRoot = `./assets/sprites/`;
 const queue = [
-    { src: `${assetRoot}title_upper.png` },
-    { src: `${assetRoot}title_lower.png` },
-    { src: `${assetRoot}table1_shape.svg` },
-    { src: `${assetRoot}table1_reflector_left.svg` },
-    { src: `${assetRoot}table1_reflector_right.svg` },
     { src: `${assetRoot}ball.png`, target: SpriteCache.BALL },
-    { src: `${assetRoot}table1_background.png`, target: SpriteCache.BACKGROUND },
     { src: `${assetRoot}flipper_left.png`, target: SpriteCache.FLIPPER_LEFT },
     { src: `${assetRoot}flipper_right.png`, target: SpriteCache.FLIPPER_RIGHT },
 ];
@@ -42,6 +37,14 @@ export const preloadAssets = async (): Promise<void> =>
 {
     // load PathSeg library for use with importing SVG as collision paths
     await loadScript( "./pathseg.js" );
+
+    // harvest all assets from the available tables
+
+    for ( const table of Tables ) {
+        addToQueueWhenExisting( table.background, SpriteCache.BACKGROUND );
+        addToQueueWhenExisting( table.body?.source );
+        table.reflectors?.map( reflector => addToQueueWhenExisting( reflector.source ));
+    }
 
     // we create a container (positioned off-screen) to append the images to, this is to
     // overcome mobile browsers not actually loading the Images until they are inside the DOM and
@@ -79,3 +82,11 @@ export const preloadAssets = async (): Promise<void> =>
         processQueue();
     });
 };
+
+/* internal methods */
+
+function addToQueueWhenExisting( assetPath: string | undefined, optTarget?: typeof Image ): void {
+    if ( assetPath && assetPath.length > 0 ) {
+        queue.push({ src: assetPath, target: optTarget });
+    }
+}

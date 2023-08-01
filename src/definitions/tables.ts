@@ -34,9 +34,9 @@ export default [
     width      : 800,
     height     : 2441,
     underworld : 1441,
-    background : `${SPRITE_PATH}/table1_background.png`,
+    background : `${SPRITE_PATH}table1_background.png`,
     body : {
-        source : `${SPRITE_PATH}/table1_shape.svg`,
+        source : `${SPRITE_PATH}table1_shape.svg`,
         left   : -101,
         top    : -845,
         width  : 800,
@@ -75,8 +75,8 @@ export default [
         { type: ActorTypes.RIGHT_FLIPPER, left: 530, top: 2075 },
     ],
     reflectors: [
-        { source: `${SPRITE_PATH}/table1_reflector_left.svg`,  left: 117, top: 1079, width: 106, height: 171 },
-        { source: `${SPRITE_PATH}/table1_reflector_right.svg`, left: 539, top: 1079, width: 106, height: 171 },
+        { source: `${SPRITE_PATH}table1_reflector_left.svg`,  left: 117, top: 1079, width: 106, height: 171 },
+        { source: `${SPRITE_PATH}table1_reflector_right.svg`, left: 539, top: 1079, width: 106, height: 171 },
     ],
     rects: [
         // top
