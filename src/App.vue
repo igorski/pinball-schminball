@@ -181,6 +181,7 @@ export default {
 
 <style lang="scss">
 @import "@/styles/_variables";
+@import "@/styles/_typography";
 
 html, body {
     overscroll-behavior-x: none; /* disable navigation back/forward swipe on Chrome */
