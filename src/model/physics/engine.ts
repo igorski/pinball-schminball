@@ -60,12 +60,13 @@ export const createEngine = async (
     table: TableDef, beforeUpdateHandler: () => void, collisionHandler: ( event: CollisionEvent ) => void
 ): Promise<IPhysicsEngine> => {
     const engine = Matter.Engine.create();
+    let render: Matter.Render;
 
     const { width, height } = table;
 
     // @ts-expect-error Property 'env' does not exist on type 'ImportMeta', Vite takes care of it
     if ( import.meta.env.MODE !== "production" ) {
-        // renderBodies( engine, width, height );
+        // render = renderBodies( engine, width, height );
     }
 
     engine.positionIterations = 16;
@@ -229,6 +230,18 @@ export const createEngine = async (
             });
         },
         destroy(): void {
+            Matter.Events.off( engine, "collisionStart", collisionHandler );
+            Matter.Events.off( engine, "beforeUpdate", beforeUpdateHandler );
+
+            if ( render ) {
+                Matter.Render.stop( render );
+                render.canvas.remove();
+                render.canvas = null;
+                render.context = null;
+                render.textures = {};
+            }
+            // @ts-expect-error 3rd argument not defined in .d.ts file but exists (clears all child Composites recursively)
+            Matter.World.clear( engine.world, false, true );
             Matter.Engine.clear( engine );
         },
     };
@@ -239,7 +252,7 @@ export const createEngine = async (
 /**
  * Debug method to view the bodies as visualised by the Matter JS renderer
  */
-function renderBodies( engine: Matter.Engine, width = 800, height = 600 ): void {
+function renderBodies( engine: Matter.Engine, width = 800, height = 600 ): Matter.Render {
     const render = Matter.Render.create({
         element: document.body,
         engine,
@@ -264,4 +277,6 @@ function renderBodies( engine: Matter.Engine, width = 800, height = 600 ): void 
         }
     );
     Matter.Render.run( render );
+
+    return render;
 }
