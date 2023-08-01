@@ -37,9 +37,9 @@ export const MAX_SPEED     = 45;
 // the table will tilt when more than MAX_BUMPS have occurred
 // before each bumps BUMP_TIMEOUT has passed
 
-export const MAX_BUMPS    = 5;
+export const MAX_BUMPS    = 3;
 export const BUMP_IMPULSE = 4;
-export const BUMP_TIMEOUT = 2500;
+export const BUMP_TIMEOUT = 2000;
 
 export const AwardablePoints = {
     BUMPER: 500,

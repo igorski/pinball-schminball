@@ -74,6 +74,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@use "sass:math";
+
 @import "@/styles/_mixins";
 @import "@/styles/_variables";
 @import "@/styles/_typography";
@@ -106,7 +108,7 @@ export default {
     @include large() {
         @include center();
         padding: $spacing-medium $spacing-large 0 $spacing-xlarge;
-        margin-top: $menu-height / 2;
+        margin-top: math.div( $menu-height, 2 );
         max-width: 600px;
         border: 3px solid $color-outlines;
         border-radius: $spacing-large;

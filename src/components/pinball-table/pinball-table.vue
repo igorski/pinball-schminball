@@ -125,7 +125,7 @@ export default {
 
         this.bumpHandler = throttle((): void => {
             bumpTable( this.modelValue );
-        }, 250 );
+        }, 150 );
 
         this.keyListener = this.handleKey.bind( this );
     },
