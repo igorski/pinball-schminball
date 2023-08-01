@@ -27,15 +27,15 @@
             <Toggle v-model="playSound" />
         </div>
         <div class="settings-wrapper">
-            <label v-t="'settings.throttleFps'"></label>
-            <Toggle v-model="throttleFps" />
+            <label v-t="'settings.useThrottling'"></label>
+            <Toggle v-model="useThrottling" />
         </div>
     </fieldset>
 </template>
 
 <script lang="ts">
 import Toggle from "@vueform/toggle";
-import { STORED_FPS_SETTING } from "@/definitions/settings";
+import { STORED_DISABLE_THROTTLING } from "@/definitions/settings";
 import { getMuted, setMuted } from "@/services/audio-service";
 import { getFromStorage, setInStorage } from "@/utils/local-storage";
 
@@ -44,12 +44,12 @@ export default {
         Toggle,
     },
     data: () => ({
-        throttleFps: getFromStorage( STORED_FPS_SETTING ) === "true",
+        useThrottling: getFromStorage( STORED_DISABLE_THROTTLING ) !== "false",
         playSound: !getMuted(),
     }),
     watch: {
-        throttleFps( value: boolean ): void {
-            setInStorage( STORED_FPS_SETTING, value.toString() );
+        useThrottling( value: boolean ): void {
+            setInStorage( STORED_DISABLE_THROTTLING, value.toString() );
         },
         playSound( value: boolean ): void {
             setMuted( !value );

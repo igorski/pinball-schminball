@@ -28,7 +28,7 @@ import {
     GameMessages, TriggerTarget, TriggerTypes, AwardablePoints, ActorLabels, ActorTypes,
 } from "@/definitions/game";
 import Tables from "@/definitions/tables";
-import { STORED_FPS_SETTING } from "@/definitions/settings";
+import { STORED_DISABLE_THROTTLING } from "@/definitions/settings";
 import Actor from "@/model/actor";
 import Ball from "@/model/ball";
 import Bumper from "@/model/bumper";
@@ -76,7 +76,7 @@ export const init = async (
 ): Promise<void> => {
 
     canvas = canvasRef;
-    throttleFps = getFromStorage( STORED_FPS_SETTING ) === "true";
+    throttleFps = getFromStorage( STORED_DISABLE_THROTTLING ) !== "false";
 
     roundEndHandler = roundEndHandlerRef;
     messageHandler  = messageHandlerRef;

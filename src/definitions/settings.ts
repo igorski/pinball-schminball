@@ -20,6 +20,6 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-export const STORED_FPS_SETTING   = "ps_fps_lock"; // whether to throttle frames
-export const STORED_MUTED_SETTING = "ps_as_am";    // whether to mute the music
-export const STORED_PLAYER_NAME   = "ps_player_name"; // last entered player name
+export const STORED_DISABLE_THROTTLING = "ps_disable_fps_throttling"; // whether to disable frame throttling
+export const STORED_MUTED_SETTING = "ps_as_am"; // whether to mute music playback
+export const STORED_PLAYER_NAME = "ps_player_name"; // last entered player name
