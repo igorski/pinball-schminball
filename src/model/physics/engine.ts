@@ -46,7 +46,7 @@ export interface IPhysicsEngine {
     addBody: ( actor: Actor, label: string ) => Matter.Body;
     removeBody: ( body: Matter.Body ) => void;
     updateBodyPosition: ( body: Matter.Body, position: Point ) => void;
-    launchBall: ( body: Matter.Body, speed?: number ) => void;
+    launchBall: ( body: Matter.Body, impulse: Point ) => void;
     triggerFlipper: ( type: ActorTypes, upwards: boolean ) => void;
     capSpeed: ( body: Matter.Body ) => void;
     destroy: () => void;
@@ -213,8 +213,8 @@ export const createEngine = async (
         updateBodyPosition( body: Matter.Body, position: Point ): void {
             Matter.Body.setPosition( body, position );
         },
-        launchBall( body: Matter.Body, speed = LAUNCH_SPEED ): void {
-            Matter.Body.setVelocity( body, { x: 0, y: -speed });
+        launchBall( body: Matter.Body, impulse: Point ): void {
+            Matter.Body.setVelocity( body, impulse );
         },
         triggerFlipper( type: ActorTypes, isUp: boolean ): void {
             if ( type === ActorTypes.LEFT_FLIPPER ) {

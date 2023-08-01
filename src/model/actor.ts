@@ -29,7 +29,7 @@ import { degToRad, rectangleToPolygon, rotateRectangle } from "@/utils/math-util
 // @ts-expect-error Property 'env' does not exist on type 'ImportMeta', Vite takes care of it
 const DEBUG = import.meta.env.MODE !== "production";
 
-export type ActorOpts = {
+export type ActorArgs = {
     left?: number;
     top?: number;
     width?: number;
@@ -40,7 +40,6 @@ export type ActorOpts = {
     visible?: boolean;
     fixed?: boolean;
     sensor?: boolean;
-    once?: boolean;
     opts?: any;
 };
 
@@ -72,7 +71,7 @@ export default class Actor {
     constructor({
         left = 0, top = 0, width = 1, height = 1, angle = 0, radius = 0,
         fixed = true, sensor = false, opts = null, visible = true, type = ActorTypes.RECTANGULAR
-    }: ActorOpts = {}, protected engine: IPhysicsEngine, canvas: zCanvas )
+    }: ActorArgs = {}, protected engine: IPhysicsEngine, canvas: zCanvas )
     {
         this.id = ++INSTANCE_NUM;
 

@@ -23,15 +23,15 @@
 import type { canvas as zCanvas } from "zcanvas";
 import { ActorTypes } from "@/definitions/game";
 import type { IPhysicsEngine } from "@/model/physics/engine";
-import type { ActorOpts, IRendererClass } from "@/model/actor";
+import type { ActorArgs, IRendererClass } from "@/model/actor";
 import Rect from "@/model/rect";
 import FlipperRenderer from "@/renderers/flipper-renderer";
 
 export default class Flipper extends Rect {
     private isUp: boolean;
 
-    constructor( opts: ActorOpts, engine: IPhysicsEngine, canvas: zCanvas ) {
-        super({ ...opts, width: 132, height: 41, fixed: false }, engine, canvas );
+    constructor( args: ActorArgs, engine: IPhysicsEngine, canvas: zCanvas ) {
+        super({ ...args, width: 132, height: 41, fixed: false }, engine, canvas );
 
         this.isUp = false;
     }

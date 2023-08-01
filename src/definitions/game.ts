@@ -160,19 +160,32 @@ export type TriggerDef = {
     message?: GameMessages;
 };
 
+export enum ImpulseDirection {
+    LEFT,
+    RIGHT,
+    UP,
+    DOWN,
+    DOWN_LEFT,
+    DOWN_RIGHT,
+    UP_LEFT,
+    UP_RIGHT,
+};
+
 /**
- * A Popper is a mechanism that can launch the ball. There should be at least
+ * A Popper is a mechanism that provides an impulse on the Ball. There should be at least
  * one popper per table as otherwise the ball cannot be launched (it's coordinates
- * are used to place the ball upon the start of each round).
+ * are used to place the ball upon the start of each round). The direction specifies
+ * the direction in which the Ball will be pushed upon collision with the Popper.
  *
  * Multiple poppers can be added to a table. Poppers that are defined to only work
  * once will be removed from the active game upon first use.
  */
-export type PopperDef = {
-    left: number;
-    top: number;
-    width: number;
-    once?: boolean;
+export type PopperDef = Rectangle & {
+    opts: {
+        force?: number;
+        direction?: ImpulseDirection;
+        once?: boolean;
+    }
 };
 
 /**
@@ -183,7 +196,7 @@ export type TableDef = {
     soundtrackId: string; // Soundcloud track id as we use Soundcloud as our "Media streaming platform"
     width: number;
     height: number;
-    underworld: number; // at which y coordinate the "underworld"-section starts
+    underworld?: number; // at which y coordinate the (optional) "underworld"-section starts
     background: string,
     body: ShapeDef,
     poppers: PopperDef[];

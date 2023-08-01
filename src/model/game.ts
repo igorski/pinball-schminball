@@ -24,7 +24,7 @@ import { sprite } from "zcanvas";
 import type { canvas as zCanvas } from "zcanvas";
 import type { GameDef, TableDef, FlipperType } from "@/definitions/game";
 import {
-    FRAME_RATE, BALL_WIDTH, BALL_HEIGHT, MAX_BUMPS, BUMP_TIMEOUT, BUMP_IMPULSE,
+    FRAME_RATE, BALL_WIDTH, BALL_HEIGHT, LAUNCH_SPEED, MAX_BUMPS, BUMP_TIMEOUT, BUMP_IMPULSE,
     GameMessages, TriggerTarget, TriggerTypes, AwardablePoints, ActorLabels, ActorTypes,
 } from "@/definitions/game";
 import Tables from "@/definitions/tables";
@@ -110,7 +110,7 @@ export const init = async (
 			switch ( pair.bodyA.label ) {
                 case ActorLabels.POPPER:
                     const popper = actorMap.get( pair.bodyA.id ) as Popper;
-                    engine.launchBall( pair.bodyB );
+                    engine.launchBall( pair.bodyB, popper.getImpulse() );
                     if ( popper.once ) {
                         messageHandler( GameMessages.GOT_LUCKY );
                         removeActor( popper );
@@ -139,7 +139,7 @@ export const init = async (
                                 setTimeout(() => {
                                     const { x, y } = pair.bodyB.velocity;
                                     if ( Math.abs( x ) < 2 && Math.abs( y ) < 2 ) {
-                                        engine.launchBall( pair.bodyB );
+                                        engine.launchBall( pair.bodyB, { x: 0, y: -LAUNCH_SPEED });
                                     }
                                 }, 2500 );
                                 break;

@@ -20,19 +20,64 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import type { canvas as zCanvas } from "zcanvas";
-import { ActorLabels } from "@/definitions/game";
+import type { Point, canvas as zCanvas } from "zcanvas";
+import { LAUNCH_SPEED, ActorLabels, ImpulseDirection } from "@/definitions/game";
 import Actor from "@/model/actor";
-import type { ActorOpts } from "@/model/actor";
+import type { ActorArgs } from "@/model/actor";
 import type { IPhysicsEngine } from "@/model/physics/engine";
 
 export default class Popper extends Actor {
     public once: boolean;
 
-    constructor( opts: ActorOpts, engine: IPhysicsEngine, canvas: zCanvas ) {
-        super({ ...opts, fixed: true }, engine, canvas );
+    private direction: ImpulseDirection;
+    private force: number;
 
-        this.once = opts.once ?? false;
+    constructor( args: ActorArgs, engine: IPhysicsEngine, canvas: zCanvas ) {
+        super({ ...args, fixed: true }, engine, canvas );
+
+        const { opts } = args;
+
+        this.once      = opts?.once ?? false;
+        this.force     = opts?.force ?? LAUNCH_SPEED;
+        this.direction = opts?.direction ?? ImpulseDirection.UP;
+    }
+
+    getImpulse(): Point {
+        let x = 0;
+        let y = 0;
+
+        switch ( this.direction ) {
+            default:
+            case ImpulseDirection.UP:
+                y = -this.force;
+                break;
+            case ImpulseDirection.DOWN:
+                y = this.force;
+                break;
+            case ImpulseDirection.LEFT:
+                x = -this.force;
+                break;
+            case ImpulseDirection.UP_LEFT:
+                x = -this.force;
+                y = -this.force / 2;
+                break;
+            case ImpulseDirection.DOWN_LEFT:
+                x = -this.force;
+                y = this.force / 2;
+                break;
+            case ImpulseDirection.RIGHT:
+                x = this.force;
+                break;
+            case ImpulseDirection.UP_RIGHT:
+                x = this.force;
+                y = -this.force / 2;
+                break;
+            case ImpulseDirection.DOWN_RIGHT:
+                x = this.force;
+                y = this.force / 2;
+                break;
+        }
+        return { x, y };
     }
 
     protected override getLabel(): string {

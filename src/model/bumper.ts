@@ -23,16 +23,16 @@
 import type { canvas as zCanvas } from "zcanvas";
 import { ActorTypes, ActorLabels } from "@/definitions/game";
 import Actor from "@/model/actor";
-import type { ActorOpts, IRendererClass } from "@/model/actor";
+import type { ActorArgs, IRendererClass } from "@/model/actor";
 import type { IPhysicsEngine } from "@/model/physics/engine";
 import BumperRenderer from "@/renderers/bumper-renderer";
 
 export default class Bumper extends Actor {
     public collided = false;
-    
-    constructor( opts: ActorOpts, engine: IPhysicsEngine, canvas: zCanvas ) {
+
+    constructor( args: ActorArgs, engine: IPhysicsEngine, canvas: zCanvas ) {
         super({
-            ...opts, type: ActorTypes.CIRCULAR, radius: opts.radius ?? opts.width / 2, fixed: true,
+            ...args, type: ActorTypes.CIRCULAR, radius: args.radius ?? args.width / 2, fixed: true,
         }, engine, canvas );
     }
 

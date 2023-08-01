@@ -20,12 +20,16 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import { ActorTypes, TriggerTarget, TriggerTypes, GameMessages } from "@/definitions/game";
+import {
+    LAUNCH_SPEED, ActorTypes, TriggerTarget, TriggerTypes, GameMessages, ImpulseDirection
+} from "@/definitions/game";
 import type { FlipperType, FlipperDef, ObjectDef, TriggerDef, TableDef } from "@/definitions/game";
 
 const SPRITE_PATH = "./assets/sprites/";
 
-export default [{
+export default [
+// "Table 1"
+{
     soundtrackId: "1566338341",
     width      : 800,
     height     : 2441,
@@ -39,18 +43,33 @@ export default [{
         height : 2441,
     },
     poppers : [
-        { left: 744, top: 1387, width: 40 },
-        { left: 18,  top: 1282, width: 40, once: true },
-        { left: 703, top: 1282, width: 40, once: true },
+        // the ball launcher
+
+        { left: 744, top: 1387, width: 40, height: 1 },
+
+        // "lucky" one-time safe mechanism on either side of the bottom flippers
+
+        { left: 18,  top: 1282, width: 40, height: 1, opts: { once: true } },
+        { left: 703, top: 1282, width: 40, height: 1, opts: { once: true } },
+
+        // horizontal pushes when ball falls in lane leading to bottom flippers (otherwise gets stuck at low speeds)
+
+        { left: 95,  top: 1230, width: 10, height: 10, opts: { direction: ImpulseDirection.UP_RIGHT,   force: 1.5 } },
+        { left: 200, top: 1300, width: 10, height: 10, opts: { direction: ImpulseDirection.DOWN_RIGHT, force: 1.5 } },
+        { left: 540, top: 1300, width: 10, height: 10, opts: { direction: ImpulseDirection.DOWN_LEFT,  force: 1.5 } },
     ],
     flippers : [
+        // top flippers
+
         { type: ActorTypes.LEFT_FLIPPER,  left: 54, top: 533, angle: 20 },
         { type: ActorTypes.RIGHT_FLIPPER, left: 572, top: 650, angle: -20 },
+
+        // bottom flippers
 
         { type: ActorTypes.LEFT_FLIPPER,  left: 215, top: 1305 },
         { type: ActorTypes.RIGHT_FLIPPER, left: 410, top: 1305 },
 
-        // underworld
+        // "underworld" flippers
 
         { type: ActorTypes.LEFT_FLIPPER,  left: 215, top: 2280 },
         { type: ActorTypes.RIGHT_FLIPPER, left: 530, top: 2075 },

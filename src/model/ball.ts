@@ -22,15 +22,15 @@
  */
 import type { canvas as zCanvas } from "zcanvas";
 import { ActorTypes, ActorLabels } from "@/definitions/game";
-import type { ActorOpts, IRendererClass } from "@/model/actor";
+import type { ActorArgs, IRendererClass } from "@/model/actor";
 import Actor from "@/model/actor";
 import type { IPhysicsEngine } from "@/model/physics/engine";
 import BallRenderer from "@/renderers/ball-renderer";
 
 export default class Ball extends Actor {
-    constructor( opts: ActorOpts, engine: IPhysicsEngine, canvas: zCanvas ) {
+    constructor( args: ActorArgs, engine: IPhysicsEngine, canvas: zCanvas ) {
         super({
-            ...opts, type: ActorTypes.CIRCULAR, fixed: false, radius: opts.radius ?? opts.width / 2
+            ...args, type: ActorTypes.CIRCULAR, fixed: false, radius: args.radius ?? args.width / 2
         }, engine, canvas );
     }
 

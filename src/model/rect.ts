@@ -24,7 +24,7 @@ import type { Point, Rectangle, canvas as zCanvas } from "zcanvas";
 import { ActorTypes } from "@/definitions/game";
 import type { IPhysicsEngine } from "@/model/physics/engine";
 import Actor from "@/model/actor";
-import type { ActorOpts, IRendererClass } from "@/model/actor";
+import type { ActorArgs, IRendererClass } from "@/model/actor";
 import RectRenderer from "@/renderers/rect-renderer";
 import { rectangleToPolygon, rectangleToRotatedPolygon } from "@/utils/math-util";
 
@@ -36,8 +36,8 @@ export default class Rect extends Actor {
      * a Rect is an Actor that can adjust its angle and
      * rotate around a custom pivot point
      */
-    constructor( opts: ActorOpts, engine: IPhysicsEngine, canvas: zCanvas ) {
-        super({ ...opts, type: opts.type ?? ActorTypes.RECTANGULAR, fixed: opts.fixed ?? true }, engine, canvas );
+    constructor( args: ActorArgs, engine: IPhysicsEngine, canvas: zCanvas ) {
+        super({ ...args, type: args.type ?? ActorTypes.RECTANGULAR, fixed: args.fixed ?? true }, engine, canvas );
 
         this.cacheBounds();
     }
