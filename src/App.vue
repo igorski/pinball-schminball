@@ -50,14 +50,17 @@
 <script lang="ts">
 import { defineAsyncComponent } from "vue";
 import type { Component } from "vue";
-import type { GameDef } from "@/definitions/game";
-import { preloadAssets } from "@/services/asset-preloader";
-import { init } from "@/services/audio-service";
-import { isSupported, startGame, stopGame } from "@/services/high-scores-service";
 import HeaderMenu from "./components/header-menu/header-menu.vue";
 import Loader from "@/components/loader/loader.vue";
 import Modal from "@/components/modal/modal.vue";
 import NewGameWindow from "@/components/new-game-window/new-game-window.vue";
+import type { GameDef } from "@/definitions/game";
+import { STORED_FULLSCREEN } from "@/definitions/settings";
+import { preloadAssets } from "@/services/asset-preloader";
+import { init } from "@/services/audio-service";
+import { isSupported, startGame, stopGame } from "@/services/high-scores-service";
+import { getFromStorage } from "@/utils/local-storage";
+import { isFullscreen, toggleFullscreen } from "@/utils/fullscreen-util";
 
 interface ComponentData {
     loading: boolean;
@@ -152,6 +155,9 @@ export default {
         async initGame(): Promise<void> {
             if ( this.startPending ) {
                 return;
+            }
+            if ( getFromStorage( STORED_FULLSCREEN ) === "true" && !isFullscreen() ) {
+                toggleFullscreen();
             }
             this.startPending = true;
             try {

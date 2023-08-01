@@ -55,6 +55,5 @@ npm run typecheck
 
 ## TODO
 
-* add full-screen setting
 * asset preloader should load all assets in table list
 * on occasion ball goes up the ramp left from the flippers (use invisible "pusher")

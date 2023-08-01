@@ -27,6 +27,10 @@
             <Toggle v-model="playSound" />
         </div>
         <div class="settings-wrapper">
+            <label v-t="'settings.fullscreen'"></label>
+            <Toggle v-model="fullscreen" />
+        </div>
+        <div class="settings-wrapper">
             <label v-t="'settings.useThrottling'"></label>
             <Toggle v-model="useThrottling" />
         </div>
@@ -35,8 +39,9 @@
 
 <script lang="ts">
 import Toggle from "@vueform/toggle";
-import { STORED_DISABLE_THROTTLING } from "@/definitions/settings";
+import { STORED_DISABLE_THROTTLING, STORED_FULLSCREEN } from "@/definitions/settings";
 import { getMuted, setMuted } from "@/services/audio-service";
+import { isFullscreen, toggleFullscreen } from "@/utils/fullscreen-util";
 import { getFromStorage, setInStorage } from "@/utils/local-storage";
 
 export default {
@@ -46,6 +51,7 @@ export default {
     data: () => ({
         useThrottling: getFromStorage( STORED_DISABLE_THROTTLING ) !== "false",
         playSound: !getMuted(),
+        fullscreen: getFromStorage( STORED_FULLSCREEN ) === "true",
     }),
     watch: {
         useThrottling( value: boolean ): void {
@@ -53,6 +59,13 @@ export default {
         },
         playSound( value: boolean ): void {
             setMuted( !value );
+        },
+        fullscreen( value: boolean ): void {
+            const isFull = isFullscreen();
+            if (( value && !isFull ) || ( !value && isFull )) {
+                toggleFullscreen();
+            }
+            setInStorage( STORED_FULLSCREEN, value.toString() );
         },
     },
 };
