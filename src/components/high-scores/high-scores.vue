@@ -21,34 +21,43 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 <template>
-    <p v-if="!isSupported">
-        High scores are not supported in this environment.
-    </p>
-    <div v-else>
-        <div
-            v-for="( entry, index ) in formattedScores"
-            :key="`c_${index}`"
-            class="highscores-entry"
-        >
-            <span class="highscores-entry__name">{{ entry.name }}</span>
-            <span class="highscores-entry__score">{{ entry.score }}</span>
+    <loader v-if="loading" />
+    <template v-else>
+        <p v-if="!isSupported">
+            High scores are not supported in this environment.
+        </p>
+        <div v-else>
+            <div
+                v-for="( entry, index ) in formattedScores"
+                :key="`c_${index}`"
+                class="highscores-entry"
+            >
+                <span class="highscores-entry__name">{{ entry.name }}</span>
+                <span class="highscores-entry__score">{{ entry.score }}</span>
+            </div>
         </div>
-    </div>
+    </template>
 </template>
 
 <script lang="ts">
+import Loader from "@/components/loader/loader.vue";
 import type { HighScoreDef } from "@/services/high-scores-service";
 import { isSupported, getHighScores } from "@/services/high-scores-service";
 
 interface ComponentData {
     isSupported: boolean;
+    loading: boolean;
     scores: HighScoreDef[];
 };
 
 export default {
+    components: {
+        Loader,
+    },
     data: (): ComponentData => ({
         isSupported: false,
-        scores: []
+        loading: true,
+        scores: [],
     }),
     computed: {
         formattedScores(): HighScoreDef[] {
@@ -69,6 +78,7 @@ export default {
         if ( this.isSupported ) {
             this.scores = await getHighScores();
         }
+        this.loading = false;
     },
 };
 </script>

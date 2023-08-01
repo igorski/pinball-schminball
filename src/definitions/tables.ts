@@ -55,7 +55,6 @@ export default [
         // horizontal pushes when ball falls in lane leading to bottom flippers (otherwise gets stuck at low speeds)
 
         { left: 95,  top: 1230, width: 10, height: 10, opts: { direction: ImpulseDirection.UP_RIGHT,   force: 1.5 } },
-        { left: 200, top: 1300, width: 10, height: 10, opts: { direction: ImpulseDirection.DOWN_RIGHT, force: 1.5 } },
         { left: 540, top: 1300, width: 10, height: 10, opts: { direction: ImpulseDirection.DOWN_LEFT,  force: 1.5 } },
     ],
     flippers : [

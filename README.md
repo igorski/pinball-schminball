@@ -55,4 +55,5 @@ npm run typecheck
 
 ## TODO
 
+* text overflow on high scores
 * on occasion ball goes up the ramp left from the flippers (use invisible "pusher")
