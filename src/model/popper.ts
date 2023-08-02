@@ -22,11 +22,14 @@
  */
 import type { Point, canvas as zCanvas } from "zcanvas";
 import { LAUNCH_SPEED, ActorLabels, ImpulseDirection } from "@/definitions/game";
-import Actor from "@/model/actor";
-import type { ActorArgs } from "@/model/actor";
+import Rect from "@/model/rect";
+import type { ActorArgs, IRendererClass } from "@/model/actor";
 import type { IPhysicsEngine } from "@/model/physics/engine";
+import RectRenderer from "@/renderers/rect-renderer";
 
-export default class Popper extends Actor {
+const DEBUG = false;//import.meta.env.MODE !== "production";
+
+export default class Popper extends Rect {
     public once: boolean;
 
     private direction: ImpulseDirection;
@@ -82,5 +85,13 @@ export default class Popper extends Actor {
 
     protected override getLabel(): string {
         return ActorLabels.POPPER;
+    }
+
+    /**
+     * Poppers are by default invisible, but it might
+     * be convenient to debug their position
+     */
+    protected getRendererClass(): IRendererClass | null {
+        return DEBUG ? RectRenderer : null;
     }
 }

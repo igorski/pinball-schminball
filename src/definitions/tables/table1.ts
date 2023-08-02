@@ -47,7 +47,7 @@ export default {
     poppers : [
         // the ball launcher
 
-        { left: 744, top: 1387, width: 40, height: 1 },
+        { left: 750, top: 1380, width: 40, height: 1 },
 
         // "lucky" one-time safe mechanism on either side of the bottom flippers
 
@@ -57,8 +57,12 @@ export default {
         // horizontal pushes when ball falls in lane leading to bottom flippers (otherwise gets stuck at low speeds)
 
         // { left: 95,  top: 1230, width: 20, height: 10, opts: { direction: ImpulseDirection.DOWN_RIGHT, force: 4.5 } },
-        { left: 185, top: 1295, width: 20, height: 10, opts: { direction: ImpulseDirection.DOWN_RIGHT, force: 2.5 } },
+        { left: 190, top: 1300, width: 20, height: 10, opts: { direction: ImpulseDirection.DOWN_RIGHT, force: 2.5 } },
         { left: 540, top: 1300, width: 10, height: 10, opts: { direction: ImpulseDirection.DOWN_LEFT,  force: 1.5 } },
+
+        // reflectors
+        { left: 150, top: 1090, width: 160, height: 10, angle: 62,  opts: { direction: ImpulseDirection.UP_RIGHT, force: 7 } },
+        { left: 528, top: 1090, width: 160, height: 10, angle: -62, opts: { direction: ImpulseDirection.UP_LEFT,  force: 7 } },
     ],
     flippers : [
         // top flippers
@@ -93,10 +97,6 @@ export default {
 
         { left: 754, top: 895, width: 50, height: 10, angle: -45, visible: false },
         { left: 754, top: 930, width: 50, height: 10, angle: 45 },
-
-        // reflectors
-        // { left: 191, top: 1175, width: 160, height: 10, angle: 62, bounce: true },
-        // { left: 570, top: 1175, width: 160, height: 10, angle: -62, bounce: true },
 
         // bottom left flipper area
 
