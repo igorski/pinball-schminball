@@ -26,9 +26,6 @@
             ref="canvasContainer"
             class="canvas-container"
             :class="{'canvas-container--active': modelValue.active}"
-            @touchstart="handleTouch"
-            @touchend="handleTouch"
-            @touchcancel="handleTouch"
         ></div>
         <round-results
             v-if="activeRound.ended"
@@ -53,6 +50,18 @@
                 </template>
             </div>
         </div>
+        <div
+            class="touch-area touch-area--left"
+            @touchstart="handleTouch( $event, true )"
+            @touchend="handleTouch( $event, true )"
+            @touchcancel="handleTouch( $event, true )"
+        ></div>
+        <div
+            class="touch-area touch-area--right"
+            @touchstart="handleTouch( $event, false )"
+            @touchend="handleTouch( $event, false )"
+            @touchcancel="handleTouch( $event, false )"
+        ></div>
     </div>
 </template>
 
@@ -71,8 +80,6 @@ const touchStart = {
     time: 0
 };
 let changeTimeout = null;
-let leftTouchId = -1;
-let rightTouchId = -1;
 let touch;
 
 interface ComponentData {
@@ -164,22 +171,13 @@ export default {
             const statusHeight = this.$refs.statusDisplay.offsetHeight;
             const isMobileView = clientWidth <= 685; // see _variables.scss
             const uiHeight = isMobileView ? 58 /* is $menu-height */ + statusHeight : statusHeight;
-            this.halfWidth = clientWidth / 2;
 
             scaleCanvas( clientWidth, clientHeight - uiHeight );
         },
-        handleTouch( event: TouchEvent ): void {
+        handleTouch( event: TouchEvent, isLeft: boolean ): void {
             switch ( event.type ) {
                 default: // touch(cancel|end)
-                    const eventTouches = [ ...event.touches ];
-                    if ( leftTouchId >= 0 && !eventTouches.includes( leftTouchId )) {
-                        setFlipperState( ActorTypes.LEFT_FLIPPER, false );
-                        leftTouchId = -1;
-                    }
-                    if ( rightTouchId >= 0 && !eventTouches.includes( rightTouchId )) {
-                        setFlipperState( ActorTypes.RIGHT_FLIPPER, false );
-                        rightTouchId = -1;
-                    }
+                    setFlipperState( isLeft ? ActorTypes.LEFT_FLIPPER : ActorTypes.RIGHT_FLIPPER, false );
                     if ( event.type === "touchend" && ( window.performance.now() - touchStart.time ) < 400 ) {
                         const movedBy = event.changedTouches[ 0 ]?.pageY - touchStart.y;
                         if ( movedBy < -100 ) {
@@ -188,19 +186,15 @@ export default {
                     }
                     break;
                 case "touchstart":
+                    setFlipperState( isLeft ? ActorTypes.LEFT_FLIPPER : ActorTypes.RIGHT_FLIPPER, true );
                     for ( touch of event.touches ) {
-                        if ( touch.pageX < this.halfWidth ) {
-                            setFlipperState( ActorTypes.LEFT_FLIPPER, true );
-                            leftTouchId = touch.identifier;
-                        } else {
-                            setFlipperState( ActorTypes.RIGHT_FLIPPER, true );
-                            rightTouchId = touch.identifier;
-                        }
                         touchStart.y = touch.pageY;
                         touchStart.time = window.performance.now();
                     }
                     break;
             }
+            event.preventDefault();
+            event.stopPropagation();
         },
         handleKey( event: KeyboardEvent ): void {
             const { type, keyCode } = event;
@@ -359,6 +353,18 @@ export default {
         @include large() {
             font-size: 64px;
         }
+    }
+}
+
+.touch-area {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 100%;
+
+    &--right {
+        left: 50%;
     }
 }
 </style>
