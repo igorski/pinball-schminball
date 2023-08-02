@@ -157,7 +157,8 @@ export type TriggerDef = {
     target: TriggerTarget;
     type: TriggerTypes;
     triggers: ObjectDef[];
-    message?: GameMessages;
+    roundRobin?: boolean; // wheter to apply round-robin active state switching on flipper up
+    message?: GameMessages; // optional identifier of message to flash once completed
 };
 
 export enum ImpulseDirection {

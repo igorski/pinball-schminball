@@ -37,6 +37,7 @@ export default class TriggerGroup extends Actor {
 
     private activeTriggers = new Set<number>(); // Body ids of active triggers
     private triggerTimeoutStart = 0;
+    protected roundRobin: boolean;
 
     constructor( private opts: TriggerDef, engine: IPhysicsEngine, canvas: zCanvas ) {
         super({ fixed: true, opts }, engine, canvas );
@@ -44,6 +45,7 @@ export default class TriggerGroup extends Actor {
         this.triggerTarget   = opts.target;
         this.triggerType     = opts.type;
         this.completeMessage = opts.message;
+        this.roundRobin      = opts.roundRobin ?? false;
     }
 
     dispose( engine: IPhysicsEngine ): void {
@@ -75,7 +77,7 @@ export default class TriggerGroup extends Actor {
     }
 
     moveTriggersLeft(): void {
-        if ( this.activeTriggers.size === 0 || this.triggerType === TriggerTypes.SERIES ) {
+        if ( !this.roundRobin || this.activeTriggers.size === 0 ) {
             return;
         }
         const activeValues = this.triggers.map( trigger => trigger.active );
@@ -86,7 +88,7 @@ export default class TriggerGroup extends Actor {
     }
 
     moveTriggersRight(): void {
-        if ( this.activeTriggers.size === 0 || this.triggerType === TriggerTypes.SERIES ) {
+        if ( !this.roundRobin || this.activeTriggers.size === 0 ) {
             return;
         }
         const activeValues = this.triggers.map( trigger => trigger.active );

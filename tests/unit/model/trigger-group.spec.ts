@@ -226,9 +226,9 @@ describe( "Trigger Group", () => {
         let third: Trigger;
         let fourth: Trigger;
 
-        beforeEach(() => {
+        function setup( roundRobin = false ): void {
             triggerGroup = new TriggerGroup({
-                ...TRIGGER_DEF_LARGE_GROUP, type: TriggerTypes.BOOL
+                ...TRIGGER_DEF_LARGE_GROUP, type: TriggerTypes.BOOL, roundRobin,
             }, engine, canvas );
 
             [ first, second, third, fourth ] = triggerGroup.triggers;
@@ -243,9 +243,27 @@ describe( "Trigger Group", () => {
             triggerGroup.trigger( FIRST_TRIGGER_BODY_ID );
             triggerGroup.trigger( SECOND_TRIGGER_BODY_ID );
             triggerGroup.trigger( THIRD_TRIGGER_BODY_ID );
+        }
+
+        it( "should not do anything when round robin is disabled for the group", () => {
+            setup( false );
+
+            triggerGroup.moveTriggersLeft();
+
+            expect( Array.from( triggerGroup.activeTriggers )).toEqual([
+                FIRST_TRIGGER_BODY_ID, SECOND_TRIGGER_BODY_ID, THIRD_TRIGGER_BODY_ID
+            ]);
+
+            triggerGroup.moveTriggersRight();
+
+            expect( Array.from( triggerGroup.activeTriggers )).toEqual([
+                FIRST_TRIGGER_BODY_ID, SECOND_TRIGGER_BODY_ID, THIRD_TRIGGER_BODY_ID
+            ]);
         });
 
         it( "should be able to move the active triggers state left inside the group", () => {
+            setup( true );
+
             triggerGroup.moveTriggersLeft();
 
             // expected triggers to be configured as XX-X
@@ -261,6 +279,8 @@ describe( "Trigger Group", () => {
         });
 
         it( "should be able to move the active triggers state right inside the group", () => {
+            setup( true );
+            
             triggerGroup.moveTriggersRight();
 
             // expected triggers to be configured as -XXX

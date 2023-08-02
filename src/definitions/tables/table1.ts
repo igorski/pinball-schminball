@@ -136,6 +136,7 @@ export default {
         {
             target: TriggerTarget.MULTIBALL,
             type: TriggerTypes.BOOL,
+            roundRobin: true,
             triggers: [
                 { left: 343, top: 128, width: 24, height: 24, sensor: true },
                 { left: 413, top: 128, width: 24, height: 24, sensor: true },
@@ -153,6 +154,7 @@ export default {
         {
             target: TriggerTarget.MULTIPLIER,
             type: TriggerTypes.BOOL,
+            roundRobin: true,
             triggers: [
                 { left: 308, top: 753, width: 24, height: 24 },
                 { left: 418, top: 753, width: 24, height: 24 },
