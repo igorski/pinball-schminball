@@ -95,6 +95,9 @@ export default {
     &__name {
         @include titleFont();
         color: $color-titles;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
     }
 
     &__score {

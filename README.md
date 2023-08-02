@@ -58,7 +58,3 @@ Running TypeScript validation:
 ```
 npm run typecheck
 ```
-
-## TODO
-
-* text overflow on high scores
