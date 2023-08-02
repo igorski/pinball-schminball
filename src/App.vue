@@ -130,7 +130,7 @@ export default {
                     this.hasPlayed = true;
                 }
             }
-            if ( !value && prevValue && this.canUseHighScores ) {
+            if ( !value && prevValue && this.canUseHighScores && this.game.score > 0 ) {
                 stopGame( this.game.id, this.game.score, this.playerName );
             }
         },

@@ -61,8 +61,9 @@ export default {
     }),
     computed: {
         formattedScores(): HighScoreDef[] {
-            if ( this.scores.length > 0 ) {
-                return this.scores;
+            const filteredScores = this.scores.filter(({ score }) => score > 0 );
+            if ( filteredScores.length > 0 ) {
+                return filteredScores;
             }
             const names = "JIHGFEDCBA";
             const scores = [];
