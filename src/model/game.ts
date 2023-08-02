@@ -57,6 +57,7 @@ const balls: Ball[] = []; // separate list for quick access to Ball Actors
 let triggerGroups: TriggerGroup[] = []; // separate list for quick access to TriggerGroups
 let group: TriggerGroup;
 let flippers: Flipper[] = []; // separate list for quick access to Flipper Actors
+let tableHasUnderworld: boolean;
 
 let canvas: zCanvas;
 let backgroundRenderer: sprite;
@@ -83,6 +84,7 @@ export const init = async (
 
     table = Tables[ game.table ];
     const { width, height } = table;
+    tableHasUnderworld = typeof table.underworld !== "undefined";
 
     inUnderworld = false;
 
@@ -352,7 +354,7 @@ function handleEngineUpdate( engine: IPhysicsEngine, game: GameDef ): void {
             continue;
         }
 
-        const tableBottom = game.underworld ? table.height : table.underworld;
+        const tableBottom = ( !tableHasUnderworld || game.underworld ) ? table.height : table.underworld;
 
         if ( top > tableBottom ) {
             removeBall( ball );

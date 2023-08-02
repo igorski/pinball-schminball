@@ -193,6 +193,7 @@ export type PopperDef = Rectangle & {
  * of the definitions above to define the table contents and "game world".
  */
 export type TableDef = {
+    name: string;
     soundtrackId: string; // Soundcloud track id as we use Soundcloud as our "Media streaming platform"
     width: number;
     height: number;

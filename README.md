@@ -21,6 +21,12 @@ the game in with the model.
 All game related code is actually managed by the Actors and `@/model/game.ts`. All graphics rendering
 is managed by the Actor-specific renderers inside the `@/renderers`-folder.
 
+## Adding a new pinball table
+
+Add a new `TableDef` inside `@/definitions/tables.ts`. Define all Actors and TriggerGroup behaviours there.
+
+As for assets, each table requires an SVG shape for its main body (surrounding walls and slopes) and a PNG background (as the SVG shape wil not be visible, but used as a collision map).
+
 ## Project setup
 
 ```
@@ -56,4 +62,3 @@ npm run typecheck
 ## TODO
 
 * text overflow on high scores
-* on occasion ball goes up the ramp left from the flippers (use invisible "pusher")

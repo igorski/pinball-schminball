@@ -55,6 +55,7 @@ import Loader from "@/components/loader/loader.vue";
 import Modal from "@/components/modal/modal.vue";
 import NewGameWindow from "@/components/new-game-window/new-game-window.vue";
 import type { GameDef } from "@/definitions/game";
+import { START_TABLE_INDEX } from "@/definitions/tables";
 import { STORED_FULLSCREEN } from "@/definitions/settings";
 import { preloadAssets } from "@/services/asset-preloader";
 import { init } from "@/services/audio-service";
@@ -165,7 +166,7 @@ export default {
                 this.game = {
                     id: id ?? Math.random().toString(),
                     active: false,
-                    table: 0,
+                    table: START_TABLE_INDEX,
                     score: 0,
                     balls: 3,
                     multiplier: 1,
