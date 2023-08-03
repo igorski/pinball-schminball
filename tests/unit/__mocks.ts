@@ -11,7 +11,6 @@ export const getMockCanvas = (): zCanvas => ({
 export const getMockPhysicsEngine = (): IPhysicsEngine => ({
     engine: {},
     update: vi.fn(),
-    applyForce: vi.fn(),
     addBody: vi.fn(( actor: Actor, label: string ) => ({
         label,
         position: {

@@ -266,8 +266,8 @@ export const bumpTable = ( game: GameDef ): void => {
         if ( Math.abs( ball.body.velocity.y ) > 2 ) {
             continue; // ball is in the air, gets no impulse
         }
-        const force = Math.random() > 0.5 ? BUMP_IMPULSE : -BUMP_IMPULSE;
-        engine.applyForce( ball.body, Math.random() * force, force );
+        const horizontalForce = ball.body.velocity.x > 0 ? BUMP_IMPULSE : -BUMP_IMPULSE;
+        engine.launchBall( ball.body, { x: Math.random() * horizontalForce, y: -BUMP_IMPULSE });
     }
     if ( ++bumpAmount >= MAX_BUMPS ) {
         tilt = true;

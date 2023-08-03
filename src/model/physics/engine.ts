@@ -42,7 +42,6 @@ enum FlipperPositions {
 export interface IPhysicsEngine {
     engine: Matter.Engine;
     update: ( ticks: number ) => void;
-    applyForce: ( body: Matter.Body, xImpulse: number, yImpulse: number ) => void;
     addBody: ( actor: Actor, label: string ) => Matter.Body;
     removeBody: ( body: Matter.Body ) => void;
     updateBodyPosition: ( body: Matter.Body, position: Point ) => void;
@@ -115,9 +114,6 @@ export const createEngine = async (
         engine,
         update( ticks: number ): void {
             Matter.Engine.update( engine, ticks );
-        },
-        applyForce( body: Matter.Body, xImpulse: number, yImpulse: number ): void {
-            Matter.Body.setVelocity( body, { x: xImpulse, y: yImpulse });
         },
         addBody( actor: Actor, label: string ): Matter.Body {
             const { left, top, width, height } = actor.bounds;
