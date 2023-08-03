@@ -10,6 +10,9 @@
             "newGame": "New game",
             "yourName": "Your name",
             "playerName": "Anonymous",
+            "table": "Table",
+            "selectPrevious": "Select previous",
+            "selectNext": "Select next",
             "closeWindow": "Close window",
             "nameExplanation": "*Entering your name is only mandatory if you wish to compete in the high scores list",
             "roundUp": "Round up",
@@ -19,11 +22,12 @@
         "messages": {
             "gotLucky": "Got lucky",
             "underworldUnlocked": "Underworld unlocked",
-            "escapedUnderworld": "Escaped",
+            "escapeBonus": "Escape bonus",
             "tilt": "Tilt",
             "multiball": "Multiball",
             "multiplier": "{count}x multiplier",
             "loop": "loop #{count}",
+            "groupBonus": "Group bonus",
             "trickShot": "trickShot #{count}",
             "newGame": "New game",
             "gameOver": "Game over"
@@ -44,6 +48,7 @@
             "credits": "Credits",
             "introduction": "Unless otherwise stated, programming, illustrations and music by:",
             "animation": "Animation",
+            "tableDesign": "Table design",
             "font": "Font",
             "by": "by",
             "opensource": "Pinball Schminball is fully open source and can be found on"

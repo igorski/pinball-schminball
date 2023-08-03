@@ -56,9 +56,9 @@ export default {
 
         // horizontal pushes when ball falls in lane leading to bottom flippers (otherwise gets stuck at low speeds)
 
-        // { left: 95,  top: 1230, width: 20, height: 10, opts: { direction: ImpulseDirection.DOWN_RIGHT, force: 4.5 } },
-        { left: 190, top: 1300, width: 20, height: 10, opts: { direction: ImpulseDirection.DOWN_RIGHT, force: 2.5 } },
-        { left: 540, top: 1300, width: 10, height: 10, opts: { direction: ImpulseDirection.DOWN_LEFT,  force: 1.5 } },
+        { left: 75,  top: 1225, width: 20, height: 1,  opts: { direction: ImpulseDirection.DOWN_RIGHT, force: 4.5 } },
+        { left: 190, top: 1300, width: 20, height: 10, opts: { direction: ImpulseDirection.DOWN_RIGHT, force: 3 } },
+        { left: 540, top: 1305, width: 10, height: 10, opts: { direction: ImpulseDirection.DOWN_LEFT,  force: 1 } },
 
         // reflectors
         { left: 150, top: 1090, width: 160, height: 10, angle: 62,  opts: { direction: ImpulseDirection.UP_RIGHT, force: 7 } },
@@ -190,6 +190,15 @@ export default {
                 { left: 345, top: 445, width: 20, height: 20, sensor: true, visible: false },
                 { left: 285, top: 330, width: 20, height: 20, sensor: true, visible: false },
                 { left: 270, top: 240, width: 20, height: 20, sensor: true, visible: false },
+            ]
+        },
+        {
+            target: TriggerTarget.SEQUENCE_COMPLETION,
+            type: TriggerTypes.BOOL,
+            message: GameMessages.GROUP_COMPLETE,
+            triggers: [
+                { left: 20,  top: 636, width: 20, height: 20, sensor: true, visible: false },
+                { left: 745, top: 705, width: 20, height: 20, sensor: true, visible: false },
             ]
         }
     ],

@@ -40,7 +40,7 @@
             :dismissible="false"
         >
             <new-game-window
-                v-model="playerName"
+                v-model="newGameProps"
                 @start="initGame()"
             />
         </modal>
@@ -85,9 +85,12 @@ export default {
     data: () => ({
         loading: true,
         activeScreen: "",
-        playerName: "",
         hasPlayed: false,
         startPending: false,
+        newGameProps: {
+            playerName: "",
+            table: START_TABLE_INDEX,
+        },
         game: {
             active: false,
         },
@@ -119,7 +122,7 @@ export default {
             }
         },
         canUseHighScores(): boolean {
-            return isSupported() && !!this.playerName;
+            return isSupported() && !!this.newGameProps.playerName;
         },
     },
     watch: {
@@ -162,11 +165,11 @@ export default {
             }
             this.startPending = true;
             try {
-                const id = this.canUseHighScores && this.playerName.length > 0 ? await startGame() : null;
+                const id = this.canUseHighScores && this.newGameProps.playerName.length > 0 ? await startGame() : null;
                 this.game = {
                     id: id ?? Math.random().toString(),
                     active: false,
-                    table: START_TABLE_INDEX,
+                    table: this.newGameProps.table,
                     score: 0,
                     balls: 3,
                     multiplier: 1,

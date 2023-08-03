@@ -37,7 +37,7 @@ export default class TriggerGroup extends Actor {
 
     private activeTriggers = new Set<number>(); // Body ids of active triggers
     private triggerTimeoutStart = 0;
-    protected roundRobin: boolean;
+    private roundRobin: boolean;
 
     constructor( private opts: TriggerDef, engine: IPhysicsEngine, canvas: zCanvas ) {
         super({ fixed: true, opts }, engine, canvas );

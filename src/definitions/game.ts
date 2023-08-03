@@ -54,6 +54,7 @@ export enum GameMessages {
     MULTIPLIER,
     MULTIBALL,
     LOOP,
+    GROUP_COMPLETE,
     TRICK_SHOT,
     UNDERWORLD_UNLOCKED,
     ESCAPED_UNDERWORLD,

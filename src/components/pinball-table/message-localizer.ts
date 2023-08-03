@@ -38,7 +38,10 @@ export const i18nForMessage = ( message: GameMessages, game: GameDef ): string =
             key = "underworldUnlocked";
             break;
         case GameMessages.ESCAPED_UNDERWORLD:
-            key = "escapedUnderworld";
+            key = "escapeBonus";
+            break;
+        case GameMessages.GROUP_COMPLETE:
+            key = "groupBonus";
             break;
         case GameMessages.TILT:
             key = "tilt";
