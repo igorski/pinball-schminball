@@ -24,6 +24,8 @@
     <fieldset
         class="ps-fieldset"
         @keydown.enter="startGame()"
+        @keyup.left="previousTable()"
+        @keyup.right="nextTable()"
     >
         <div class="title">
             <div class="title__wrapper">
@@ -40,15 +42,36 @@
             <input
                 id="nameInput"
                 ref="nameInput"
-                v-model="internalValue"
+                v-model="internalValue.playerName"
                 class="ps-input-wrapper__input"
                 :placeholder="$t( 'ui.playerName' )"
             />
         </div>
-        <span
-            v-t="'ui.nameExplanation'"
-            class="ps-input-explanation"
-        ></span>
+        <div
+            v-if="canSelectTable"
+            class="ps-input-wrapper"
+        >
+            <label
+                v-t="'ui.table'"
+                for="nameInput"
+                class="ps-input-wrapper__label"
+            ></label>
+            <div class="ps-input-wrapper__nav">
+                <button
+                    type="button"
+                    :title="$t('ui.selectPrevious')"
+                    class="ps-input-wrapper__nav-button"
+                    @click="previousTable()"
+                >{{ "<" }}</button>
+                <span class="ps-input-wrapper__nav-item">{{ tableName }}</span>
+                <button
+                    type="button"
+                    :title="$t('ui.selectNext')"
+                    class="ps-input-wrapper__nav-button"
+                    @click="nextTable()"
+                >{{ ">" }}</button>
+            </div>
+        </div>
         <div class="ps-button-wrapper">
             <button
                 v-t="'ui.newGame'"
@@ -58,43 +81,61 @@
                 @click="startGame()"
             ></button>
         </div>
+        <!-- <span
+            v-t="'ui.nameExplanation'"
+            class="ps-input-explanation"
+        ></span> -->
     </fieldset>
 </template>
 
 <script lang="ts">
+import { PropType } from "vue";
+import Tables from "@/definitions/tables";
 import { STORED_PLAYER_NAME } from "@/definitions/settings";
 import { getFromStorage, setInStorage } from "@/utils/local-storage";
+
+type NewGameProps = {
+    playerName: string;
+    table: number;
+};
 
 export default {
     props: {
         modelValue: {
-            type: String,
+            type: Object as PropType<NewGameProps>,
             required: true,
         },
     },
     computed: {
         internalValue: {
-            get(): string {
+            get(): NewGameProps {
                 return this.modelValue;
             },
-            set( value: string ): void {
+            set( value: NewGameProps ): void {
                 this.$emit( "update:modelValue", value );
             }
         },
         isValid(): boolean {
-            if ( this.modelValue.length === 0 ) {
+            if ( this.modelValue.playerName.length === 0 ) {
                 return true;
             }
-            return this.modelValue.trim( "" ).length > 0;
+            const { playerName } = this.modelValue;
+            return playerName.trim( "" ).length > 0;
+        },
+        canSelectTable(): boolean {
+            return Tables.length > 1;
+        },
+        tableName(): string {
+            return Tables[ this.internalValue.table ].name;
         },
     },
     mounted(): void {
-        this.internalValue = getFromStorage( STORED_PLAYER_NAME ) || "";
+        this.internalValue.playerName = getFromStorage( STORED_PLAYER_NAME ) || "";
 
         this.$refs.nameInput.focus();
     },
     beforeUnmount(): void {
-        setInStorage( STORED_PLAYER_NAME, this.internalValue );
+        setInStorage( STORED_PLAYER_NAME, this.internalValue.playerName );
     },
     methods: {
         startGame(): void {
@@ -102,7 +143,21 @@ export default {
                 return;
             }
             this.$emit( "start" );
-        }
+        },
+        previousTable(): void {
+            let previous = this.internalValue.table - 1;
+            if ( previous < 0 ) {
+                previous = Tables.length - 1;
+            }
+            this.internalValue.table = previous;
+        },
+        nextTable(): void {
+            let next = this.internalValue.table + 1;
+            if ( next > Tables.length - 1 ) {
+                next = 0;
+            }
+            this.internalValue.table = next;
+        },
     },
 };
 </script>
@@ -111,6 +166,7 @@ export default {
 <style lang="scss" scoped>
 @import "@/styles/_variables";
 @import "@/styles/_forms";
+@import "@/styles/_typography";
 
 .title {
     text-align: center;
@@ -129,6 +185,42 @@ export default {
     &__lower {
         transform: scale(0.77);
         margin: -23px 0 0 -8px;
+    }
+}
+
+.ps-input-wrapper {
+    &__nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+
+        &-button {
+            @include titleFont();
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: #FFF;
+
+            &:hover {
+                color: $color-anchors;
+            }
+        }
+
+        &-item {
+            @include titleFont( 24px );
+            color: $color-anchors;
+        }
+    }
+
+    @include large() {
+        &__label {
+            width: 170px;
+        }
+
+        &__nav {
+            width: calc(100% - 170px);
+        }
     }
 }
 </style>

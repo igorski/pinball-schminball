@@ -122,7 +122,7 @@ export default {
             }
         },
         canUseHighScores(): boolean {
-            return isSupported() && !!this.newGameProps.playerName;
+            return isSupported() && this.newGameProps.playerName.length > 0;
         },
     },
     watch: {
@@ -134,7 +134,7 @@ export default {
                 }
             }
             if ( !value && prevValue && this.canUseHighScores && this.game.score > 0 ) {
-                stopGame( this.game.id, this.game.score, this.playerName );
+                stopGame( this.game.id, this.game.score, this.newGameProps.playerName );
             }
         },
     },
@@ -165,7 +165,7 @@ export default {
             }
             this.startPending = true;
             try {
-                const id = this.canUseHighScores && this.newGameProps.playerName.length > 0 ? await startGame() : null;
+                const id = this.canUseHighScores ? await startGame() : null;
                 this.game = {
                     id: id ?? Math.random().toString(),
                     active: false,

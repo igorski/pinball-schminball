@@ -31,7 +31,7 @@ const SPRITE_PATH = "./assets/sprites/table1/";
 export const START_TABLE_INDEX = 1;
 
 export default {
-    name : "\"Table 1\"",
+    name : "Endless August",
     soundtrackId: "1566338341",
     width      : 800,
     height     : 2441,

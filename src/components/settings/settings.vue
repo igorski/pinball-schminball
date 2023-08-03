@@ -21,7 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 <template>
-    <fieldset class="ps-fieldset">
+    <fieldset class="ps-fieldset ps-fieldset--bordered">
         <div class="settings-wrapper">
             <label v-t="'settings.sound'"></label>
             <Toggle v-model="playSound" />
@@ -30,10 +30,16 @@
             <label v-t="'settings.fullscreen'"></label>
             <Toggle v-model="fullscreen" />
         </div>
+    </fieldset>
+    <fieldset class="ps-fieldset ps-fieldset--bordered">
         <div class="settings-wrapper">
             <label v-t="'settings.useThrottling'"></label>
             <Toggle v-model="useThrottling" />
         </div>
+        <p
+            v-t="'settings.throttleExpl'"
+            class="ps-input-explanation"
+        ></p>
     </fieldset>
 </template>
 

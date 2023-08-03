@@ -5,6 +5,13 @@
     border: none;
     padding: 0;
     margin: 0;
+
+    &--bordered {
+        border: 1px solid $color-outlines;
+        border-radius: $spacing-medium;
+        padding: $spacing-large $spacing-large $spacing-medium;
+        margin-bottom: $spacing-medium;
+    }
 }
 
 .ps-input-wrapper {
@@ -32,7 +39,6 @@
 
     @include mobile() {
         flex-direction: column;
-        width: calc(100vw - ( $spacing-large * 2 ));
 
         &__input {
             text-align: center;
@@ -58,13 +64,4 @@
     color: #b6b6b6;
     font-size: 85%;
     display: block;
-
-    @include large() {
-        margin-left: 150px;
-        width: 350px;
-    }
-
-    @include mobile() {
-        text-align: center;
-    }
 }

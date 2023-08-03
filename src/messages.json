@@ -35,7 +35,8 @@
         "settings": {
             "sound": "Play sound",
             "fullscreen": "Fullscreen mode",
-            "useThrottling": "Use frame throttling"
+            "useThrottling": "Use frame throttling",
+            "throttleExpl": "On certain devices you may notice issues with the physics simulation. Disabling throttling could help. When unsure, best to leave this setting enabled."
         },
         "howToPlay": {
             "gameplay": "Basic pinball rules apply: hit bumpers and make loops to get points. There are hidden triggers in the table that can unlock further possibilities that allow you to increase your score even more. The higher your score, the higher your satisfaction in life. You can also choose to bump the table if you wish to give your ball an added impulse, but don't do it too often or the machine will tilt and you will lose a round!",
