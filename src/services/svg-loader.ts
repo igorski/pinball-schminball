@@ -28,9 +28,19 @@ import PolyDecomp from "poly-decomp";
 // note pathseg polyfill should also be provided onto window as SVGPathSeg
 Matter.Common.setDecomp( PolyDecomp );
 
+// SVG parsing can be expensive, maintain a cache for previously parsed files
+const vertexCache: Map<string, Vector[][]> = new Map();
+
 export const loadVertices = async ( filePath: string ): Promise<Vector[][]> => {
+    if ( vertexCache.has( filePath )) {
+        return vertexCache.get( filePath );
+    }
     const svg = await loadSVG( filePath );
-    return selectPaths( svg, "path" ).map( path => Matter.Svg.pathToVertices( path, 30 ));
+    const vertices = selectPaths( svg, "path" ).map( path => Matter.Svg.pathToVertices( path, 30 ));
+
+    vertexCache.set( filePath, vertices );
+
+    return vertices;
 };
 
 /* internal methods */
