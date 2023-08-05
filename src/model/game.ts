@@ -266,7 +266,7 @@ export const setFlipperState = ( type: FlipperType, isPointerDown: boolean ): vo
 };
 
 export const bumpTable = ( game: GameDef ): void => {
-    if ( tilt ) {
+    if ( tilt || game.paused ) {
         return;
     }
     for ( ball of balls ) {

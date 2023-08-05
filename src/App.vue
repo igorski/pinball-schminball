@@ -28,6 +28,11 @@
             @open="activeScreen = $event"
         />
         <PinballTable v-model="game" />
+        <Tutorial
+            v-if="showTutorial"
+            :touchscreen="hasTouchScreen"
+            @completed="onTutorialCompleted()"
+        />
         <modal
             v-if="hasScreen"
             :title="$t(`menu.${activeScreen}`)"
@@ -56,11 +61,11 @@ import Modal from "@/components/modal/modal.vue";
 import NewGameWindow from "@/components/new-game-window/new-game-window.vue";
 import type { GameDef } from "@/definitions/game";
 import { START_TABLE_INDEX } from "@/definitions/tables";
-import { STORED_FULLSCREEN } from "@/definitions/settings";
+import { STORED_FULLSCREEN, STORED_HAS_VIEWED_TUTORIAL } from "@/definitions/settings";
 import { preloadAssets } from "@/services/asset-preloader";
 import { init } from "@/services/audio-service";
 import { isSupported, startGame, stopGame } from "@/services/high-scores-service";
-import { getFromStorage } from "@/utils/local-storage";
+import { getFromStorage, setInStorage } from "@/utils/local-storage";
 import { isFullscreen, toggleFullscreen } from "@/utils/fullscreen-util";
 
 interface ComponentData {
@@ -81,12 +86,17 @@ export default {
         PinballTable: defineAsyncComponent(() => {
             return import( "./components/pinball-table/pinball-table.vue" );
         }),
+        Tutorial: defineAsyncComponent(() => {
+            return import( "./components/tutorial/tutorial.vue" );
+        }),
     },
     data: () => ({
         loading: true,
         activeScreen: "",
         hasPlayed: false,
         startPending: false,
+        hasTouchScreen: false,
+        showTutorial: false,
         newGameProps: {
             playerName: "",
             table: START_TABLE_INDEX,
@@ -156,8 +166,14 @@ export default {
 
             init();
         };
+
+        const touchHandler = ( e: Event ): void => {
+            this.hasTouchScreen = true;
+            document.removeEventListener( "touchstart", touchHandler, false );
+        };
         document.addEventListener( "click", handler );
         document.addEventListener( "keydown", handler );
+        document.addEventListener( "touchstart", touchHandler );
     },
     methods: {
         async initGame(): Promise<void> {
@@ -170,10 +186,11 @@ export default {
             this.startPending = true;
             try {
                 const id = this.canUseHighScores ? await startGame() : null;
+                this.showTutorial = getFromStorage( STORED_HAS_VIEWED_TUTORIAL ) !== "true";
                 this.game = {
                     id: id ?? Math.random().toString(),
                     active: false,
-                    paused: false,
+                    paused: this.showTutorial,
                     table: this.newGameProps.table,
                     score: 0,
                     balls: 3,
@@ -183,6 +200,12 @@ export default {
             } catch {
                 this.startPending = false;
             }
+        },
+        onTutorialCompleted(): void {
+            this.showTutorial = false;
+            this.game.paused = false;
+
+            setInStorage( STORED_HAS_VIEWED_TUTORIAL, "true" );
         },
     },
 };

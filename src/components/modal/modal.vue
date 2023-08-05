@@ -102,7 +102,7 @@ export default {
         @include noSelect();
         @include scrollableWindow();
         padding-bottom: $spacing-large;
-        color: #e2e2e2;
+        color: $color-text-alt;
     }
 
     @include large() {

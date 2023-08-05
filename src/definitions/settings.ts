@@ -20,6 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+export const STORED_HAS_VIEWED_TUTORIAL = "ps_tut"; // whether user has seen tutorial on this device
 export const STORED_DISABLE_THROTTLING = "ps_disable_fps_throttling"; // whether to disable frame throttling
 export const STORED_MUTED_SETTING = "ps_as_am"; // whether to mute music playback
 export const STORED_PLAYER_NAME = "ps_player_name"; // last entered player name

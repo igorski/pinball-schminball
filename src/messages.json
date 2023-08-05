@@ -41,9 +41,9 @@
         "howToPlay": {
             "gameplay": "Basic pinball rules apply: hit bumpers and make loops to get points. There are hidden triggers in the table that can unlock further possibilities that allow you to increase your score even more. The higher your score, the higher your satisfaction in life. You can also choose to bump the table if you wish to give your ball an added impulse, but don't do it too often or the machine will tilt and you will lose a round!",
             "keyboard": "Keyboard",
-            "keyboardDescr": "Use the left and right arrow keys to toggle the left and right flippers. Press the spacebar to bump the table.",
+            "keyboardDescr": "Use the left and right arrow keys to move the left and right flippers. Press the spacebar to bump the table.",
             "touchscreen": "Touchscreen",
-            "touchscreenDescr": "Tap the left or right side of the screen to toggle the left and right flippers. Swipe up to bump the table."
+            "touchscreenDescr": "Tap the left or right side of the screen to move the left or right flippers. Swipe up to bump the table."
         },
         "about": {
             "credits": "Credits",
@@ -53,6 +53,17 @@
             "font": "Font",
             "by": "by",
             "opensource": "Pinball Schminball is fully open source and can be found on"
+        },
+        "tutorial": {
+            "flippersKeysL": "Press the left key to move the left flipper.",
+            "flippersKeysR": "Press the right key to move the right flipper.",
+            "flippersTouchL": "Touch the left side of the screen to move the left flipper.",
+            "flippersTouchR": "Touch the right side to move the right flipper.",
+            "bumpKeys": "Hit the spacebar to bump the table.",
+            "bumpTouch": "Swipe up to bump the table.",
+            "bumpWarning1": "Don't bump too much in a short time...",
+            "bumpWarning2": "...the table will tilt and you will lose a ball.",
+            "haveFun": "That's it. Have fun!"
         }
     }
 }

@@ -102,6 +102,10 @@ export default {
             type: Object as PropType<GameDef>,
             required: true,
         },
+        hasTouchScreen: {
+            type: Boolean,
+            default: false,
+        },
     },
     data: (): ComponentData => ({
         message: "",
