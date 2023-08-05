@@ -67,8 +67,9 @@ export const createEngine = async (
     if ( import.meta.env.MODE !== "production" ) {
         // render = renderBodies( engine, width, height );
     }
+    engine.positionIterations = 20;
+    engine.velocityIterations = 8;
 
-    engine.positionIterations = 16;
     engine.world.gravity.y = GRAVITY;
     engine.world.bounds = {
         min: { x: 0, y: 0 },
@@ -146,16 +147,16 @@ export const createEngine = async (
 
                 case ActorTypes.LEFT_FLIPPER:
                 case ActorTypes.RIGHT_FLIPPER:
-                    const id = actor.id.toString();
                     const isLeftFlipper = actor.type === ActorTypes.LEFT_FLIPPER;
 
                     body = Matter.Bodies.rectangle(
                         left, top, width, height, {
-                            label: id,
+                            label,
                             frictionAir: 0,
                             chamfer: {},
                         }
                     );
+                    const { id } = body;
                     const pivotX = isLeftFlipper ? left - width / 2 : left + width / 2;
                     const pivotY = top;
                     const pivot  = Matter.Bodies.circle( pivotX, pivotY, 5, { isStatic: true });
@@ -170,7 +171,7 @@ export const createEngine = async (
                     const plugin = ( position: FlipperPositions ): any => ({
                         attractors: [
                             ( a: Matter.Body, b: Matter.Body ): Point => {
-                                if ( b.label !== id ) {
+                                if ( b.id !== id ) {
                                     return;
                                 }
                                 const isFlipperUp = isLeftFlipper ? isLeftFlipperUp : isRightFlipperUp;

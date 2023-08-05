@@ -29,10 +29,10 @@ export const BALL_HEIGHT = BALL_WIDTH;
 
 // physics configuration
 
-export const GRAVITY       = 0.75;
-export const FLIPPER_FORCE = 0.002;
-export const LAUNCH_SPEED  = 26;
-export const MAX_SPEED     = 45;
+export const GRAVITY       = 0.8;
+export const FLIPPER_FORCE = 0.002666666 * GRAVITY;
+export const LAUNCH_SPEED  = 35 * GRAVITY;
+export const MAX_SPEED     = 60 * GRAVITY;
 
 // the table will tilt when more than MAX_BUMPS have occurred
 // before each bumps BUMP_TIMEOUT has passed
@@ -62,6 +62,11 @@ export enum GameMessages {
     TILT,
 };
 
+export enum GameSounds {
+    BUMPER,
+    POP,
+};
+
 /**
  * All the different Actors inside a game
  */
@@ -75,6 +80,7 @@ export enum ActorTypes {
 
 export enum ActorLabels {
     BALL            = "ball",
+    FLIPPER         = "flipper",
     POPPER          = "popper",
     BUMPER          = "bumper",
     TRIGGER         = "trigger",
