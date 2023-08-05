@@ -22,8 +22,8 @@
  */
 import type { TableDef } from "@/definitions/game";
 import table1 from "@/definitions/tables/table1";
+import table2 from "@/definitions/tables/table2";
 
-// TODO : create table selection screen
 export const START_TABLE_INDEX = 0;
 
-export default [ table1 ] as TableDef[];
+export default [ table1, table2 ] as TableDef[];

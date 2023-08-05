@@ -63,6 +63,12 @@ export default {
                 author: "Joseph Gibson",
                 type: this.$t( "about.font" ),
                 url: "https://www.dafont.com/clubland.font",
+            },
+            {
+                title: "Rollerball",
+                author: "HAL Laboratory",
+                type: this.$t( "about.tableDesign" ),
+                url: "https://en.wikipedia.org/wiki/Rollerball_(video_game)",
             }
         ];
     },
