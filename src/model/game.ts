@@ -147,25 +147,32 @@ export const init = async (
                                 break;
                             }
                             case TriggerTarget.MULTIPLIER: {
-                                triggerGroup.unsetTriggers();
                                 game.multiplier = Math.min( 2 * game.multiplier, 32 );
                                 messageHandler( GameMessages.MULTIPLIER );
                                 break;
                             }
                             case TriggerTarget.MULTIBALL: {
                                 awardPoints( game, AwardablePoints.TRIGGER_GROUP_COMPLETE );
-                                triggerGroup.unsetTriggers();
                                 createMultiball( 5, pair.bodyB.position.x, pair.bodyB.position.y );
                                 messageHandler( GameMessages.MULTIBALL );
                                 break;
                             }
                             case TriggerTarget.SEQUENCE_COMPLETION: {
                                 awardPoints( game, AwardablePoints.TRIGGER_GROUP_SEQUENCE_COMPLETE * triggerGroup.completions );
-                                triggerGroup.unsetTriggers();
                                 messageHandler( triggerGroup.completeMessage );
                                 break;
                             }
+                            case TriggerTarget.TELEPORT: {
+                                awardPoints( game, AwardablePoints.ESCAPE_BONUS );
+                                messageHandler( GameMessages.ESCAPE_BONUS );
+                                removeBall( actorMap.get( pair.bodyB.id ) as Ball );
+                                setTimeout(() => {
+                                    createBall( table.poppers[ 0 ].left, table.poppers[ 0 ].top - BALL_HEIGHT );
+                                }, 2000 );
+                                break;
+                            }
                         }
+                        triggerGroup.unsetTriggers();
                     }
                     break;
 			}
@@ -345,8 +352,8 @@ function handleEngineUpdate( engine: IPhysicsEngine, game: GameDef ): void {
             } else if ( inUnderworld && top < table.underworld ) {
                 inUnderworld = false;
                 game.underworld = false;
-                awardPoints( game, AwardablePoints.ESCAPED_UNDERWORLD );
-                messageHandler( GameMessages.ESCAPED_UNDERWORLD );
+                awardPoints( game, AwardablePoints.ESCAPE_BONUS );
+                messageHandler( GameMessages.ESCAPE_BONUS );
                 setFrequency();
             }
         } else if ( enteringUnderworld ) {

@@ -47,7 +47,7 @@ export const AwardablePoints = {
     TRIGGER_GROUP_COMPLETE: 2500,
     TRIGGER_GROUP_SEQUENCE_COMPLETE: 25000,
     UNDERWORLD_UNLOCKED: 10000,
-    ESCAPED_UNDERWORLD: 25000,
+    ESCAPE_BONUS: 25000,
 };
 
 export enum GameMessages {
@@ -57,7 +57,7 @@ export enum GameMessages {
     GROUP_COMPLETE,
     TRICK_SHOT,
     UNDERWORLD_UNLOCKED,
-    ESCAPED_UNDERWORLD,
+    ESCAPE_BONUS,
     GOT_LUCKY,
     TILT,
 };
@@ -129,6 +129,7 @@ export enum TriggerTarget {
     MULTIBALL,
     SEQUENCE_COMPLETION,
     UNDERWORLD,
+    TELEPORT,
 };
 
 /**
@@ -158,6 +159,7 @@ export type TriggerDef = {
     target: TriggerTarget;
     type: TriggerTypes;
     triggers: ObjectDef[];
+    params?: any;
     roundRobin?: boolean; // wheter to apply round-robin active state switching on flipper up
     message?: GameMessages; // optional identifier of message to flash once completed
 };
