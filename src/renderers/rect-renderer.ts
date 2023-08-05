@@ -36,10 +36,11 @@ export default class RectRenderer extends sprite {
         });
 
         // roundRect() is not available in all browsers
+        // when unsupported, remove radius from Actor (should only have a minor effect, radius is cosmetic for Rects)
 
         const parser = Bowser.getParser( window.navigator.userAgent );
         const majorVersion = parser.getBrowserVersion().split(".").map( parseInt )[ 0 ];
-        this.radius = ( parser.getBrowserName() === "safari" && majorVersion < 16 ) ? 0 : this.radius;
+        actor.radius = ( parser.getBrowserName() === "safari" && majorVersion < 16 ) ? 0 : actor.radius;
     }
 
     draw( ctx: CanvasRenderingContext2D, viewport: Viewport ): void {
