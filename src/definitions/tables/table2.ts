@@ -33,9 +33,9 @@ export default
     soundtrackId: "1566338341",
     width      : 800,
     height     : 2290,
-    background : `${SPRITE_PATH}table2_background.png`,
+    background : `${SPRITE_PATH}background.png`,
     body : {
-        source : `${SPRITE_PATH}table2_shape.svg`,
+        source : `${SPRITE_PATH}shape.svg`,
         left   : 48,
         top    : -126,
         width  : 800,
