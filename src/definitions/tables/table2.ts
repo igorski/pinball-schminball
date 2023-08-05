@@ -44,26 +44,11 @@ export default
     poppers: [
         // the ball launcher
 
-        { left: 740, top: 544, width: 40, height: 1 },
+        { left: 740, top: 544, width: 40, height: 1, opts: { force: 21 } },
 
-        // push by top flippers
+        // left push below second flippers from the top (to force player down lowest area)
 
-        { left: 130, top: 410, width: 35, height: 1, opts: { direction: ImpulseDirection.RIGHT,    force: 2.5 } },
-        { left: 220, top: 470, width: 10, height: 1, opts: { direction: ImpulseDirection.UP_RIGHT, force: 1.5 } },
-        { left: 535, top: 470, width: 10, height: 1, opts: { direction: ImpulseDirection.UP_LEFT,  force: 1.5 } },
-
-        { left: 300, top: 590, width: 10, height: 35, opts: { direction: ImpulseDirection.RIGHT, force: 2.5 } },
-        { left: 430, top: 590, width: 10, height: 35, opts: { direction: ImpulseDirection.LEFT,  force: 2.5 } },
-
-        // push by second flippers from the top
-
-        { left: 120, top: 940, width: 35, height: 1, opts: { direction: ImpulseDirection.DOWN_RIGHT, force: 2.5 } },
-        { left: 210, top: 985, width: 10, height: 1, opts: { direction: ImpulseDirection.UP_RIGHT,   force: 1.5 } },
-        { left: 555, top: 985, width: 10, height: 1, opts: { direction: ImpulseDirection.UP_LEFT,    force: 1.5 } },
-
-        // left push below second flippers from the top
-
-        { left: 340, top: 1120, width: 250, height: 1, opts: { direction: ImpulseDirection.LEFT,  force: 12 } },
+        { left: 340, top: 1120, width: 250, height: 1, opts: { direction: ImpulseDirection.LEFT, force: 12 } },
 
         // right push below second flippers from the top (to get back from lower area)
 
@@ -72,17 +57,6 @@ export default
         // top left push between second and last flippers from the bottom (to get into second area from the bottom)
         { left: 660, top: 1650, width: 35, height: 1, opts: { direction: ImpulseDirection.UP, force: 20 } },
 
-        // pushes by second flippers from the top
-
-        { left: 155, top: 1595, width: 10, height: 1, opts: { direction: ImpulseDirection.UP_RIGHT, force: 1.5 } },
-        { left: 425, top: 1595, width: 10, height: 1, opts: { direction: ImpulseDirection.UP_LEFT,  force: 1.5 } },
-
-        // left push below last flippers
-
-        { left: 100, top: 2140, width: 35, height: 1, opts: { direction: ImpulseDirection.DOWN_RIGHT, force: 3 } },
-        { left: 195, top: 2195, width: 20, height: 1, opts: { direction: ImpulseDirection.UP_RIGHT, force: 1.5 } },
-        { left: 545, top: 2195, width: 20, height: 1, opts: { direction: ImpulseDirection.UP_LEFT,  force: 1.5 } },
-
         // "lucky" one-time safe mechanism by the left bottom flipper
 
         { left: 45, top: 2180, width: 40, height: 1, opts: { once: true } },
@@ -90,23 +64,23 @@ export default
     flippers: [
         // top flippers
 
-        { type: ActorTypes.LEFT_FLIPPER,  left: 229, top: 465 },
-        { type: ActorTypes.RIGHT_FLIPPER, left: 405, top: 465 },
+        { type: ActorTypes.LEFT_FLIPPER,  left: 225, top: 455, angle: -10 },
+        { type: ActorTypes.RIGHT_FLIPPER, left: 405, top: 455, angle: 10 },
 
         // second set from the top
 
-        { type: ActorTypes.LEFT_FLIPPER,  left: 210, top: 970, angle: -12 },
-        { type: ActorTypes.RIGHT_FLIPPER, left: 430, top: 970, angle: 10 },
+        { type: ActorTypes.LEFT_FLIPPER,  left: 210, top: 975, angle: -12 },
+        { type: ActorTypes.RIGHT_FLIPPER, left: 430, top: 975, angle: 10 },
 
         // second set from the bottom
 
-        { type: ActorTypes.LEFT_FLIPPER,  left: 165, top: 1586 },
-        { type: ActorTypes.RIGHT_FLIPPER, left: 300, top: 1586 },
+        { type: ActorTypes.LEFT_FLIPPER,  left: 160, top: 1576, angle: -8 },
+        { type: ActorTypes.RIGHT_FLIPPER, left: 300, top: 1576, angle: 8 },
 
         // bottom flippers
 
-        { type: ActorTypes.LEFT_FLIPPER,  left: 191, top: 2175, angle: -12 },
-        { type: ActorTypes.RIGHT_FLIPPER, left: 425, top: 2175, angle: 12 },
+        { type: ActorTypes.LEFT_FLIPPER,  left: 186, top: 2180, angle: -14 },
+        { type: ActorTypes.RIGHT_FLIPPER, left: 430, top: 2175, angle: 12 },
     ],
     reflectors: [],
     rects: [

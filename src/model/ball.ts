@@ -30,8 +30,14 @@ import BallRenderer from "@/renderers/ball-renderer";
 export default class Ball extends Actor {
     constructor( args: ActorArgs, engine: IPhysicsEngine, canvas: zCanvas ) {
         super({
-            ...args, type: ActorTypes.CIRCULAR, fixed: false, radius: args.radius ?? args.width / 2
+            ...args,
+            type: ActorTypes.CIRCULAR,
+            fixed: false,
+            radius: args.radius ?? args.width / 2
         }, engine, canvas );
+
+        this.body.friction    = 0.05;
+        this.body.frictionAir = 0.001;
     }
 
     protected override getRendererClass(): IRendererClass | null {

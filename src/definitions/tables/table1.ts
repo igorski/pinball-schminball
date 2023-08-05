@@ -54,15 +54,9 @@ export default {
         { left: 18,  top: 1282, width: 40, height: 1, opts: { once: true } },
         { left: 703, top: 1282, width: 40, height: 1, opts: { once: true } },
 
-        // horizontal pushes when ball falls in lane leading to bottom flippers (otherwise gets stuck at low speeds)
-
-        { left: 75,  top: 1225, width: 20, height: 1,  opts: { direction: ImpulseDirection.DOWN_RIGHT, force: 4.5 } },
-        { left: 190, top: 1300, width: 30, height: 10, opts: { direction: ImpulseDirection.DOWN_RIGHT, force: 3 } },
-        { left: 540, top: 1300, width: 10, height: 10, opts: { direction: ImpulseDirection.DOWN_LEFT,  force: 1 } },
-
         // reflectors
-        { left: 150, top: 1090, width: 160, height: 10, angle: 62,  opts: { direction: ImpulseDirection.UP_RIGHT, force: 7 } },
-        { left: 528, top: 1090, width: 160, height: 10, angle: -62, opts: { direction: ImpulseDirection.UP_LEFT,  force: 7 } },
+        { left: 150, top: 1090, width: 160, height: 10, angle: 62,  opts: { direction: ImpulseDirection.UP_RIGHT, force: 4 } },
+        { left: 528, top: 1090, width: 160, height: 10, angle: -62, opts: { direction: ImpulseDirection.UP_LEFT,  force: 4 } },
     ],
     flippers : [
         // top flippers
@@ -72,8 +66,8 @@ export default {
 
         // bottom flippers
 
-        { type: ActorTypes.LEFT_FLIPPER,  left: 215, top: 1305 },
-        { type: ActorTypes.RIGHT_FLIPPER, left: 410, top: 1305 },
+        { type: ActorTypes.LEFT_FLIPPER,  left: 215, top: 1310 },
+        { type: ActorTypes.RIGHT_FLIPPER, left: 410, top: 1310 },
 
         // "underworld" flippers
 

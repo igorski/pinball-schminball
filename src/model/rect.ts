@@ -39,6 +39,8 @@ export default class Rect extends Actor {
     constructor( args: ActorArgs, engine: IPhysicsEngine, canvas: zCanvas ) {
         super({ ...args, type: args.type ?? ActorTypes.RECTANGULAR, fixed: args.fixed ?? true }, engine, canvas );
 
+        this.body.friction = 0.05;
+
         this.cacheBounds();
     }
 

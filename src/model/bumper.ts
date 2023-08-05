@@ -34,6 +34,8 @@ export default class Bumper extends Actor {
         super({
             ...args, type: ActorTypes.CIRCULAR, radius: args.radius ?? args.width / 2, fixed: true,
         }, engine, canvas );
+
+        this.body.restitution = 1.0;
     }
 
     protected override getRendererClass(): IRendererClass | null {

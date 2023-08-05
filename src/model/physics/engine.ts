@@ -99,7 +99,7 @@ export const createEngine = async (
     Matter.Composite.add( engine.world,
         Matter.Bodies.fromVertices( table.body.left + table.body.width / 2, table.body.top + table.body.height / 2, bodyVertices, {
         isStatic: true,
-        friction: 0,
+        // friction: 0,
     }, true ));
 
     for ( const reflector of table.reflectors ) {
@@ -126,7 +126,6 @@ export const createEngine = async (
                         label,
                         angle: actor.angle,
                         isStatic: actor.fixed,
-                        chamfer: { radius: 10 }
                     })
                     break;
 
@@ -140,9 +139,6 @@ export const createEngine = async (
                             group: !isBumper ? ignoreGroup : undefined
                         },
                     });
-                    if ( isBumper ) {
-                        body.restitution = 1.0;
-                    }
                     break;
 
                 case ActorTypes.LEFT_FLIPPER:
