@@ -90,6 +90,7 @@ export default {
         newGameProps: {
             playerName: "",
             table: START_TABLE_INDEX,
+            tableName: "",
         },
         game: {
             active: false,
@@ -134,7 +135,7 @@ export default {
                 }
             }
             if ( !value && prevValue && this.canUseHighScores && this.game.score > 0 ) {
-                stopGame( this.game.id, this.game.score, this.newGameProps.playerName );
+                stopGame( this.game.id, this.game.score, this.newGameProps.playerName, this.newGameProps.tableName );
             }
         },
     },

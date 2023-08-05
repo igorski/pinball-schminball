@@ -60,7 +60,7 @@ export const startGame = async (): Promise<string | null> => {
     return null;
 };
 
-export const stopGame = async ( gameId: string, score: number, playerName?: string ): Promise<HighScoreDef[]> => {
+export const stopGame = async ( gameId: string, score: number, playerName?: string, metaData?: string ): Promise<HighScoreDef[]> => {
     const stopEndpoint = getConfiguration()?.stop;
     if ( !stopEndpoint ) {
         return [];
@@ -69,6 +69,7 @@ export const stopGame = async ( gameId: string, score: number, playerName?: stri
         const { data } = await axios.post( `${stopEndpoint}${gameId}`, {
             score,
             name: playerName,
+            metadata: metaData,
         });
         return data?.scores ?? [];
     } catch {}

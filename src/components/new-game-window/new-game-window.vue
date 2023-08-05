@@ -63,7 +63,7 @@
                     class="ps-input-wrapper__nav-button"
                     @click="previousTable()"
                 >{{ "<" }}</button>
-                <span class="ps-input-wrapper__nav-item">{{ tableName }}</span>
+                <span class="ps-input-wrapper__nav-item">{{ internalValue.tableName }}</span>
                 <button
                     type="button"
                     :title="$t('ui.selectNext')"
@@ -97,6 +97,7 @@ import { getFromStorage, setInStorage } from "@/utils/local-storage";
 type NewGameProps = {
     playerName: string;
     table: number;
+    tableName: string;
 };
 
 export default {
@@ -125,8 +126,13 @@ export default {
         canSelectTable(): boolean {
             return Tables.length > 1;
         },
-        tableName(): string {
-            return Tables[ this.internalValue.table ].name;
+    },
+    watch: {
+        "internalValue.table": {
+            immediate: true,
+            handler( value: number ): void {
+                this.internalValue.tableName = Tables[ value ].name;
+            },
         },
     },
     mounted(): void {
