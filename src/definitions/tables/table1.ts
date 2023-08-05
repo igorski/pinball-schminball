@@ -57,7 +57,7 @@ export default {
         // horizontal pushes when ball falls in lane leading to bottom flippers (otherwise gets stuck at low speeds)
 
         { left: 75,  top: 1225, width: 20, height: 1,  opts: { direction: ImpulseDirection.DOWN_RIGHT, force: 4.5 } },
-        { left: 190, top: 1300, width: 20, height: 10, opts: { direction: ImpulseDirection.DOWN_RIGHT, force: 3 } },
+        { left: 190, top: 1300, width: 30, height: 10, opts: { direction: ImpulseDirection.DOWN_RIGHT, force: 3 } },
         { left: 540, top: 1300, width: 10, height: 10, opts: { direction: ImpulseDirection.DOWN_LEFT,  force: 1 } },
 
         // reflectors

@@ -368,6 +368,7 @@ export default {
     left: 0;
     width: 50%;
     height: 100%;
+    overscroll-behavior: contain;
 
     &--right {
         left: 50%;

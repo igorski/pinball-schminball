@@ -20,6 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import Bowser from "bowser";
 import { sprite } from "zcanvas";
 import type { Viewport } from "zcanvas";
 import type Rect from "@/model/rect";
@@ -33,6 +34,12 @@ export default class RectRenderer extends sprite {
             width  : actor.bounds.width,
             height : actor.bounds.height
         });
+
+        // roundRect() is not available in all browsers
+
+        const parser = Bowser.getParser( window.navigator.userAgent );
+        const majorVersion = parser.getBrowserVersion().split(".").map( parseInt )[ 0 ];
+        this.radius = ( parser.getBrowserName() === "safari" && majorVersion < 16 ) ? 0 : this.radius;
     }
 
     draw( ctx: CanvasRenderingContext2D, viewport: Viewport ): void {
