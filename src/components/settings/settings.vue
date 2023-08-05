@@ -26,7 +26,10 @@
             <label v-t="'settings.sound'"></label>
             <Toggle v-model="playSound" />
         </div>
-        <div class="settings-wrapper">
+        <div
+            v-if="supportsFullscreen"
+            class="settings-wrapper"
+        >
             <label v-t="'settings.fullscreen'"></label>
             <Toggle v-model="fullscreen" />
         </div>
@@ -44,10 +47,11 @@
 </template>
 
 <script lang="ts">
+import Bowser from "bowser";
 import Toggle from "@vueform/toggle";
 import { STORED_DISABLE_THROTTLING, STORED_FULLSCREEN } from "@/definitions/settings";
 import { getMuted, setMuted } from "@/services/audio-service";
-import { isFullscreen, toggleFullscreen } from "@/utils/fullscreen-util";
+import { isSupported, isFullscreen, toggleFullscreen } from "@/utils/fullscreen-util";
 import { getFromStorage, setInStorage } from "@/utils/local-storage";
 
 export default {
@@ -59,6 +63,11 @@ export default {
         playSound: !getMuted(),
         fullscreen: getFromStorage( STORED_FULLSCREEN ) === "true",
     }),
+    computed: {
+        supportsFullscreen(): boolean {
+            return Bowser.getParser( window.navigator.userAgent ).getOSName( true ) !== "ios";
+        }
+    },
     watch: {
         useThrottling( value: boolean ): void {
             setInStorage( STORED_DISABLE_THROTTLING, value.toString() );
