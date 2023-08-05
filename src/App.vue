@@ -138,6 +138,9 @@ export default {
                 stopGame( this.game.id, this.game.score, this.newGameProps.playerName, this.newGameProps.tableName );
             }
         },
+        hasScreen( value: boolean ): void {
+            this.game.paused = value;
+        },
     },
     async mounted(): Promise<void> {
         await preloadAssets();
@@ -170,6 +173,7 @@ export default {
                 this.game = {
                     id: id ?? Math.random().toString(),
                     active: false,
+                    paused: false,
                     table: this.newGameProps.table,
                     score: 0,
                     balls: 3,

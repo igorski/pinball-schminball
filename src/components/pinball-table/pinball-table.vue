@@ -71,7 +71,7 @@ import throttle from "lodash/throttle";
 import { canvas } from "zcanvas";
 import type { GameDef, GameMessages} from "@/definitions/game";
 import { ActorTypes, FRAME_RATE } from "@/definitions/game";
-import { init, scaleCanvas, setFlipperState, bumpTable, update, panViewport, togglePause } from "@/model/game";
+import { init, scaleCanvas, setFlipperState, bumpTable, update, panViewport, setPaused } from "@/model/game";
 import RoundResults from "./round-results.vue";
 import { i18nForMessage } from "./message-localizer";
 
@@ -119,6 +119,9 @@ export default {
                 this.initGame();
             }
         },
+        "modelValue.paused"( isPaused: boolean ): void {
+            setPaused( isPaused );
+        }
     },
     mounted(): void {
         this.canvas = new canvas({
@@ -207,7 +210,7 @@ export default {
                         // some debug interactions
                         switch ( keyCode ) {
                             case 80: // P
-                                togglePause();
+                                this.modelValue.paused = !this.modelValue.paused;
                                 break;
                             case 38: // up
                                 panViewport( -25 );

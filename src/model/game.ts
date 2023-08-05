@@ -320,8 +320,8 @@ export const update = ( timestamp: DOMHighResTimeStamp, framesSinceLastRender: n
 
 /* DEBUG methods */
 
-export const togglePause = (): void => {
-    paused = !paused;
+export const setPaused = ( shouldPause: boolean ): void => {
+    paused = shouldPause;
 };
 
 export const panViewport = ( yDelta: number ): void => {

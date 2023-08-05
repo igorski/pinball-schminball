@@ -88,6 +88,7 @@ export enum ActorLabels {
 export type GameDef = {
     id: string | null;
     active: boolean;     // whether the game is running or over
+    paused: boolean;
     table: number;       // identifier of the table in the tables list
     score: number;       // the score awarded in this game
     balls: number;       // amount of balls left
