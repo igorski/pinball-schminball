@@ -37,7 +37,7 @@ export default
     body : {
         source : `${SPRITE_PATH}shape.svg`,
         left   : 48,
-        top    : -126,
+        top    : -122,
         width  : 800,
         height : 2290,
     },
@@ -51,6 +51,9 @@ export default
         { left: 130, top: 410, width: 35, height: 1, opts: { direction: ImpulseDirection.RIGHT,    force: 2.5 } },
         { left: 220, top: 470, width: 10, height: 1, opts: { direction: ImpulseDirection.UP_RIGHT, force: 1.5 } },
         { left: 535, top: 470, width: 10, height: 1, opts: { direction: ImpulseDirection.UP_LEFT,  force: 1.5 } },
+
+        { left: 300, top: 590, width: 10, height: 35, opts: { direction: ImpulseDirection.RIGHT, force: 2.5 } },
+        { left: 430, top: 590, width: 10, height: 35, opts: { direction: ImpulseDirection.LEFT,  force: 2.5 } },
 
         // push by second flippers from the top
 
