@@ -140,14 +140,13 @@ export default {
         this.removeListeners();
     },
     methods: {
-        initGame(): void {
-            init( this.canvas, this.modelValue, this.handleRoundEnd.bind( this ), this.flashMessage.bind( this ));
+        async initGame(): Promise<void> {
+            await init( this.canvas, this.modelValue, this.handleRoundEnd.bind( this ), this.flashMessage.bind( this ));
             this.activeRound = { balls: this.modelValue.balls, score: 0, total: 0, ended: false };
 
             this.addListeners();
-            this.$nextTick(() => {
-                this.handleResize();
-            });
+            await this.$nextTick();
+            this.handleResize();
         },
         addListeners(): void {
             window.addEventListener( "keydown", this.keyListener );
