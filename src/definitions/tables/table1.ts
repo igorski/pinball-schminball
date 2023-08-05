@@ -21,7 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import {
-    LAUNCH_SPEED, ActorTypes, TriggerTarget, TriggerTypes, GameMessages, ImpulseDirection
+    GRAVITY, ActorTypes, TriggerTarget, TriggerTypes, GameMessages, ImpulseDirection
 } from "@/definitions/game";
 import type { FlipperType, FlipperDef, ObjectDef, TriggerDef, TableDef } from "@/definitions/game";
 
@@ -47,7 +47,7 @@ export default {
     poppers : [
         // the ball launcher
 
-        { left: 750, top: 1380, width: 40, height: 1 },
+        { left: 750, top: 1380, width: 40, height: 1, opts: { force: 27 * GRAVITY } },
 
         // "lucky" one-time safe mechanism on either side of the bottom flippers
 
