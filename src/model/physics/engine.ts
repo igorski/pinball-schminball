@@ -67,8 +67,12 @@ export const createEngine = async (
     if ( import.meta.env.MODE !== "production" ) {
         // render = renderBodies( engine, width, height );
     }
-    engine.positionIterations = 20;
-    engine.velocityIterations = 8;
+
+    // this is hefty, but in pinball we only have the ball(s) moving while all other
+    // bodies are static, as such we can increase the collision detection accuracy
+
+    engine.positionIterations = 100;
+    engine.velocityIterations = 16;
 
     engine.world.gravity.y = GRAVITY;
     engine.world.bounds = {
@@ -97,10 +101,11 @@ export const createEngine = async (
 
     const bodyVertices = await loadVertices( table.body.source );
     Matter.Composite.add( engine.world,
-        Matter.Bodies.fromVertices( table.body.left + table.body.width / 2, table.body.top + table.body.height / 2, bodyVertices, {
-        isStatic: true,
-        // friction: 0,
-    }, true ));
+        setupTableBody(
+            Matter.Bodies.fromVertices( table.body.left + table.body.width / 2, table.body.top + table.body.height / 2, bodyVertices, {
+                isStatic: true,
+        }, true )
+    ));
 
     for ( const reflector of table.reflectors ) {
         const bodyVertices = await loadVertices( reflector.source );
@@ -238,6 +243,17 @@ export const createEngine = async (
             Matter.Engine.clear( engine );
         },
     };
+};
+
+/**
+ * Give all static bodies that make up the table (e.g. walls, ramps, rects)
+ * the same physical properties.
+ */
+export const setupTableBody = ( body: Matter.Body ): Matter.Body => {
+    body.friction    = 0;
+    body.restitution = 0;
+
+    return body;
 };
 
 /* internal methods */

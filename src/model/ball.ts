@@ -38,6 +38,9 @@ export default class Ball extends Actor {
 
         this.body.friction    = 0.05;
         this.body.frictionAir = 0.001;
+        this.body.frictionStatic = 0.1;
+        this.body.restitution = 0;
+        this.body.slop = 0.001;
     }
 
     protected override getRendererClass(): IRendererClass | null {

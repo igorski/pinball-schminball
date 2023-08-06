@@ -21,7 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import type { canvas as zCanvas } from "zcanvas";
-import { ActorTypes } from "@/definitions/game";
+import { ActorTypes, ActorLabels } from "@/definitions/game";
 import type { IPhysicsEngine } from "@/model/physics/engine";
 import type { ActorArgs, IRendererClass } from "@/model/actor";
 import Rect from "@/model/rect";
@@ -33,18 +33,26 @@ export default class Flipper extends Rect {
     constructor( args: ActorArgs, engine: IPhysicsEngine, canvas: zCanvas ) {
         super({ ...args, width: 132, height: 41, fixed: false }, engine, canvas );
 
+        this.body.friction = 0.05;
+
         this.isUp = false;
     }
 
-    trigger( up: boolean ): void {
+    trigger( up: boolean ): boolean {
         if ( up === this.isUp ) {
-            return;
+            return false;
         }
         this.isUp = up;
         this.engine.triggerFlipper( this.type, this.isUp );
+
+        return up;
     }
 
     protected override getRendererClass(): IRendererClass | null {
         return FlipperRenderer;
+    }
+
+    protected override getLabel(): string {
+        return ActorLabels.FLIPPER;
     }
 };

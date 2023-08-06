@@ -39,6 +39,8 @@ export default class Popper extends Rect {
     constructor( args: ActorArgs, engine: IPhysicsEngine, canvas: zCanvas ) {
         super({ ...args, fixed: true }, engine, canvas );
 
+        this.body.isSensor = true;
+
         const { opts } = args;
 
         this.once      = opts?.once ?? false;

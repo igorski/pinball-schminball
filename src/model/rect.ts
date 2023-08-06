@@ -25,6 +25,7 @@ import { ActorTypes } from "@/definitions/game";
 import type { IPhysicsEngine } from "@/model/physics/engine";
 import Actor from "@/model/actor";
 import type { ActorArgs, IRendererClass } from "@/model/actor";
+import { setupTableBody } from "@/model/physics/engine";
 import RectRenderer from "@/renderers/rect-renderer";
 import { rectangleToPolygon, rectangleToRotatedPolygon } from "@/utils/math-util";
 
@@ -39,8 +40,9 @@ export default class Rect extends Actor {
     constructor( args: ActorArgs, engine: IPhysicsEngine, canvas: zCanvas ) {
         super({ ...args, type: args.type ?? ActorTypes.RECTANGULAR, fixed: args.fixed ?? true }, engine, canvas );
 
-        this.body.friction = 0.05;
-
+        if ( this.type === ActorTypes.RECTANGULAR ) {
+            setupTableBody( this.body );
+        }
         this.cacheBounds();
     }
 
