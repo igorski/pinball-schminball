@@ -63,8 +63,13 @@ export enum GameMessages {
 };
 
 export enum GameSounds {
+    BALL_OUT,
+    BUMP,
     BUMPER,
-    POP,
+    EVENT,
+    FLIPPER,
+    POPPER,
+    TRIGGER,
 };
 
 /**

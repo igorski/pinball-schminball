@@ -25,7 +25,7 @@ import type { canvas as zCanvas } from "zcanvas";
 import type { GameDef, TableDef, FlipperType } from "@/definitions/game";
 import {
     FRAME_RATE, BALL_WIDTH, BALL_HEIGHT, LAUNCH_SPEED, MAX_BUMPS, BUMP_TIMEOUT, BUMP_IMPULSE,
-    GameMessages, TriggerTarget, TriggerTypes, AwardablePoints, ActorLabels, ActorTypes,
+    GameMessages, GameSounds, TriggerTarget, TriggerTypes, AwardablePoints, ActorLabels, ActorTypes,
 } from "@/definitions/game";
 import Tables from "@/definitions/tables";
 import { STORED_DISABLE_THROTTLING } from "@/definitions/settings";
@@ -38,7 +38,7 @@ import Rect from "@/model/rect";
 import TriggerGroup from "@/model/trigger-group";
 import { createEngine } from "@/model/physics/engine";
 import type { IPhysicsEngine, CollisionEvent } from "@/model/physics/engine";
-import { enqueueTrack, setFrequency } from "@/services/audio-service";
+import { enqueueTrack, setFrequency, playSoundEffect } from "@/services/audio-service";
 import { getFromStorage } from "@/utils/local-storage";
 import SpriteCache from "@/utils/sprite-cache";
 
@@ -109,7 +109,7 @@ export const init = async (
     		if ( pair.bodyB.label !== ActorLabels.BALL ) {
                 return;
             }
-			switch ( pair.bodyA.label ) {
+        	switch ( pair.bodyA.label ) {
                 case ActorLabels.POPPER:
                     const popper = actorMap.get( pair.bodyA.id ) as Popper;
                     engine.launchBall( pair.bodyB, popper.getImpulse() );
@@ -117,20 +117,25 @@ export const init = async (
                         messageHandler( GameMessages.GOT_LUCKY );
                         removeActor( popper );
                     }
+                    playSoundEffect( GameSounds.POPPER );
                     break;
                 case ActorLabels.BUMPER:
                     awardPoints( game, AwardablePoints.BUMPER );
                     ( actorMap.get( pair.bodyA.id ) as Bumper ).collided = true;
+                    playSoundEffect( GameSounds.BUMPER );
                     break;
                 case ActorLabels.TRIGGER:
                     const triggerGroup = actorMap.get( pair.bodyA.id ) as TriggerGroup;
-                    const groupHit = triggerGroup?.trigger( pair.bodyA.id );
+                    const groupCompleted = triggerGroup?.trigger( pair.bodyA.id );
 
                     if ( triggerGroup.triggerType !== TriggerTypes.SERIES ) {
                         awardPoints( game, AwardablePoints.TRIGGER );
+                        if ( !groupCompleted ) {
+                            playSoundEffect( GameSounds.TRIGGER );
+                        }
                     }
 
-                    if ( groupHit ) {
+                    if ( groupCompleted ) {
                         switch ( triggerGroup.triggerTarget ) {
                             default:
                                 break;
@@ -173,6 +178,7 @@ export const init = async (
                             }
                         }
                         triggerGroup.unsetTriggers();
+                        playSoundEffect( GameSounds.EVENT );
                     }
                     break;
 			}
@@ -248,11 +254,13 @@ export const setFlipperState = ( type: FlipperType, isPointerDown: boolean ): vo
     if ( tilt ) {
         return;
     }
+    let movedUp = false;
     for ( flipper of flippers ) {
         if ( flipper.type === type ) {
-            flipper.trigger( isPointerDown );
+            movedUp = flipper.trigger( isPointerDown );
         }
     }
+    movedUp && playSoundEffect( GameSounds.FLIPPER );
     if ( isPointerDown ) {
         return;
     }
@@ -284,6 +292,8 @@ export const bumpTable = ( game: GameDef ): void => {
     setTimeout(() => {
         bumpAmount = Math.max( 0, bumpAmount - 1 );
     }, BUMP_TIMEOUT );
+
+    playSoundEffect( GameSounds.BUMP );
 };
 
 /**
@@ -405,6 +415,7 @@ function createMultiball( amount: number, left: number, top: number ): void {
 }
 
 function endRound( game: GameDef, timeout = 3500 ): void {
+    playSoundEffect( GameSounds.BALL_OUT );
     setFrequency( 1000 );
     roundEndHandler( () => {
         for ( ball of balls ) {

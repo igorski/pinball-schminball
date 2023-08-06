@@ -33,7 +33,8 @@
             "gameOver": "Game over"
         },
         "settings": {
-            "sound": "Play sound",
+            "sound": "Play sound effects",
+            "music": "Play music",
             "fullscreen": "Fullscreen mode",
             "useThrottling": "Use frame throttling",
             "throttleExpl": "On certain devices you may notice issues with the physics simulation. Disabling throttling could help. When unsure, best to leave this setting enabled."
@@ -47,7 +48,7 @@
         },
         "about": {
             "credits": "Credits",
-            "introduction": "Unless otherwise stated, programming, illustrations and music by:",
+            "introduction": "Unless otherwise stated, programming, illustrations, sound design and music by:",
             "animation": "Animation",
             "tableDesign": "Table design",
             "font": "Font",

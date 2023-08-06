@@ -22,12 +22,14 @@
  */
 import axios from "axios";
 import Config from "@/config/config";
-import { STORED_MUTED_SETTING } from "@/definitions/settings";
+import { GameSounds } from "@/definitions/game";
+import { STORED_MUTED_FX_SETTING, STORED_MUTED_MUSIC_SETTING } from "@/definitions/settings";
 import { getFromStorage, setInStorage } from "@/utils/local-storage";
 
 let inited  = false;
 let playing = false;
-let muted   = getFromStorage( STORED_MUTED_SETTING ) === "true";
+let fxMuted = getFromStorage( STORED_MUTED_FX_SETTING ) === "true";
+let musicMuted = getFromStorage( STORED_MUTED_MUSIC_SETTING ) === "true";
 let queuedTrackId: string | null = null;
 let playingTrackId: string | null = null;
 let scheduledFrequency = 0;
@@ -38,6 +40,19 @@ let effectsBus: BiquadFilterNode;
 let masterBus: AudioNode;
 let sound: HTMLMediaElement;
 let acSound: MediaElementAudioSourceNode;
+
+const SOUND_FX_PATH = "./assets/audio/";
+const SOUND_EFFECTS = [
+    { key: GameSounds.BALL_OUT,  file: "sfx_ball_out.mp3" },
+    { key: GameSounds.BUMP,      file: "sfx_bump.mp3" },
+    { key: GameSounds.BUMPER,    file: "sfx_bumper.mp3" },
+    { key: GameSounds.EVENT,     file: "sfx_event.mp3" },
+    { key: GameSounds.FLIPPER,   file: "sfx_flipper.mp3" },
+    { key: GameSounds.POPPER,    file: "sfx_popper.mp3" },
+    { key: GameSounds.TRIGGER,   file: "sfx_trigger.mp3" },
+];
+
+const soundEffects: Map<GameSounds, HTMLMediaElement> = new Map();
 
 /**
  * Must be called on user interaction to prevent locked AudioContext
@@ -50,8 +65,9 @@ export const init = (): void => {
 
     setupWebAudioAPI();
 
-    // prepare the sound effects
-    //effect = createAudioElement( Assets.AUDIO.AU_EXPLOSION, false, effectsBus );
+    if ( !fxMuted ) {
+        loadSoundEffects();
+    }
 
     // enqueue the first track for playback
     if ( queuedTrackId !== null ) {
@@ -59,15 +75,18 @@ export const init = (): void => {
     }
 };
 
-export const playSoundFX = ( effect: string ): void => {
-    if ( inited && !muted ) {
-        switch ( effect ) {
-            default:
-                break;
-            // case Assets.AUDIO.AU_EXPLOSION:
-            //     _playSoundFX( explosion );
-            //     break;
-        }
+export const playSoundEffect = ( effect: GameSounds ): void => {
+    if ( !inited || fxMuted ) {
+        return;
+    }
+
+    if ( soundEffects.size === 0 ) {
+        loadSoundEffects();
+    }
+
+    const soundEffect = soundEffects.get( effect );
+    if ( soundEffect ) {
+        _playSoundFX( soundEffect );
     }
 };
 
@@ -75,7 +94,7 @@ export const playSoundFX = ( effect: string ): void => {
  * enqueue a track from the available pool for playing
  */
 export const enqueueTrack = async( trackId: string ): Promise<void> => {
-    if ( !inited || muted ) {
+    if ( !inited || musicMuted ) {
         queuedTrackId = trackId;
         return;
     }
@@ -138,17 +157,26 @@ export const setFrequency = ( value = 22050 ): void => {
     }
 };
 
-export const getMuted = (): boolean => {
-    return muted;
+export const getFxMuted = (): boolean => {
+    return fxMuted;
 };
 
-export const setMuted = ( value: boolean ): void => {
-    muted = value;
-    setInStorage( STORED_MUTED_SETTING, muted.toString() );
+export const setFxMuted = ( value: boolean ): void => {
+    fxMuted = value;
+    setInStorage( STORED_MUTED_FX_SETTING, fxMuted.toString() );
+};
 
-    if ( muted && playing ) {
+export const getMusicMuted = (): boolean => {
+    return musicMuted;
+};
+
+export const setMusicMuted = ( value: boolean ): void => {
+    musicMuted = value;
+    setInStorage( STORED_MUTED_MUSIC_SETTING, musicMuted.toString() );
+
+    if ( musicMuted && playing ) {
         stop();
-    } else if ( !muted && playing && queuedTrackId ) {
+    } else if ( !musicMuted && playing && queuedTrackId ) {
         enqueueTrack( queuedTrackId );
     }
 };
@@ -169,6 +197,12 @@ function _startPlayingEnqueuedTrack( trackId: string ): void {
     playing = true;
 }
 
+function loadSoundEffects(): void {
+    SOUND_EFFECTS.forEach( mapping => {
+        soundEffects.set( mapping.key, createAudioElement( `${SOUND_FX_PATH}${mapping.file}`, false, effectsBus ));
+    });
+}
+
 function createAudioElement( source: string, loop = false, bus?: AudioNode ): HTMLMediaElement {
     const element = document.createElement( "audio" );
     element.crossOrigin = "anonymous";
@@ -187,6 +221,9 @@ function createAudioElement( source: string, loop = false, bus?: AudioNode ): HT
 }
 
 function _playSoundFX( audioElement: HTMLMediaElement ): void {
+    if ( audioElement.currentTime > 0 && !audioElement.ended ) {
+        return;
+    }
     audioElement.currentTime = 0;
     // randomize pitch to prevent BOREDOM
     if ( effectsBus ) {
