@@ -127,7 +127,7 @@ export default {
         color: magenta;
 
         &-number-1 {
-            letter-spacing: 0.1em;
+            margin: 0 0.1em;
         }
     }
 
