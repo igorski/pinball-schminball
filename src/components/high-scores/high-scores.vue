@@ -23,7 +23,8 @@
 <template>
     <loader v-if="loading" />
     <template v-else>
-        <p v-if="!isSupported">
+        <p
+            v-if="!isSupported">
             High scores are not supported in this environment.
         </p>
         <div v-else>
@@ -33,7 +34,15 @@
                 class="highscores-entry"
             >
                 <span class="highscores-entry__name">{{ entry.name }}</span>
-                <span class="highscores-entry__score">{{ entry.score }}</span>
+                <span class="highscores-entry__score">
+                    <span
+                        v-for="( number, idx ) in entry.score"
+                        :key="`s_${idx}`"
+                        :class="`highscores-entry__score-number-${number}`"
+                    >
+                        {{ number }}
+                    </span>
+                </span>
             </div>
         </div>
     </template>
@@ -43,6 +52,16 @@
 import Loader from "@/components/loader/loader.vue";
 import type { HighScoreDef } from "@/services/high-scores-service";
 import { isSupported, getHighScores } from "@/services/high-scores-service";
+
+// our fancy font has some challenges for our presentation purposes
+// for one, it does not support diacritics, fallback to the unaccented character
+// for the other, the number "1" is not equally spaced, split the characters so
+// we can space them individually (at the expensive of DOM pollution, but meh...)
+
+const replaceDiacritics = ( def: HighScoreDef ): HighScoreDef => ({
+    score: def.score.toString().split( "" ),
+    name: def.name.normalize( "NFKD" ).replace( /[^\w\s.-_\/]/g, "" ),
+});
 
 interface ComponentData {
     isSupported: boolean;
@@ -63,14 +82,14 @@ export default {
         formattedScores(): HighScoreDef[] {
             const filteredScores = this.scores.filter(({ score }) => score > 0 );
             if ( filteredScores.length > 0 ) {
-                return filteredScores;
+                return filteredScores.map( replaceDiacritics );
             }
             const names = "JIHGFEDCBA";
             const scores = [];
             for ( let i = scores.length; i < 10; ++i ) {
                 scores.push({ name: new Array( 4 ).fill( names[ i ] ).join( "" ), score: 1000 * ( i + 1 ) });
             }
-            return scores.reverse();
+            return scores.reverse().map( replaceDiacritics );
         },
     },
     async mounted(): Promise<void> {
@@ -106,6 +125,10 @@ export default {
         max-width: 200px;
         text-align: right;
         color: magenta;
+
+        &-number-1 {
+            letter-spacing: 0.1em;
+        }
     }
 
     @include mobile() {
