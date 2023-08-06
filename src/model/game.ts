@@ -77,7 +77,7 @@ export const init = async (
 ): Promise<void> => {
 
     canvas = canvasRef;
-    throttleFps = getFromStorage( STORED_DISABLE_THROTTLING ) !== "false";
+    throttleFps = getFromStorage( STORED_DISABLE_THROTTLING ) !== "true";
 
     roundEndHandler = roundEndHandlerRef;
     messageHandler  = messageHandlerRef;

@@ -53,6 +53,12 @@ export default {
                 url: "https://codepen.io/nikhil8krishnan/pen/rVoXJa",
             },
             {
+                title: "CRT lines",
+                author: "himagna",
+                type: this.$t( "about.animation" ),
+                url: "https://codepen.io/himagna/pen/LYgqJoW",
+            },
+            {
                 title: "Neon overdrive",
                 author: "Darrell Flood",
                 type: this.$t( "about.font" ),

@@ -25,7 +25,7 @@
         <div
             ref="canvasContainer"
             class="canvas-container"
-            :class="{'canvas-container--active': modelValue.active}"
+            :class="{ 'canvas-container--active': modelValue.active }"
         ></div>
         <round-results
             v-if="activeRound.ended"
@@ -52,12 +52,14 @@
         </div>
         <div
             class="touch-area touch-area--left"
+            :class="{ 'touch-area--vhs': useVhs }"
             @touchstart="handleTouch( $event, true )"
             @touchend="handleTouch( $event, true )"
             @touchcancel="handleTouch( $event, true )"
         ></div>
         <div
             class="touch-area touch-area--right"
+            :class="{ 'touch-area--vhs': useVhs }"
             @touchstart="handleTouch( $event, false )"
             @touchend="handleTouch( $event, false )"
             @touchcancel="handleTouch( $event, false )"
@@ -102,7 +104,7 @@ export default {
             type: Object as PropType<GameDef>,
             required: true,
         },
-        hasTouchScreen: {
+        useVhs: {
             type: Boolean,
             default: false,
         },
@@ -372,6 +374,30 @@ export default {
 
     &--right {
         left: 50%;
+    }
+
+    &--vhs {
+        background-image: linear-gradient(
+            rgba( 17, 20, 53, 0.03 ),
+            rgba( 118, 255, 241, 0.03 )
+        );
+        background-repeat: repeat;
+        background-size: 100vw 10vh;
+        animation: bgscroll 2s linear infinite, glitch .5s infinite;
+    }
+}
+
+@keyframes glitch {
+    0% {
+        transform: rotate(0deg) translate(.11rem) rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg) translate(.11rem)  rotate(-360deg);
+    }
+}
+@keyframes bgscroll {
+    100% {
+        background-position: 0% 100%;
     }
 }
 </style>

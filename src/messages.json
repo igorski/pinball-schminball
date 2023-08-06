@@ -35,6 +35,7 @@
         "settings": {
             "sound": "Play sound effects",
             "music": "Play music",
+            "vhs": "VHS effects",
             "fullscreen": "Fullscreen mode",
             "useThrottling": "Use frame throttling",
             "throttleExpl": "On certain devices you may notice issues with the physics simulation. Disabling throttling could help. When unsure, best to leave this setting enabled."

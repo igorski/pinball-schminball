@@ -27,7 +27,10 @@
             :collapsable="game.active"
             @open="activeScreen = $event"
         />
-        <PinballTable v-model="game" />
+        <PinballTable
+            v-model="game"
+            :use-vhs="config.useVHS"
+        />
         <Tutorial
             v-if="showTutorial"
             :touchscreen="hasTouchScreen"
@@ -59,9 +62,10 @@ import HeaderMenu from "./components/header-menu/header-menu.vue";
 import Loader from "@/components/loader/loader.vue";
 import Modal from "@/components/modal/modal.vue";
 import NewGameWindow from "@/components/new-game-window/new-game-window.vue";
+import type { NewGameProps } from "@/components/new-game-window/new-game-window.vue";
 import type { GameDef } from "@/definitions/game";
 import { START_TABLE_INDEX } from "@/definitions/tables";
-import { STORED_FULLSCREEN, STORED_HAS_VIEWED_TUTORIAL } from "@/definitions/settings";
+import { STORED_FULLSCREEN, STORED_HAS_VIEWED_TUTORIAL, STORED_DISABLE_VHS_EFFECT } from "@/definitions/settings";
 import { preloadAssets } from "@/services/asset-preloader";
 import { init } from "@/services/audio-service";
 import { isSupported, startGame, stopGame } from "@/services/high-scores-service";
@@ -71,10 +75,15 @@ import { isFullscreen, toggleFullscreen } from "@/utils/fullscreen-util";
 interface ComponentData {
     loading: boolean;
     activeScreen: string;
-    playerName: string;
-    game: Partial<GameDef>;
     hasPlayed: boolean;
     startPending: boolean;
+    hasTouchScreen: boolean;
+    showTutorial: boolean;
+    config: {
+        useVHS: boolean;
+    };
+    newGameProps: NewGameProps;
+    game: Partial<GameDef>;
 };
 
 export default {
@@ -97,6 +106,9 @@ export default {
         startPending: false,
         hasTouchScreen: false,
         showTutorial: false,
+        config: {
+            useVHS: getFromStorage( STORED_DISABLE_VHS_EFFECT ) !== "true"
+        },
         newGameProps: {
             playerName: "",
             table: START_TABLE_INDEX,
@@ -148,8 +160,11 @@ export default {
                 stopGame( this.game.id, this.game.score, this.newGameProps.playerName, this.newGameProps.tableName );
             }
         },
-        hasScreen( value: boolean ): void {
-            this.game.paused = value;
+        activeScreen( value: string | null, lastValue?: string | null  ): void {
+            this.game.paused = !!value;
+            if ( !value && lastValue === "settings" ) {
+                this.config.useVHS = getFromStorage( STORED_DISABLE_VHS_EFFECT ) !== "true";
+            }
         },
     },
     async mounted(): Promise<void> {

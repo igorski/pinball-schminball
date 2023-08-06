@@ -94,7 +94,7 @@ import Tables from "@/definitions/tables";
 import { STORED_PLAYER_NAME } from "@/definitions/settings";
 import { getFromStorage, setInStorage } from "@/utils/local-storage";
 
-type NewGameProps = {
+export type NewGameProps = {
     playerName: string;
     table: number;
     tableName: string;
