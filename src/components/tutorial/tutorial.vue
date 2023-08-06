@@ -26,7 +26,7 @@
         @click="nextSlide()"
     >
         <div class="tutorial__wrapper">
-            <h3 class="tutorial__title">Tutorial</h3>
+            <h3 v-t="'tutorial.tutorial'" class="tutorial__title"></h3>
             <span
                 v-t="`tutorial.${tutorialKeys[ activeSlide ]}`"
                 class="tutorial__message"
@@ -34,6 +34,13 @@
                     'tutorial__message--fade-in': !fadeOut,
                     'tutorial__message--fade-out': fadeOut
                 }"
+            ></span>
+            <span
+                v-t="'tutorial.skip'"
+                role="button"
+                class="tutorial__skip"
+                :class="{ 'tutorial__skip--visible': activeSlide > 0 }"
+                @click="close()"
             ></span>
         </div>
     </section>
@@ -164,6 +171,26 @@ export default {
 
         &--fade-out {
             opacity: 0;
+        }
+    }
+
+    &__skip {
+        @include titleFont( 16px );
+        cursor: pointer;
+        color: #FFF;
+        position: fixed;
+        bottom: 0;
+        left: 50%;
+        transform: translateX( -50% );
+        transition: opacity 3.5s;
+        opacity: 0;
+
+        &--visible {
+            opacity: 1;
+        }
+
+        &:hover {
+            color: $color-anchors;
         }
     }
 }

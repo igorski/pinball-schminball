@@ -56,6 +56,8 @@
             "opensource": "Pinball Schminball is fully open source and can be found on"
         },
         "tutorial": {
+            "tutorial": "Tutorial",
+            "skip": "Skip",
             "flippersKeysL": "Press the left key to move the left flipper.",
             "flippersKeysR": "Press the right key to move the right flipper.",
             "flippersTouchL": "Touch the left side of the screen to move the left flipper.",
