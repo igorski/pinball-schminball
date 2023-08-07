@@ -54,9 +54,6 @@ export default
 
         { left: 50,  top: 1040, width: 100, height: 1, opts: { direction: ImpulseDirection.RIGHT, force: 20 } },
 
-        // top left push between second and last flippers from the bottom (to get into second area from the bottom)
-        { left: 660, top: 1650, width: 35, height: 1, opts: { direction: ImpulseDirection.UP, force: 20 } },
-
         // "lucky" one-time safe mechanism by the left bottom flipper
 
         { left: 45, top: 2180, width: 40, height: 1, opts: { once: true } },
@@ -74,8 +71,8 @@ export default
 
         // second set from the bottom
 
-        { type: ActorTypes.LEFT_FLIPPER,  left: 160, top: 1576, angle: -8 },
-        { type: ActorTypes.RIGHT_FLIPPER, left: 300, top: 1576, angle: 8 },
+        { type: ActorTypes.LEFT_FLIPPER,  left: 158, top: 1576, angle: -8 },
+        { type: ActorTypes.RIGHT_FLIPPER, left: 307, top: 1578, angle: 7 },
 
         // bottom flippers
 
@@ -86,9 +83,9 @@ export default
     rects: [
         // outer walls
 
-        { left: 0, top: -30, width: 800, height: 50,  visible: false },
-        { left: -44, top: 0, width: 50, height: 2290, visible: false },
-        { left: 794, top: 0, width: 50, height: 2290, visible: false },
+        { left: 0,   top: -25, width: 800, height: 50,   visible: false },
+        { left: -15, top: 0,   width: 50,  height: 2290, visible: false },
+        { left: 780, top: 0,   width: 50,  height: 2290, visible: false },
 
         // top
 
@@ -128,6 +125,9 @@ export default
         { left: 450, top: 1584, width: 30, height: 65, visible: false },
         { left: 465, top: 1610, width: 195, height: 30, angle: -35, visible: false },
         { left: 405, top: 1718, width: 70, height: 30, visible: false },
+
+        // block
+        { left: 260, top: 1278, width: 80, height: 55, visible: false },
 
         // bottom
 
@@ -209,13 +209,6 @@ export default
                 { left: 320, top: 1190, width: 24, height: 24 },
                 { left: 540, top: 1190, width: 24, height: 24 },
                 { left: 615, top: 1190, width: 24, height: 24 },
-            ]
-        },
-        {
-            target: TriggerTarget.TELEPORT,
-            type: TriggerTypes.BOOL,
-            triggers: [
-                { left: 250, top: 1260, width: 24, height: 24, sensor: true, visible: false },
             ]
         },
         {
