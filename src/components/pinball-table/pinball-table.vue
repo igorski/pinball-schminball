@@ -52,17 +52,20 @@
         </div>
         <div
             class="touch-area touch-area--left"
-            :class="{ 'touch-area--vhs': useVhs }"
             @touchstart="handleTouch( $event, true )"
             @touchend="handleTouch( $event, true )"
             @touchcancel="handleTouch( $event, true )"
         ></div>
         <div
             class="touch-area touch-area--right"
-            :class="{ 'touch-area--vhs': useVhs }"
             @touchstart="handleTouch( $event, false )"
             @touchend="handleTouch( $event, false )"
             @touchcancel="handleTouch( $event, false )"
+        ></div>
+        <div
+            v-if="useVhs"
+            ref="vhsOverlay"
+            class="vhs-overlay"
         ></div>
     </div>
 </template>
@@ -178,9 +181,15 @@ export default {
             const { clientWidth, clientHeight } = document.documentElement;
             const statusHeight = this.$refs.statusDisplay.offsetHeight;
             const isMobileView = clientWidth <= 685; // see _variables.scss
-            const uiHeight = isMobileView ? 58 /* is $menu-height */ + statusHeight : statusHeight;
+            const uiHeight     = isMobileView ? 58 /* is $menu-height */ + statusHeight : statusHeight;
+            const canvasHeight = clientHeight - uiHeight;
 
-            scaleCanvas( clientWidth, clientHeight - uiHeight );
+            scaleCanvas( clientWidth, canvasHeight );
+
+            const { vhsOverlay } = this.$refs;
+            if ( vhsOverlay ) {
+                vhsOverlay.style.height = `${canvasHeight + statusHeight}px`;
+            }
         },
         handleTouch( event: TouchEvent, isLeft: boolean ): void {
             switch ( event.type ) {
@@ -375,15 +384,25 @@ export default {
     &--right {
         left: 50%;
     }
+}
 
-    &--vhs {
-        background-image: linear-gradient(
-            rgba( 17, 20, 53, 0.03 ),
-            rgba( 118, 255, 241, 0.03 )
-        );
-        background-repeat: repeat;
-        background-size: 100vw 10vh;
-        animation: bgscroll 2s linear infinite, glitch .5s infinite;
+.vhs-overlay {
+    @include noEvents();
+    position: fixed;
+    width: 100%;
+    height: 100%; // will be calculated dynamically
+    top: 0;
+    left: 0;
+    background-image: linear-gradient(
+        rgba( 17, 20, 53, 0.03 ),
+        rgba( 118, 255, 241, 0.03 )
+    );
+    background-repeat: repeat;
+    background-size: 100vw 10vh;
+    animation: bgscroll 2s linear infinite, glitch .5s infinite;
+
+    @include mobile() {
+        top: $menu-height;
     }
 }
 
