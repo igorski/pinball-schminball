@@ -55,8 +55,8 @@ export default {
         { left: 703, top: 1282, width: 40, height: 1, opts: { once: true } },
 
         // reflectors
-        { left: 338, top: 720, width: 60, height: 10, angle: 62,  opts: { direction: ImpulseDirection.DOWN_LEFT,  force: 1.5 } },
-        { left: 400, top: 720, width: 60, height: 10, angle: -62, opts: { direction: ImpulseDirection.DOWN_RIGHT, force: 1.5 } },
+        { left: 335, top: 720, width: 60, height: 30, angle: 62,  opts: { direction: ImpulseDirection.UP_LEFT,  force: 1.5 } },
+        { left: 380, top: 720, width: 60, height: 30, angle: -62, opts: { direction: ImpulseDirection.UP_RIGHT, force: 1.5 } },
 
         { left: 150, top: 1090, width: 160, height: 10, angle: 62,  opts: { direction: ImpulseDirection.UP_RIGHT, force: 4 } },
         { left: 528, top: 1090, width: 160, height: 10, angle: -62, opts: { direction: ImpulseDirection.UP_LEFT,  force: 4 } },
@@ -87,6 +87,8 @@ export default {
         { left: 458, top: 148, width: 25, height: 75, radius: 15 },
         { left: 528, top: 138, width: 25, height: 75, radius: 15 },
 
+        { left: 580, top: -95, width: 300, height: 150, angle: 45, visible: false },
+
         // outer walls
         { left: 0, top: -30, width: 800, height: 50,  visible: false },
         { left: -40, top: 0, width: 50, height: 1930, visible: false },
@@ -113,6 +115,8 @@ export default {
         { left: 375, top: 1438, width: 5, height: 5 },
 
         // underworld
+
+        { left: -5, top: 1600, width: 50, height: 10, angle: -45 },
 
         { left: 670, top: 1920, width: 200, height: 10, angle: -50 },
         { left: 58,  top: 2087, width: 10, height: 115 },
