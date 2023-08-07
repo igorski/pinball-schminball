@@ -47,7 +47,7 @@ export default {
     poppers : [
         // the ball launcher
 
-        { left: 750, top: 1380, width: 40, height: 1, opts: { force: 27 * GRAVITY } },
+        { left: 750, top: 1380, width: 40, height: 1, opts: { force: 26 * GRAVITY } },
 
         // "lucky" one-time safe mechanism on either side of the bottom flippers
 
@@ -55,6 +55,9 @@ export default {
         { left: 703, top: 1282, width: 40, height: 1, opts: { once: true } },
 
         // reflectors
+        { left: 338, top: 720, width: 60, height: 10, angle: 62,  opts: { direction: ImpulseDirection.DOWN_LEFT,  force: 1.5 } },
+        { left: 400, top: 720, width: 60, height: 10, angle: -62, opts: { direction: ImpulseDirection.DOWN_RIGHT, force: 1.5 } },
+
         { left: 150, top: 1090, width: 160, height: 10, angle: 62,  opts: { direction: ImpulseDirection.UP_RIGHT, force: 4 } },
         { left: 528, top: 1090, width: 160, height: 10, angle: -62, opts: { direction: ImpulseDirection.UP_LEFT,  force: 4 } },
     ],
@@ -86,8 +89,11 @@ export default {
 
         // outer walls
         { left: 0, top: -30, width: 800, height: 50,  visible: false },
-        { left: -44, top: 0, width: 50, height: 1930, visible: false },
-        { left: 794, top: 0, width: 50, height: 1930, visible: false },
+        { left: -40, top: 0, width: 50, height: 1930, visible: false },
+        { left: 792, top: 0, width: 50, height: 1930, visible: false },
+
+        // blockers
+        { left: -15, top: 587, width: 50, height: 50, angle: -45, visible: false },
 
         { left: 754, top: 895, width: 50, height: 10, angle: -45, visible: false },
         { left: 754, top: 930, width: 50, height: 10, angle: 45 },
@@ -191,8 +197,8 @@ export default {
             type: TriggerTypes.BOOL,
             message: GameMessages.GROUP_COMPLETE,
             triggers: [
-                { left: 20,  top: 636, width: 20, height: 20, sensor: true, visible: false },
-                { left: 745, top: 705, width: 20, height: 20, sensor: true, visible: false },
+                { left: 18,  top: 636, width: 20, height: 20, sensor: true, visible: false },
+                { left: 747, top: 705, width: 20, height: 20, sensor: true, visible: false },
             ]
         }
     ],
