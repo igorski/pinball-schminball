@@ -21,7 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 export const STORED_HAS_VIEWED_TUTORIAL = "ps_tut"; // whether user has seen tutorial on this device
-export const STORED_DISABLE_THROTTLING = "ps_disable_fps_throttling"; // whether to disable frame throttling
+export const STORED_DISABLE_THROTTLING = "ps_disable_fps_thr"; // whether to disable frame throttling
 export const STORED_DISABLE_VHS_EFFECT = "ps_disable_vhs"; // whether to disable VHS effects on table screen
 export const STORED_MUTED_FX_SETTING = "ps_as_fxm"; // whether to mute audio effects playback
 export const STORED_MUTED_MUSIC_SETTING = "ps_as_mm"; // whether to mute music playback
