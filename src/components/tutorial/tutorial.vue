@@ -47,8 +47,8 @@
 </template>
 
 <script lang="ts">
-const SLIDE_TIMEOUT = 5000;
-const FADE_OUT_TIMEOUT = 2000;
+const SLIDE_TIMEOUT = 3000;
+const FADE_OUT_TIMEOUT = 1500;
 
 export default {
     props: {
