@@ -47,7 +47,7 @@ export default {
     poppers : [
         // the ball launcher
 
-        { left: 750, top: 1380, width: 40, height: 1, opts: { force: 26 * GRAVITY } },
+        { left: 750, top: 1380, width: 40, height: 1, opts: { force: 24 * GRAVITY } },
 
         // "lucky" one-time safe mechanism on either side of the bottom flippers
 
@@ -132,6 +132,10 @@ export default {
         { left: 190, top: 1810, width: 65, height: 65 },
         { left: 300, top: 1770, width: 65, height: 65 },
         { left: 270, top: 1880, width: 65, height: 65 },
+
+        { left: 600, top: 1525, width: 65, height: 65 },
+        { left: 700, top: 1590, width: 65, height: 65 },
+        { left: 700, top: 1465, width: 65, height: 65 },
 
         { left: 530, top: 2280, width: 55, height: 55 },
         { left: 440, top: 2325, width: 65, height: 65 },
