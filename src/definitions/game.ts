@@ -41,6 +41,9 @@ export const MAX_BUMPS    = 3;
 export const BUMP_IMPULSE = 4;
 export const BUMP_TIMEOUT = 2000;
 
+export const BALLS_PER_GAME = 3;
+export const RETRY_TIMEOUT  = 3000; // if a Ball is lost within this period, player gets a free retry
+
 export const AwardablePoints = {
     BUMPER: 500,
     TRIGGER: 100,
@@ -59,6 +62,7 @@ export enum GameMessages {
     UNDERWORLD_UNLOCKED,
     ESCAPE_BONUS,
     GOT_LUCKY,
+    TRY_AGAIN,
     TILT,
 };
 

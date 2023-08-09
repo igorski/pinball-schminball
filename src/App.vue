@@ -64,6 +64,7 @@ import Modal from "@/components/modal/modal.vue";
 import NewGameWindow from "@/components/new-game-window/new-game-window.vue";
 import type { NewGameProps } from "@/components/new-game-window/new-game-window.vue";
 import type { GameDef } from "@/definitions/game";
+import { BALLS_PER_GAME } from "@/definitions/game";
 import { START_TABLE_INDEX } from "@/definitions/tables";
 import { STORED_FULLSCREEN, STORED_HAS_VIEWED_TUTORIAL, STORED_DISABLE_VHS_EFFECT } from "@/definitions/settings";
 import { preloadAssets } from "@/services/asset-preloader";
@@ -208,7 +209,7 @@ export default {
                     paused: this.showTutorial,
                     table: this.newGameProps.table,
                     score: 0,
-                    balls: 3,
+                    balls: BALLS_PER_GAME,
                     multiplier: 1,
                     underworld: false,
                 };

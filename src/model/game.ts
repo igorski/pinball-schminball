@@ -24,7 +24,7 @@ import { sprite } from "zcanvas";
 import type { canvas as zCanvas } from "zcanvas";
 import type { GameDef, TableDef, FlipperType } from "@/definitions/game";
 import {
-    FRAME_RATE, BALL_WIDTH, BALL_HEIGHT, LAUNCH_SPEED, MAX_BUMPS, BUMP_TIMEOUT, BUMP_IMPULSE,
+    FRAME_RATE, BALL_WIDTH, BALL_HEIGHT, LAUNCH_SPEED, MAX_BUMPS, BUMP_TIMEOUT, BUMP_IMPULSE, RETRY_TIMEOUT, BALLS_PER_GAME,
     GameMessages, GameSounds, TriggerTarget, TriggerTypes, AwardablePoints, ActorLabels, ActorTypes,
 } from "@/definitions/game";
 import Tables from "@/definitions/tables";
@@ -68,6 +68,7 @@ let viewportWidth = 0;
 let viewportHeight = 0; // cached in scaleCanvas()
 let underworldOffset = 0;
 
+let roundStart = 0;
 let bumpAmount = 0;
 let tilt = false;
 let paused = false;
@@ -377,7 +378,13 @@ function handleEngineUpdate( engine: IPhysicsEngine, game: GameDef ): void {
             removeBall( ball );
 
             if ( singleBall ) {
-                endRound( game );
+                if (( window.performance.now() - roundStart ) < RETRY_TIMEOUT && !tilt ) {
+                    // lost ball directly at game start, let's give the player another chance
+                    createBall( table.poppers[ 0 ].left, table.poppers[ 0 ].top - BALL_HEIGHT );
+                    messageHandler( GameMessages.TRY_AGAIN );
+                } else {
+                    endRound( game );
+                }
             }
         }
     }
@@ -432,7 +439,9 @@ function endRound( game: GameDef, timeout = 3500 ): void {
 function startRound( game: GameDef ): void {
     createBall( table.poppers[ 0 ].left, table.poppers[ 0 ].top - BALL_HEIGHT );
     setFrequency();
-
+    if ( game.balls === BALLS_PER_GAME ) {
+        roundStart = window.performance.now();
+    }
     tilt = false;
     inUnderworld = false;
     game.underworld = false;

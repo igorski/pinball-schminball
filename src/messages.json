@@ -21,6 +21,7 @@
         },
         "messages": {
             "gotLucky": "Got lucky",
+            "tryAgain": "Try again",
             "underworldUnlocked": "Underworld unlocked",
             "escapeBonus": "Escape bonus",
             "tilt": "Tilt",

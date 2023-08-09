@@ -34,6 +34,9 @@ export const i18nForMessage = ( message: GameMessages, game: GameDef ): string =
         case GameMessages.GOT_LUCKY:
             key = "gotLucky";
             break;
+        case GameMessages.TRY_AGAIN:
+            key = "tryAgain";
+            break;
         case GameMessages.UNDERWORLD_UNLOCKED:
             key = "underworldUnlocked";
             break;
