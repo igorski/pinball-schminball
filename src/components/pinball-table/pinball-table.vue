@@ -25,7 +25,10 @@
         <div
             ref="canvasContainer"
             class="canvas-container"
-            :class="{ 'canvas-container--active': modelValue.active }"
+            :class="{
+                'canvas-container--active': modelValue.active,
+                'canvas-container--centered': centerTable,
+            }"
         ></div>
         <round-results
             v-if="activeRound.ended"
@@ -90,11 +93,13 @@ let touch;
 interface ComponentData {
     message: string;
     inited: boolean;
+    centerTable: boolean;
     activeRound: {
         balls: number;
         score: number;
         total: number;
         ended: boolean;
+        tableHeight: number;
     }
 };
 
@@ -115,11 +120,13 @@ export default {
     data: (): ComponentData => ({
         message: "",
         inited: false,
+        centerTable: false,
         activeRound: {
             balls: 0,
             score: 0,
             total: 0,
             ended: false,
+            tableHeight: 0,
         },
     }),
     watch: {
@@ -153,9 +160,17 @@ export default {
     },
     methods: {
         async initGame(): Promise<void> {
-            await init( this.canvas, this.modelValue, this.handleRoundEnd.bind( this ), this.flashMessage.bind( this ));
-            this.activeRound = { balls: this.modelValue.balls, score: 0, total: 0, ended: false };
-
+            const { height } = await init(
+                this.canvas, this.modelValue,
+                this.handleRoundEnd.bind( this ), this.flashMessage.bind( this )
+            );
+            this.activeRound = {
+                balls: this.modelValue.balls,
+                score: 0,
+                total: 0,
+                ended: false,
+                tableHeight: height,
+            };
             this.addListeners();
             await this.$nextTick();
             this.handleResize();
@@ -182,9 +197,11 @@ export default {
             const statusHeight = this.$refs.statusDisplay.offsetHeight;
             const isMobileView = clientWidth <= 685; // see _variables.scss
             const uiHeight     = isMobileView ? 58 /* is $menu-height */ + statusHeight : statusHeight;
-            const canvasHeight = clientHeight - uiHeight;
+            const canvasHeight = Math.min( this.activeRound.tableHeight, clientHeight ) - uiHeight;
 
             scaleCanvas( clientWidth, canvasHeight );
+
+            this.centerTable = clientHeight > this.activeRound.tableHeight;
 
             const { vhsOverlay } = this.$refs;
             if ( vhsOverlay ) {
@@ -303,6 +320,10 @@ export default {
 
     &--active {
         cursor: none;
+    }
+
+    &--centered {
+        @include center();
     }
 
     @include mobile() {

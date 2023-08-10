@@ -21,7 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import { sprite } from "zcanvas";
-import type { canvas as zCanvas } from "zcanvas";
+import type { canvas as zCanvas, Size } from "zcanvas";
 import type { GameDef, TableDef, FlipperType } from "@/definitions/game";
 import {
     FRAME_RATE, BALL_WIDTH, BALL_HEIGHT, LAUNCH_SPEED, MAX_BUMPS, BUMP_TIMEOUT, BUMP_IMPULSE, RETRY_TIMEOUT, BALLS_PER_GAME,
@@ -75,7 +75,7 @@ let paused = false;
 
 export const init = async (
     canvasRef: zCanvas, game: GameDef, roundEndHandlerRef: IRoundEndHandler, messageHandlerRef: IMessageHandler
-): Promise<void> => {
+): Promise<Size> => {
 
     canvas = canvasRef;
     throttleFps = getFromStorage( STORED_DISABLE_THROTTLING ) !== "true";
@@ -223,6 +223,8 @@ export const init = async (
     game.active = true;
 
     startRound( game );
+
+    return { width, height: table.underworld ?? height };
 };
 
 export const scaleCanvas = ( clientWidth: number, clientHeight: number ): void => {
