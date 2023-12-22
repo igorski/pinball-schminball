@@ -72,9 +72,12 @@ let roundStart = 0;
 let bumpAmount = 0;
 let tilt = false;
 let paused = false;
+let debugMode = false;
 
 export const init = async (
-    canvasRef: zCanvas, game: GameDef, roundEndHandlerRef: IRoundEndHandler, messageHandlerRef: IMessageHandler
+    canvasRef: zCanvas, game: GameDef,
+    roundEndHandlerRef: IRoundEndHandler, messageHandlerRef: IMessageHandler,
+    debug = false,
 ): Promise<Size> => {
 
     canvas = canvasRef;
@@ -82,6 +85,8 @@ export const init = async (
 
     roundEndHandler = roundEndHandlerRef;
     messageHandler  = messageHandlerRef;
+
+    debugMode = debug;
 
     table = Tables[ game.table ];
     const { width, height } = table;
@@ -245,6 +250,7 @@ export const scaleCanvas = ( clientWidth: number, clientHeight: number ): void =
     canvas.setViewport( viewportWidth, viewportHeight );
     // scale canvas to fit in the width
     canvas.scale( zoom );
+    console.info(table,width,table.height,viewportWidth,viewportHeight,zoom);
 
     // the vertical offset at which the viewport should pan to follow the ball
     panOffset = ( viewportHeight / 2 ) - ( BALL_WIDTH / 2 );
@@ -394,6 +400,16 @@ function handleEngineUpdate( engine: IPhysicsEngine, game: GameDef ): void {
 
 function mapActor( actor: Actor, optId?: number ): void {
     actorMap.set( optId ?? actor.body.id, actor );
+    if ( debugMode && actor.renderer ) {
+        console.warn(actor.renderer.canvas);
+        actor.renderer.setDraggable( true, false );
+        actor.renderer.handlePress = () => {
+            console.info("puh puh press");
+        }
+        actor.renderer.handleMove = ( x, y, event ) => {
+            console.info("handle move",x,y,event);
+        }
+    }
 }
 
 function removeActor( actor: Actor ): void {

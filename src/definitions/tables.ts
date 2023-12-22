@@ -23,7 +23,8 @@
 import type { TableDef } from "@/definitions/game";
 import table1 from "@/definitions/tables/table1";
 import table2 from "@/definitions/tables/table2";
+import table3 from "@/definitions/tables/table3";
 
 export const START_TABLE_INDEX = 0;
 
-export default [ table1, table2 ] as TableDef[];
+export default [ table1, table2, table3 ] as TableDef[];

@@ -26,7 +26,7 @@
             ref="canvasContainer"
             class="canvas-container"
             :class="{
-                'canvas-container--active': modelValue.active,
+                'canvas-container--active': modelValue.active && !modelValue.paused,
                 'canvas-container--centered': centerTable,
             }"
         ></div>
@@ -53,18 +53,20 @@
                 </template>
             </div>
         </div>
-        <div
-            class="touch-area touch-area--left"
-            @touchstart="handleTouch( $event, true )"
-            @touchend="handleTouch( $event, true )"
-            @touchcancel="handleTouch( $event, true )"
-        ></div>
-        <div
-            class="touch-area touch-area--right"
-            @touchstart="handleTouch( $event, false )"
-            @touchend="handleTouch( $event, false )"
-            @touchcancel="handleTouch( $event, false )"
-        ></div>
+        <template v-if="!modelValue.paused">
+            <div
+                class="touch-area touch-area--left"
+                @touchstart="handleTouch( $event, true )"
+                @touchend="handleTouch( $event, true )"
+                @touchcancel="handleTouch( $event, true )"
+            ></div>
+            <div
+                class="touch-area touch-area--right"
+                @touchstart="handleTouch( $event, false )"
+                @touchend="handleTouch( $event, false )"
+                @touchcancel="handleTouch( $event, false )"
+            ></div>
+        </template>
         <div
             v-if="useVhs"
             ref="vhsOverlay"
@@ -162,7 +164,8 @@ export default {
         async initGame(): Promise<void> {
             const { height } = await init(
                 this.canvas, this.modelValue,
-                this.handleRoundEnd.bind( this ), this.flashMessage.bind( this )
+                this.handleRoundEnd.bind( this ), this.flashMessage.bind( this ),
+                import.meta.env.MODE !== "production",
             );
             this.activeRound = {
                 balls: this.modelValue.balls,
@@ -401,6 +404,7 @@ export default {
     width: 50%;
     height: 100%;
     overscroll-behavior: contain;
+    cursor: none;
 
     &--right {
         left: 50%;

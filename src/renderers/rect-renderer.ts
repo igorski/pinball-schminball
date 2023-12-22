@@ -26,6 +26,9 @@ import type { Viewport } from "zcanvas";
 import type Rect from "@/model/rect";
 import SpriteCache from "@/utils/sprite-cache";
 
+const parser = Bowser.getParser( window.navigator.userAgent );
+const majorVersion = parser.getBrowserVersion().split( "." ).map( parseInt )[ 0 ];
+
 const DEBUG = false;//import.meta.env.MODE !== "production";
 
 export default class RectRenderer extends sprite {
@@ -38,8 +41,6 @@ export default class RectRenderer extends sprite {
         // roundRect() is not available in all browsers
         // when unsupported, remove radius from Actor (should only have a minor effect, radius is cosmetic for Rects)
 
-        const parser = Bowser.getParser( window.navigator.userAgent );
-        const majorVersion = parser.getBrowserVersion().split(".").map( parseInt )[ 0 ];
         actor.radius = ( parser.getBrowserName() === "safari" && majorVersion < 16 ) ? 0 : actor.radius;
     }
 
