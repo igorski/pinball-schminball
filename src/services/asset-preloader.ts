@@ -21,15 +21,21 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import loadScript from "tiny-script-loader/loadScriptPromised";
-import { loader } from "zcanvas";
+import { Loader } from "zcanvas";
 import Tables from "@/definitions/tables";
-import SpriteCache from "@/utils/sprite-cache";
+import SpriteCache, { type CachedImageType } from "@/utils/sprite-cache";
+
+type QueueEntry = {
+    src: string;
+    type: "image" | "bitmap";
+    cache?: CachedImageType;
+}
 
 const assetRoot = `./assets/sprites/`;
 const queue = [
-    { src: `${assetRoot}ball.png`, target: SpriteCache.BALL },
-    { src: `${assetRoot}flipper_left.png`, target: SpriteCache.FLIPPER_LEFT },
-    { src: `${assetRoot}flipper_right.png`, target: SpriteCache.FLIPPER_RIGHT },
+    { src: `${assetRoot}ball.png`,          type: "bitmap", cache: SpriteCache.BALL },
+    { src: `${assetRoot}flipper_left.png`,  type: "bitmap", cache: SpriteCache.FLIPPER_LEFT },
+    { src: `${assetRoot}flipper_right.png`, type: "bitmap", cache: SpriteCache.FLIPPER_RIGHT },
 ];
 const loadContainer: HTMLElement = document.createElement( "div" );
 
@@ -46,33 +52,19 @@ export const preloadAssets = async (): Promise<void> =>
         table.reflectors?.map( reflector => addToQueueWhenExisting( reflector.source ));
     }
 
-    // we create a container (positioned off-screen) to append the images to, this is to
-    // overcome mobile browsers not actually loading the Images until they are inside the DOM and
-    // no, we cannot add it to a display:none; -container !
-
-    const { style } = loadContainer;
-    style.position  = "absolute";
-    style.left      = "-9999px";
-    style.top       = "0";
-
-    document.body.appendChild( loadContainer );
-
     return new Promise( resolve => {
         const processQueue = async () => {
             if ( queue.length === 0 ) {
-                // queue complete, remove temporary container and complete excution
-                document.body.removeChild( loadContainer );
                 resolve();
             } else {
-                const asset = queue.shift();
-                const image = asset.target || new Image();
-
-                image.crossOrigin = "anonymous";
-                loadContainer.appendChild( image );
-
+                const asset = queue.shift();           
                 try {
-                    await loader.loadImage( asset.src, image );
-                    loadContainer.removeChild( image );
+                    if ( asset.type === "bitmap" ) {
+                        const bitmap = await Loader.loadBitmap( asset.src );
+                        asset.cache.bitmap = bitmap;
+                    } else {
+                        await Loader.loadImage( asset.src );
+                    }
                 } catch( e ) {
                     console.error( e, asset.src );
                 }
@@ -85,8 +77,8 @@ export const preloadAssets = async (): Promise<void> =>
 
 /* internal methods */
 
-function addToQueueWhenExisting( assetPath: string | undefined, optTarget?: typeof Image ): void {
+function addToQueueWhenExisting( assetPath: string | undefined ): void {
     if ( assetPath && assetPath.length > 0 ) {
-        queue.push({ src: assetPath, target: optTarget });
+        queue.push({ src: assetPath, type: "image" });
     }
 }

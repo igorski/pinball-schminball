@@ -20,8 +20,8 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import { sprite } from "zcanvas";
-import type { canvas as zCanvas, Size } from "zcanvas";
+import { Sprite } from "zcanvas";
+import type { Canvas as zCanvas, Size } from "zcanvas";
 import type { GameDef, TableDef, FlipperType } from "@/definitions/game";
 import {
     FRAME_RATE, BALL_WIDTH, BALL_HEIGHT, LAUNCH_SPEED, MAX_BUMPS, BUMP_TIMEOUT, BUMP_IMPULSE, RETRY_TIMEOUT, BALLS_PER_GAME,
@@ -40,7 +40,6 @@ import { createEngine } from "@/model/physics/engine";
 import type { IPhysicsEngine, CollisionEvent } from "@/model/physics/engine";
 import { enqueueTrack, setFrequency, playSoundEffect } from "@/services/audio-service";
 import { getFromStorage } from "@/utils/local-storage";
-import SpriteCache from "@/utils/sprite-cache";
 
 type IRoundEndHandler = ( readyCallback: () => void, timeout: number ) => void;
 type IMessageHandler = ( message: GameMessages, optDuration?: number ) => void;
@@ -49,7 +48,6 @@ let engine: IPhysicsEngine;
 let throttleFps: boolean;
 let ball: Ball;
 let flipper: Flipper;
-let otherBall: Ball;
 let table: TableDef;
 let inUnderworld = false;
 const actorMap: Map<number, Actor> = new Map(); // mapping all Actors to their physics body id
@@ -60,7 +58,7 @@ let flippers: Flipper[] = []; // separate list for quick access to Flipper Actor
 let tableHasUnderworld: boolean;
 
 let canvas: zCanvas;
-let backgroundRenderer: sprite;
+let backgroundRenderer: Sprite;
 let roundEndHandler: IRoundEndHandler;
 let messageHandler: IMessageHandler;
 let panOffset = 0;
@@ -187,8 +185,8 @@ export const init = async (
     });
 
     // 3. generate background assets
-    SpriteCache.BACKGROUND.src = table.background;
-    backgroundRenderer = new sprite({ width, height, bitmap: SpriteCache.BACKGROUND });
+    await canvas.loadResource( "background", table.background );
+    backgroundRenderer = new Sprite({ width, height, resourceId: "background"});
     canvas.addChild( backgroundRenderer );
 
     // 4. generate Actors

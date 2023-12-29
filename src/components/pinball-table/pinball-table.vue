@@ -76,10 +76,11 @@
 <script lang="ts">
 import { PropType } from "vue";
 import throttle from "lodash/throttle";
-import { canvas } from "zcanvas";
+import { Canvas } from "zcanvas";
 import type { GameDef, GameMessages} from "@/definitions/game";
 import { ActorTypes, FRAME_RATE } from "@/definitions/game";
 import { init, scaleCanvas, setFlipperState, bumpTable, update, panViewport, setPaused } from "@/model/game";
+import SpriteCache from "@/utils/sprite-cache";
 import RoundResults from "./round-results.vue";
 import { i18nForMessage } from "./message-localizer";
 
@@ -140,14 +141,21 @@ export default {
         }
     },
     mounted(): void {
-        this.canvas = new canvas({
+        this.canvas = new Canvas({
             width    : 600,
             height   : 800,
             animate  : true,
             fps      : FRAME_RATE,
+            autoSize : false,
             onUpdate : update,
         });
         this.canvas.insertInPage( this.$refs.canvasContainer );
+
+        [
+            SpriteCache.BALL, SpriteCache.FLIPPER_LEFT, SpriteCache.FLIPPER_RIGHT,
+        ].forEach( entry => {
+            this.canvas.loadResource( entry.resourceId, entry.bitmap );
+        });
 
         this.bumpHandler = throttle((): void => {
             bumpTable( this.modelValue );

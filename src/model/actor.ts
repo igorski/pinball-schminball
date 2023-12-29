@@ -142,6 +142,7 @@ export default class Actor {
     }
 
     isInsideViewport( viewport: Viewport ): boolean {
+        return true; // QQQ !!!
         return collision.isInsideViewport(
             this.angle !== 0 ? this._rotatedBounds : this.bounds,
             viewport

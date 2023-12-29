@@ -20,23 +20,21 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import { sprite } from "zcanvas";
-import type { Point, Viewport } from "zcanvas";
-import { BALL_WIDTH, BALL_HEIGHT } from "@/definitions/game";
+import { Sprite } from "zcanvas";
+import type { Point, Viewport, IRenderer } from "zcanvas";
 import type Actor from "@/model/actor";
 import type Bumper from "@/model/bumper";
-import { degToRad } from "@/utils/math-util";
-import SpriteCache from "@/utils/sprite-cache";
 
 const SPIN_SPEED = 30;
 
 const DEBUG = false;//import.meta.env.MODE !== "production";
 
-export default class BumperRenderer extends sprite {
+export default class BumperRenderer extends Sprite {
     protected collisionAnimation = false;
     protected collisionIterations = 0;
     protected collisionOffset: Point;
     protected collisionRadius: number;
+    protected collisionStroke = { color: "#00AEEF", size: 2 };
 
     constructor( private actor: Actor ) {
         super({ width: actor.bounds.width, height: actor.bounds.width });
@@ -48,36 +46,30 @@ export default class BumperRenderer extends sprite {
         };
     }
 
-    draw( ctx: CanvasRenderingContext2D, viewport: Viewport ): void {
+    draw( renderer: IRenderer, viewport: Viewport ): void {
         if ( !this.actor.isInsideViewport( viewport )) {
             return;
         }
 
-        const { width, height } = this.actor.bounds;
         let { left, top } = this.actor.bounds;
 
         const { collided } = this.actor as Bumper;
         let { radius } = this.actor;
 
-        ctx.save();
-
         if ( !collided ) {
-            ctx.strokeStyle = "#00AEEF";
-            ctx.lineWidth = 2;
-
             radius = this.collisionRadius;
             left = this.collisionOffset.x;
             top = this.collisionOffset.y;
         }
 
-        ctx.beginPath();
-        ctx.arc(( left - viewport.left ) + radius, ( top - viewport.top ) + radius, radius, 0, 2 * Math.PI );
-        ctx.fillStyle = !collided ? "transparent" : "#00AEEF";
-        ctx.stroke();
+        renderer.drawCircle(
+            left - viewport.left, top - viewport.top,
+            radius,
+            collided ? "#00AEEF" : "transparent",
+            !collided ? this.collisionStroke : undefined,
+        );
 
         if ( collided ) {
-            ctx.fill();
-
             if ( !this.collisionAnimation ) {
                 this.collisionAnimation = true;
                 this.collisionIterations = 15;
@@ -86,21 +78,5 @@ export default class BumperRenderer extends sprite {
                 ( this.actor as Bumper ).collided = false;
             }
         }
-
-        if ( DEBUG ) {
-            ctx.save();
-            const bbox = this.actor.getOutline();
-            ctx.translate( -viewport.left, -viewport.top );
-            ctx.strokeStyle = "red";
-            ctx.beginPath();
-            ctx.moveTo( bbox[ 0 ], bbox[ 1 ] );
-            for ( let i = 2; i < bbox.length; i += 2 ) {
-                ctx.lineTo( bbox[ i ], bbox[ i + 1 ] );
-            }
-            ctx.closePath();
-            ctx.stroke();
-            ctx.restore();
-        }
-        ctx.restore();
     }
 };
