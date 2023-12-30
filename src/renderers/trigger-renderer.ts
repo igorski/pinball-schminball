@@ -21,26 +21,29 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import { Sprite } from "zcanvas";
-import type { Viewport, IRenderer } from "zcanvas";
+import type { Viewport, IRenderer, StrokeProps } from "zcanvas";
 import type Trigger from "@/model/trigger";
 
 export default class TriggerRenderer extends Sprite {
+    private stroke: StrokeProps = { color: "#FFF", size: 2 };
+
     constructor( private actor: Trigger ) {
         super({ width: actor.bounds.width, height: actor.bounds.width });
     }
 
-    draw( renderer: IRenderer, viewport: Viewport ): void {
-        const { left, top } = this._bounds;
-        const { radius } = this.actor;
-
+    override draw( renderer: IRenderer, viewport: Viewport ): void {
         if ( !this.isVisible( viewport )) {
             return; // out of visual bounds
         }
 
+        const { left, top } = this._bounds;
+        const { radius } = this.actor;
+
+        this.stroke.color = this.actor.active ? "#FFF" : "#00AEEF";
+
         renderer.drawCircle(
             left - viewport.left, top - viewport.top, radius,
-            "transparent",
-            { color: this.actor.active ? "#FFF" : "#00AEEF", size: 2 }
+            "transparent", this.stroke
         );
     }
 };

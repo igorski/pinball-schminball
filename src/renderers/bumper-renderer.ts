@@ -42,7 +42,7 @@ export default class BumperRenderer extends Sprite {
         };
     }
 
-    draw( renderer: IRenderer, viewport: Viewport ): void {
+    override draw( renderer: IRenderer, viewport: Viewport ): void {
         let { left, top } = this._bounds;
 
         const { collided } = this.actor as Bumper;

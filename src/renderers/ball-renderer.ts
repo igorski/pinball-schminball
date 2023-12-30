@@ -47,7 +47,7 @@ export default class BallRenderer extends Sprite {
         this.setRotation( isMoving ? this.getRotation() + ( x * SPIN_SPEED ) : this.getRotation() - ( x * SPIN_SPEED ));
     }
 
-    draw( renderer: IRenderer, viewport: Viewport ): void {
+    override draw( renderer: IRenderer, viewport: Viewport ): void {
         this.update(); // needs manual sync as Balls are not part of the main Actor map (see game#update)
 
         if ( !this.isVisible( viewport )) {

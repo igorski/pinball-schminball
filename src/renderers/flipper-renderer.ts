@@ -21,13 +21,15 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import { Sprite } from "zcanvas";
-import type { Viewport, IRenderer } from "zcanvas";
+import type { Point, Viewport, IRenderer } from "zcanvas";
 import { ActorTypes } from "@/definitions/game";
 import type Flipper from "@/model/flipper";
 import { radToDeg } from "@/utils/math-util";
 import SpriteCache from "@/utils/sprite-cache";
 
 export default class FlipperRenderer extends Sprite {
+    private pivot: Point = { x: 0, y: 0 };
+
     constructor( private actor: Flipper ) {
         super({
             resourceId : actor.type === ActorTypes.LEFT_FLIPPER ? SpriteCache.FLIPPER_LEFT.resourceId : SpriteCache.FLIPPER_RIGHT.resourceId,
@@ -36,17 +38,18 @@ export default class FlipperRenderer extends Sprite {
         });
     }
 
-    draw( renderer: IRenderer, viewport: Viewport ): void {
+    override draw( renderer: IRenderer, viewport: Viewport ): void {
         const { left, top, width, height } = this._bounds;
         const { angle } = this.actor;
         const rotate = angle !== 0;
 
         if ( rotate ) {
-            const pivot = this.actor.getPivot();
-            this.setRotation( radToDeg( angle ), {
-                x: pivot.x - viewport.left,
-                y: pivot.y - viewport.top,
-            });
+            const actorPivot = this.actor.getPivot();
+
+            this.pivot.x = actorPivot.x - viewport.left;
+            this.pivot.y = actorPivot.y - viewport.top;
+
+            this.setRotation( radToDeg( angle ), this.pivot );
         }
 
         if ( !this.isVisible( viewport )) {

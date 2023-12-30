@@ -22,11 +22,13 @@
  */
 import Bowser from "bowser";
 import { Sprite } from "zcanvas";
-import type { Viewport, IRenderer } from "zcanvas";
+import type { Point, Viewport, IRenderer } from "zcanvas";
 import type Rect from "@/model/rect";
 import { radToDeg } from "@/utils/math-util";
 
 export default class RectRenderer extends Sprite {
+    private pivot: Point = { x: 0, y: 0 };
+
     constructor( private actor: Rect ) {
         super({
             width  : actor.bounds.width,
@@ -41,16 +43,19 @@ export default class RectRenderer extends Sprite {
         actor.radius = ( parser.getBrowserName() === "safari" && majorVersion < 16 ) ? 0 : actor.radius;
     }
 
-    draw( renderer: IRenderer, viewport: Viewport ): void {
+    override draw( renderer: IRenderer, viewport: Viewport ): void {
         const { left, top, width, height } = this._bounds;
         const { angle, radius } = this.actor;
 
         const rotate = angle !== 0;
 
-        // @todo can we cache these
         if ( rotate ) {
-            const pivot = this.actor.getPivot();
-            this.setRotation( radToDeg( angle ), { x: pivot.x - viewport.left, y: pivot.y - viewport.top });
+            const actorPivot = this.actor.getPivot();
+
+            this.pivot.x = actorPivot.x - viewport.left;
+            this.pivot.y = actorPivot.y - viewport.top;
+
+            this.setRotation( radToDeg( angle ), this.pivot );
         }
 
         if ( !this.isVisible( viewport )) {
