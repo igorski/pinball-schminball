@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import "vitest-canvas-mock";
 import { Sprite } from "zcanvas";
 import Actor from "@/model/actor";
+import { rectangleToPolygon } from "@/utils/math-util";
 import { getMockCanvas, getMockPhysicsEngine } from "../__mocks";
 
 describe( "Actor", () => {
@@ -88,6 +89,18 @@ describe( "Actor", () => {
             actor.cacheBounds();
 
             expect( rendererRect ).toEqual( actor.bounds );
+        });
+
+        it( `when the bounds are cached, it should be able to translate the Actors physics body
+            coordinates to the Actors on-screen bounding box coordinates`, () => {
+            const actor = new Actor({ ...ACTOR_OPTS, fixed: false }, engine, canvas, );
+
+            const rendererRect = { left: 0, top: 0, width: ACTOR_OPTS.width, height: ACTOR_OPTS.height };
+            vi.spyOn( actor.renderer, "getBounds" ).mockImplementation(() => rendererRect );
+
+            actor.cacheBounds();
+
+            expect( rectangleToPolygon( actor.renderer.getBounds() )).toEqual([ 35, 35, 65, 35, 65, 65, 35, 65 ]);
         });
 
         it( "should not sync when the bounds are cached due to the Actor having a fixed position", () => {
