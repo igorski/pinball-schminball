@@ -26,8 +26,6 @@ import type { Viewport, IRenderer } from "zcanvas";
 import type Rect from "@/model/rect";
 import { radToDeg } from "@/utils/math-util";
 
-const DEBUG = false;//import.meta.env.MODE !== "production";
-
 export default class RectRenderer extends Sprite {
     constructor( private actor: Rect ) {
         super({
@@ -44,13 +42,8 @@ export default class RectRenderer extends Sprite {
     }
 
     draw( renderer: IRenderer, viewport: Viewport ): void {
-        const { left, top, width, height } = this.actor.bounds;
+        const { left, top, width, height } = this._bounds;
         const { angle, radius } = this.actor;
-
-        // sync position and rotation with MatterJS body
-
-        this._bounds.left = left;
-        this._bounds.top  = top;
 
         const rotate = angle !== 0;
 

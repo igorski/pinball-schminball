@@ -148,6 +148,7 @@ export default {
             fps      : FRAME_RATE,
             autoSize : false,
             onUpdate : update,
+            // debug    : import.meta.env.MODE !== "production",
         });
         this.canvas.insertInPage( this.$refs.canvasContainer );
 

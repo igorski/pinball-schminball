@@ -23,10 +23,7 @@
 import type { Point, Rectangle, Sprite, Canvas as zCanvas } from "zcanvas";
 import { ActorTypes } from "@/definitions/game";
 import type { IPhysicsEngine } from "@/model/physics/engine";
-import { degToRad, rectangleToPolygon, rotateRectangle } from "@/utils/math-util";
-
-// @ts-expect-error Property 'env' does not exist on type 'ImportMeta', Vite takes care of it
-const DEBUG = import.meta.env.MODE !== "production";
+import { degToRad, rotateRectangle } from "@/utils/math-util";
 
 export type ActorArgs = {
     left?: number;
@@ -62,10 +59,8 @@ export default class Actor {
     public halfHeight: number;
 
     protected _opts: any;
-    protected _rotatedBounds: Rectangle;
     protected _pivot: Point;
-    protected _cached: boolean;
-    protected _outline: number[]; // debug only
+    protected _cached: boolean; // fixed bodies don't need to recalculate their bounds on each update
 
     constructor({
         left = 0, top = 0, width = 1, height = 1, angle = 0, radius = 0,
@@ -85,11 +80,8 @@ export default class Actor {
         this.halfWidth  = width  / 2;
         this.halfHeight = height / 2;
 
-        // the bounds supplied to the constructor correspond to the top-left
-        // coordinate of the Actor as rendered visually on-screen. The MatterJS Body
-        // representing this Actor is however offset by its centre of mass
-        // as such we "correct" this internally before syncing with the
-        // MatterJS Body during the simulation (see cacheBounds())
+        // in MatterJS bodies are offset by their center of mass, so we translate
+        // the top-left coordinate to correspond with top-left screenspace
 
         this.bounds = {
             left : left + this.halfWidth,
@@ -98,46 +90,49 @@ export default class Actor {
             height
         };
 
-        this._pivot = { x: 0, y: 0 };
-
         if ( this.angle !== 0 ) {
-            this._rotatedBounds = rotateRectangle( this.bounds, this.angle );
+            const rotatedBounds = rotateRectangle( this.bounds, this.angle );
 
-            this.bounds.left -= ( width  - this._rotatedBounds.width ) / 2;
-            this.bounds.top  -= ( height - this._rotatedBounds.height ) / 2;
+            this.bounds.left -= ( width  - rotatedBounds.width )  / 2;
+            this.bounds.top  -= ( height - rotatedBounds.height ) / 2;
         }
 
-        // instance variables used by getters (prevents garbage collector hit)
-        // invocation of cacheBounds() on position update will set the values properly
-
-        this._outline = [];
+        this._pivot = { x: 0, y: 0 };
 
         this.register( engine, canvas );
+       
         if ( this.body ) {
             this.cacheBounds();
         }
         this._cached = this.fixed;
     }
 
+    /**
+     * Sync the Actor with the updated MatterJS Body
+     */
     cacheBounds(): Rectangle {
         if ( this._cached ) {
             return this.bounds;
         }
-        this.bounds.left = this.body.position.x - this.halfWidth;
-        this.bounds.top  = this.body.position.y - this.halfHeight;
+        // the bounds supplied to the Sprites correspond to the top-left
+        // coordinate of the Actor as rendered visually on-screen. The MatterJS Body
+        // representing this Actor is however offset by its centre of mass
+        // as such we correct this by substracting half the width/height
 
-        if ( this.angle !== 0 ) {
-            this._rotatedBounds = rotateRectangle( this.bounds, this.angle );
-        }
+        const { x, y } = this.body!.position;
 
-        if ( DEBUG ) {
-            this._outline = rectangleToPolygon( this.bounds );
+        this.bounds.left = x - this.halfWidth;
+        this.bounds.top  = y - this.halfHeight;
+
+        // update the renderer
+
+        if ( this.renderer ) {
+            const rendererBounds = this.renderer.getBounds();
+        
+            rendererBounds.left = this.bounds.left;
+            rendererBounds.top =  this.bounds.top;
         }
         return this.bounds;
-    }
-
-    getOutline(): number[] {
-        return this._outline;
     }
 
     dispose( engine: IPhysicsEngine ): void {

@@ -24,21 +24,14 @@ import { Sprite } from "zcanvas";
 import type { Viewport, IRenderer } from "zcanvas";
 import type Trigger from "@/model/trigger";
 
-const SPIN_SPEED = 30;
-
 export default class TriggerRenderer extends Sprite {
     constructor( private actor: Trigger ) {
         super({ width: actor.bounds.width, height: actor.bounds.width });
     }
 
     draw( renderer: IRenderer, viewport: Viewport ): void {
-        const { left, top } = this.actor.bounds;
+        const { left, top } = this._bounds;
         const { radius } = this.actor;
-
-        // sync position with MatterJS body
-
-        this._bounds.left = left;
-        this._bounds.top  = top;
 
         if ( !this.isVisible( viewport )) {
             return; // out of visual bounds

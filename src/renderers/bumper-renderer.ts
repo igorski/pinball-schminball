@@ -25,10 +25,6 @@ import type { Point, Viewport, IRenderer } from "zcanvas";
 import type Actor from "@/model/actor";
 import type Bumper from "@/model/bumper";
 
-const SPIN_SPEED = 30;
-
-const DEBUG = false;//import.meta.env.MODE !== "production";
-
 export default class BumperRenderer extends Sprite {
     protected collisionAnimation = false;
     protected collisionIterations = 0;
@@ -47,7 +43,7 @@ export default class BumperRenderer extends Sprite {
     }
 
     draw( renderer: IRenderer, viewport: Viewport ): void {
-        let { left, top } = this.actor.bounds;
+        let { left, top } = this._bounds;
 
         const { collided } = this.actor as Bumper;
         let { radius } = this.actor;
@@ -57,11 +53,6 @@ export default class BumperRenderer extends Sprite {
             left = this.collisionOffset.x;
             top = this.collisionOffset.y;
         }
-
-        // sync bouds with MatterJS body
-
-        this._bounds.left = left;
-        this._bounds.top  = top;
 
         if ( !this.isVisible( viewport )) {
             return; // out of visual bounds

@@ -27,10 +27,6 @@ import Actor from "@/model/actor";
 import type { ActorArgs, IRendererClass } from "@/model/actor";
 import { setupTableBody } from "@/model/physics/engine";
 import RectRenderer from "@/renderers/rect-renderer";
-import { rectangleToPolygon, rectangleToRotatedPolygon } from "@/utils/math-util";
-
-// @ts-expect-error Property 'env' does not exist on type 'ImportMeta', Vite takes care of it
-const DEBUG = import.meta.env.MODE !== "production";
 
 export default class Rect extends Actor {
     /**
@@ -59,13 +55,6 @@ export default class Rect extends Actor {
         this._pivot.x = left + this.halfWidth;
         this._pivot.y = top  + this.halfHeight;
 
-        if ( DEBUG ) {
-            if ( this.angle === 0 ) {
-                this._outline = rectangleToPolygon( this.bounds );
-            } else {
-                this._outline = rectangleToRotatedPolygon( this.bounds, this.angle, this._pivot.x, this._pivot.y );
-            }
-        }
         return this.bounds;
     }
 

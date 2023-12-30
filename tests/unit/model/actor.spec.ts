@@ -1,13 +1,8 @@
-import { describe, it, expect, afterEach, vi } from "vitest";
-import type { Sprite } from "zcanvas";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import "vitest-canvas-mock";
+import { Sprite } from "zcanvas";
 import Actor from "@/model/actor";
 import { getMockCanvas, getMockPhysicsEngine } from "../__mocks";
-
-vi.mock( "zcanvas", () => ({
-    Sprite: class {
-        dispose() {}
-    },
-}));
 
 describe( "Actor", () => {
     const engine = getMockPhysicsEngine();
@@ -31,19 +26,18 @@ describe( "Actor", () => {
         it( "should not add a renderer to the provided canvas when no renderer class is provided", () => {
             const canvasSpy = vi.spyOn( canvas, "addChild" );
 
-            const actor = new Actor({}, engine, canvas );
+            new Actor({}, engine, canvas );
 
             expect( canvasSpy ).not.toHaveBeenCalled();
         });
 
         it( "should add a renderer to the provided canvas when the renderer class is provided", () => {
             const canvasSpy = vi.spyOn( canvas, "addChild" );
-            const mockSprite = vi.fn() as never as typeof Sprite;
 
             const getRendererClassMock = vi.spyOn( Actor.prototype, "getRendererClass" )
-                .mockImplementation( function() { return mockSprite; });
+                .mockImplementation( function() { return Sprite; });
 
-            const actor = new Actor({}, engine, canvas );
+            new Actor({}, engine, canvas );
 
             expect( canvasSpy ).toHaveBeenCalled();
         });
@@ -70,19 +64,40 @@ describe( "Actor", () => {
         expect( actor.renderer ).toBeNull();
     });
 
-    it( "should transform the initial bounds given in the constructor to on-screen coordinates relative to the physics Body", () => {
-        const actor = new Actor( ACTOR_OPTS, engine, canvas );
-        actor.cacheBounds();
+    describe( "when updating its bounds to reflect changes in its MatterJS body", () => {
+        beforeEach(() => {
+            vi.spyOn( Actor.prototype, "getRendererClass" ).mockImplementation( function() {
+                return Sprite;
+            });
+        });
 
-        const { left, top, width, height } = ACTOR_OPTS;
-        expect( actor.bounds ).toEqual({ left: left - width / 2, top: top - height / 2, width, height });
-    });
+        it( "should transform the initial bounds given in the constructor to on-screen coordinates relative to the physics Body", () => {
+            const actor = new Actor( ACTOR_OPTS, engine, canvas );
+            actor.cacheBounds();
 
-    it( `when the bounds are cached, it should be able to translate the Actors physics body
-         coordinates to the Actors on-screen bounding box coordinates`, () => {
-        const actor = new Actor( ACTOR_OPTS, engine, canvas );
-        actor.cacheBounds();
+            const { left, top, width, height } = ACTOR_OPTS;
+            expect( actor.bounds ).toEqual({ left: left - width / 2, top: top - height / 2, width, height });
+        });
 
-        expect( actor.getOutline() ).toEqual([ 35, 35, 65, 35, 65, 65, 35, 65 ]);
+        it( "should sync the update with its renderer", () => {
+            const actor = new Actor({ ...ACTOR_OPTS, fixed: false }, engine, canvas );
+
+            const rendererRect = { left: 0, top: 0, width: ACTOR_OPTS.width, height: ACTOR_OPTS.height };
+            vi.spyOn( actor.renderer, "getBounds" ).mockImplementation(() => rendererRect );
+
+            actor.cacheBounds();
+
+            expect( rendererRect ).toEqual( actor.bounds );
+        });
+
+        it( "should not sync when the bounds are cached due to the Actor having a fixed position", () => {
+            const actor = new Actor({ ...ACTOR_OPTS, fixed: true }, engine, canvas );
+
+            const updateSpy = vi.spyOn( actor.renderer, "getBounds" );
+
+            actor.cacheBounds();
+
+            expect( updateSpy ).not.toHaveBeenCalled();
+        });
     });
 });

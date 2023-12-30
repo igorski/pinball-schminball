@@ -1,13 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import "vitest-canvas-mock";
 import { TriggerTarget, TriggerTypes, TRIGGER_EXPIRY, SEQUENCE_REPEAT_WINDOW } from "@/definitions/game";
 import TriggerGroup from "@/model/trigger-group";
 import { getMockCanvas, getMockPhysicsEngine } from "../__mocks";
-
-vi.mock( "zcanvas", () => ({
-    Sprite: class {
-        dispose() {}
-    },
-}));
 
 describe( "Trigger Group", () => {
     const engine = getMockPhysicsEngine();

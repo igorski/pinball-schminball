@@ -27,8 +27,6 @@ import type Flipper from "@/model/flipper";
 import { radToDeg } from "@/utils/math-util";
 import SpriteCache from "@/utils/sprite-cache";
 
-const DEBUG = false;//import.meta.env.MODE !== "production";
-
 export default class FlipperRenderer extends Sprite {
     constructor( private actor: Flipper ) {
         super({
@@ -39,14 +37,9 @@ export default class FlipperRenderer extends Sprite {
     }
 
     draw( renderer: IRenderer, viewport: Viewport ): void {
-        const { left, top, width, height } = this.actor.bounds;
-        const angle  = this.actor.angle;
+        const { left, top, width, height } = this._bounds;
+        const { angle } = this.actor;
         const rotate = angle !== 0;
-        
-        // sync bounds and rotation with MatterJS body
-
-        this._bounds.left = left;
-        this._bounds.top  = top;
 
         if ( rotate ) {
             const pivot = this.actor.getPivot();

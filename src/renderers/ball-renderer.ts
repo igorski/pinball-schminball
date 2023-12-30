@@ -48,7 +48,7 @@ export default class BallRenderer extends Sprite {
     }
 
     draw( renderer: IRenderer, viewport: Viewport ): void {
-        this.update();
+        this.update(); // needs manual sync as Balls are not part of the main Actor map (see game#update)
 
         if ( !this.isVisible( viewport )) {
             return; // out of visual bounds
