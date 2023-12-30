@@ -22,7 +22,7 @@
  */
 export type CachedImageType = {
     resourceId: string;
-    bitmap: HTMLImageElement | undefined;
+    bitmap: HTMLImageElement | ImageBitmap | undefined;
 };
 
 export default class SpriteCache {

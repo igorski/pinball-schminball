@@ -32,12 +32,17 @@ export default class TriggerRenderer extends Sprite {
     }
 
     draw( renderer: IRenderer, viewport: Viewport ): void {
-        if ( !this.actor.isInsideViewport( viewport )) {
-            return;
-        }
-
-        const { left, top, width, height } = this.actor.bounds;
+        const { left, top } = this.actor.bounds;
         const { radius } = this.actor;
+
+        // sync position with MatterJS body
+
+        this._bounds.left = left;
+        this._bounds.top  = top;
+
+        if ( !this.isVisible( viewport )) {
+            return; // out of visual bounds
+        }
 
         renderer.drawCircle(
             left - viewport.left, top - viewport.top, radius,

@@ -20,8 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import type { Point, Rectangle, Viewport, sprite, canvas as zCanvas } from "zcanvas";
-import { collision } from "zcanvas";
+import type { Point, Rectangle, Sprite, Canvas as zCanvas } from "zcanvas";
 import { ActorTypes } from "@/definitions/game";
 import type { IPhysicsEngine } from "@/model/physics/engine";
 import { degToRad, rectangleToPolygon, rotateRectangle } from "@/utils/math-util";
@@ -43,7 +42,7 @@ export type ActorArgs = {
     opts?: any;
 };
 
-export type IRendererClass = new ( actor: Actor ) => sprite;
+export type IRendererClass = new ( actor: Actor ) => Sprite;
 
 let INSTANCE_NUM = 0;
 
@@ -51,7 +50,7 @@ export default class Actor {
     public id: number;
     public bounds: Rectangle;
     public radius: number;
-    public renderer: sprite;
+    public renderer: Sprite;
     public type: ActorTypes;
     public fixed: boolean;
     public sensor: boolean;
@@ -139,14 +138,6 @@ export default class Actor {
 
     getOutline(): number[] {
         return this._outline;
-    }
-
-    isInsideViewport( viewport: Viewport ): boolean {
-        return true; // QQQ !!!
-        return collision.isInsideViewport(
-            this.angle !== 0 ? this._rotatedBounds : this.bounds,
-            viewport
-        );
     }
 
     dispose( engine: IPhysicsEngine ): void {

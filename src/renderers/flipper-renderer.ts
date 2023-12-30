@@ -39,13 +39,14 @@ export default class FlipperRenderer extends Sprite {
     }
 
     draw( renderer: IRenderer, viewport: Viewport ): void {
-        if ( !this.actor.isInsideViewport( viewport )) {
-            return;
-        }
-
         const { left, top, width, height } = this.actor.bounds;
-        const angle = this.actor.angle;
+        const angle  = this.actor.angle;
         const rotate = angle !== 0;
+        
+        // sync bounds and rotation with MatterJS body
+
+        this._bounds.left = left;
+        this._bounds.top  = top;
 
         if ( rotate ) {
             const pivot = this.actor.getPivot();
@@ -53,6 +54,10 @@ export default class FlipperRenderer extends Sprite {
                 x: pivot.x - viewport.left,
                 y: pivot.y - viewport.top,
             });
+        }
+
+        if ( !this.isVisible( viewport )) {
+            return; // out of visual bounds
         }
 
         renderer.drawImageCropped(

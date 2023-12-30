@@ -1,14 +1,11 @@
 import { describe, it, expect, afterEach, vi } from "vitest";
-import type { sprite } from "zcanvas";
+import type { Sprite } from "zcanvas";
 import Actor from "@/model/actor";
 import { getMockCanvas, getMockPhysicsEngine } from "../__mocks";
 
 vi.mock( "zcanvas", () => ({
-    sprite: class {
+    Sprite: class {
         dispose() {}
-    },
-    collision: {
-        isInsideViewport: vi.fn(() => true ),
     },
 }));
 
@@ -41,7 +38,7 @@ describe( "Actor", () => {
 
         it( "should add a renderer to the provided canvas when the renderer class is provided", () => {
             const canvasSpy = vi.spyOn( canvas, "addChild" );
-            const mockSprite = vi.fn() as never as typeof sprite;
+            const mockSprite = vi.fn() as never as typeof Sprite;
 
             const getRendererClassMock = vi.spyOn( Actor.prototype, "getRendererClass" )
                 .mockImplementation( function() { return mockSprite; });
@@ -64,7 +61,7 @@ describe( "Actor", () => {
     it( "should also dispose its renderer on disposal", () => {
         const actor = new Actor({}, engine, canvas );
 
-        const renderer = { dispose: vi.fn() } as never as sprite;
+        const renderer = { dispose: vi.fn() } as never as Sprite;
         actor.renderer = renderer;
 
         actor.dispose( engine );

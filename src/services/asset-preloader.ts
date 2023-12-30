@@ -36,7 +36,7 @@ const queue = [
     { src: `${assetRoot}ball.png`,          type: "bitmap", cache: SpriteCache.BALL },
     { src: `${assetRoot}flipper_left.png`,  type: "bitmap", cache: SpriteCache.FLIPPER_LEFT },
     { src: `${assetRoot}flipper_right.png`, type: "bitmap", cache: SpriteCache.FLIPPER_RIGHT },
-];
+] as QueueEntry[];
 const loadContainer: HTMLElement = document.createElement( "div" );
 
 export const preloadAssets = async (): Promise<void> =>
@@ -47,7 +47,7 @@ export const preloadAssets = async (): Promise<void> =>
     // harvest all assets from the available tables
 
     for ( const table of Tables ) {
-        addToQueueWhenExisting( table.background, SpriteCache.BACKGROUND );
+        addToQueueWhenExisting( table.background );
         addToQueueWhenExisting( table.body?.source );
         table.reflectors?.map( reflector => addToQueueWhenExisting( reflector.source ));
     }

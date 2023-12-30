@@ -20,7 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import type { canvas as zCanvas } from "zcanvas";
+import type { Canvas as zCanvas } from "zcanvas";
 import { ActorTypes, ActorLabels } from "@/definitions/game";
 import Actor from "@/model/actor";
 import type { ActorArgs, IRendererClass } from "@/model/actor";

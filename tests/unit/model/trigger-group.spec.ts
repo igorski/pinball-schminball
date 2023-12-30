@@ -4,11 +4,8 @@ import TriggerGroup from "@/model/trigger-group";
 import { getMockCanvas, getMockPhysicsEngine } from "../__mocks";
 
 vi.mock( "zcanvas", () => ({
-    sprite: class {
+    Sprite: class {
         dispose() {}
-    },
-    collision: {
-        isInsideViewport: vi.fn(() => true ),
     },
 }));
 

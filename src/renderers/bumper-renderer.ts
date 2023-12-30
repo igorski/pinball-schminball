@@ -47,10 +47,6 @@ export default class BumperRenderer extends Sprite {
     }
 
     draw( renderer: IRenderer, viewport: Viewport ): void {
-        if ( !this.actor.isInsideViewport( viewport )) {
-            return;
-        }
-
         let { left, top } = this.actor.bounds;
 
         const { collided } = this.actor as Bumper;
@@ -60,6 +56,15 @@ export default class BumperRenderer extends Sprite {
             radius = this.collisionRadius;
             left = this.collisionOffset.x;
             top = this.collisionOffset.y;
+        }
+
+        // sync bouds with MatterJS body
+
+        this._bounds.left = left;
+        this._bounds.top  = top;
+
+        if ( !this.isVisible( viewport )) {
+            return; // out of visual bounds
         }
 
         renderer.drawCircle(

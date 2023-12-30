@@ -39,17 +39,22 @@ export default class BallRenderer extends Sprite {
         if ( x === 0 ) {
             x = 0.2; // ball should always spin, even when moving solely on vertical axis
         }
+        const { left, top } = this.actor.bounds;
+
+        this._bounds.left = left;
+        this._bounds.top  = top;
+
         this.setRotation( isMoving ? this.getRotation() + ( x * SPIN_SPEED ) : this.getRotation() - ( x * SPIN_SPEED ));
     }
 
     draw( renderer: IRenderer, viewport: Viewport ): void {
         this.update();
 
-        if ( !this.actor.isInsideViewport( viewport )) {
-            return;
+        if ( !this.isVisible( viewport )) {
+            return; // out of visual bounds
         }
 
-        const { left, top, width, height } = this.actor.bounds;
+        const { left, top, width, height } = this._bounds;
 
         // the ball spins while moving, rotate the canvas prior to rendering as usual
 

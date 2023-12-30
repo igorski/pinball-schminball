@@ -44,12 +44,13 @@ export default class RectRenderer extends Sprite {
     }
 
     draw( renderer: IRenderer, viewport: Viewport ): void {
-        if ( !this.actor.isInsideViewport( viewport )) {
-            return;
-        }
-
         const { left, top, width, height } = this.actor.bounds;
         const { angle, radius } = this.actor;
+
+        // sync position and rotation with MatterJS body
+
+        this._bounds.left = left;
+        this._bounds.top  = top;
 
         const rotate = angle !== 0;
 
@@ -57,6 +58,10 @@ export default class RectRenderer extends Sprite {
         if ( rotate ) {
             const pivot = this.actor.getPivot();
             this.setRotation( radToDeg( angle ), { x: pivot.x - viewport.left, y: pivot.y - viewport.top });
+        }
+
+        if ( !this.isVisible( viewport )) {
+            return; // out of visual bounds
         }
 
         const color = "gray";
