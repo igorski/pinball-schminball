@@ -81,7 +81,7 @@ export default class Actor {
         this.halfHeight = height / 2;
 
         // in MatterJS bodies are offset by their center of mass, so we translate
-        // the top-left coordinate to correspond with top-left screenspace
+        // the top-left coordinate to correspond with this centered anchoring
 
         this.bounds = {
             left : left + this.halfWidth,
