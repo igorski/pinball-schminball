@@ -38,11 +38,14 @@ export default class BumperRenderer extends Sprite {
         this.collisionRadius = this.actor.radius * 1.1;
         this.collisionOffset = {
             x: this.actor.bounds.left - (( this.collisionRadius - this.actor.radius ) / 2 ),
-            y: this.actor.bounds.top - (( this.collisionRadius - this.actor.radius ) / 2 )
+            y: this.actor.bounds.top  - (( this.collisionRadius - this.actor.radius ) / 2 )
         };
     }
 
     override draw( renderer: IRenderer, viewport: Viewport ): void {
+        if ( !this.isVisible( viewport )) {
+            return; // out of visual bounds
+        }
         let { left, top } = this._bounds;
 
         const { collided } = this.actor as Bumper;
@@ -52,10 +55,6 @@ export default class BumperRenderer extends Sprite {
             radius = this.collisionRadius;
             left = this.collisionOffset.x;
             top = this.collisionOffset.y;
-        }
-
-        if ( !this.isVisible( viewport )) {
-            return; // out of visual bounds
         }
 
         renderer.drawCircle(
