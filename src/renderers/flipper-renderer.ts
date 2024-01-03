@@ -20,63 +20,47 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import { sprite } from "zcanvas";
-import type { Viewport } from "zcanvas";
+import { Sprite } from "zcanvas";
+import type { Point, Viewport, IRenderer } from "zcanvas";
 import { ActorTypes } from "@/definitions/game";
 import type Flipper from "@/model/flipper";
+import { radToDeg } from "@/utils/math-util";
 import SpriteCache from "@/utils/sprite-cache";
 
-const DEBUG = false;//import.meta.env.MODE !== "production";
+export default class FlipperRenderer extends Sprite {
+    private pivot: Point = { x: 0, y: 0 };
 
-export default class FlipperRenderer extends sprite {
     constructor( private actor: Flipper ) {
         super({
-            bitmap : actor.type === ActorTypes.LEFT_FLIPPER ? SpriteCache.FLIPPER_LEFT : SpriteCache.FLIPPER_RIGHT,
+            resourceId : actor.type === ActorTypes.LEFT_FLIPPER ? SpriteCache.FLIPPER_LEFT.resourceId : SpriteCache.FLIPPER_RIGHT.resourceId,
             width  : actor.bounds.width,
             height : actor.bounds.height
         });
     }
 
-    draw( ctx: CanvasRenderingContext2D, viewport: Viewport ): void {
-        if ( !this._bitmapReady || !this.actor.isInsideViewport( viewport )) {
-            return;
-        }
-
-        const { left, top, width, height } = this.actor.bounds;
-        const angle = this.actor.angle;
+    override draw( renderer: IRenderer, viewport: Viewport ): void {
+        const { left, top, width, height } = this._bounds;
+        const { angle } = this.actor;
         const rotate = angle !== 0;
 
         if ( rotate ) {
-            const pivot = this.actor.getPivot();
-            ctx.save();
-            const xD = pivot.x - viewport.left;
-            const yD = pivot.y - viewport.top;
-            ctx.translate( xD, yD );
-            ctx.rotate( angle );
-            ctx.translate( -xD, -yD );
+            const actorPivot = this.actor.getPivot();
+
+            this.pivot.x = actorPivot.x - viewport.left;
+            this.pivot.y = actorPivot.y - viewport.top;
+
+            this.setRotation( radToDeg( angle ), this.pivot );
         }
 
-        ctx.drawImage(
-            this._bitmap, 0, 0, width, height, left - viewport.left, top - viewport.top, width, height
+        if ( !this.isVisible( viewport )) {
+            return; // out of visual bounds
+        }
+
+        renderer.drawImageCropped(
+            this._resourceId,
+            0, 0, width, height,
+            left - viewport.left, top - viewport.top, width, height,
+            this.getDrawProps(),
         );
-
-        if ( rotate ) {
-            ctx.restore();
-        }
-
-        if ( DEBUG ) {
-            ctx.save();
-            const vector = this.actor.getOutline();
-            ctx.strokeStyle = "red";
-            ctx.translate( -viewport.left, -viewport.top );
-            ctx.beginPath();
-            ctx.moveTo( vector[ 0 ], vector[ 1 ]);
-            for ( let i = 2; i < vector.length; i += 2 ) {
-                ctx.lineTo( vector[ i ], vector[ i + 1 ] );
-            }
-            ctx.closePath();
-            ctx.stroke();
-            ctx.restore();
-        }
     }
 };

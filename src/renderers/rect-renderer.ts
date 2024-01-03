@@ -21,14 +21,14 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import Bowser from "bowser";
-import { sprite } from "zcanvas";
-import type { Viewport } from "zcanvas";
+import { Sprite } from "zcanvas";
+import type { Point, Viewport, IRenderer } from "zcanvas";
 import type Rect from "@/model/rect";
-import SpriteCache from "@/utils/sprite-cache";
+import { radToDeg } from "@/utils/math-util";
 
-const DEBUG = false;//import.meta.env.MODE !== "production";
+export default class RectRenderer extends Sprite {
+    private pivot: Point = { x: 0, y: 0 };
 
-export default class RectRenderer extends sprite {
     constructor( private actor: Rect ) {
         super({
             width  : actor.bounds.width,
@@ -43,53 +43,31 @@ export default class RectRenderer extends sprite {
         actor.radius = ( parser.getBrowserName() === "safari" && majorVersion < 16 ) ? 0 : actor.radius;
     }
 
-    draw( ctx: CanvasRenderingContext2D, viewport: Viewport ): void {
-        if ( !this.actor.isInsideViewport( viewport )) {
-            return;
-        }
-
-        const { left, top, width, height } = this.actor.bounds;
+    override draw( renderer: IRenderer, viewport: Viewport ): void {
+        const { left, top, width, height } = this._bounds;
         const { angle, radius } = this.actor;
 
         const rotate = angle !== 0;
 
         if ( rotate ) {
-            const pivot = this.actor.getPivot();
-            ctx.save();
-            const xD = pivot.x - viewport.left;
-            const yD = pivot.y - viewport.top;
-            ctx.translate( xD, yD );
-            ctx.rotate( angle );
-            ctx.translate( -xD, -yD );
+            const actorPivot = this.actor.getPivot();
+
+            this.pivot.x = actorPivot.x - viewport.left;
+            this.pivot.y = actorPivot.y - viewport.top;
+
+            this.setRotation( radToDeg( angle ), this.pivot );
         }
 
-        ctx.fillStyle = "gray";
+        if ( !this.isVisible( viewport )) {
+            return; // out of visual bounds
+        }
+
+        const color = "gray";
 
         if ( radius === 0 ) {
-            ctx.fillRect( left - viewport.left, top - viewport.top, width, height );
+            renderer.drawRect( left - viewport.left, top - viewport.top, width, height, color, undefined, this.getDrawProps() );
         } else {
-            ctx.beginPath();
-            ctx.roundRect( left - viewport.left, top - viewport.top, width, height, radius );
-            ctx.fill();
-        }
-
-        if ( rotate ) {
-            ctx.restore();
-        }
-
-        if ( DEBUG ) {
-            const bbox = this.actor.getOutline();
-            ctx.save();
-            ctx.strokeStyle = "red";
-            ctx.translate( -viewport.left, -viewport.top );
-            ctx.beginPath();
-            ctx.moveTo( bbox[ 0 ], bbox[ 1 ] );
-            for ( let i = 2; i < bbox.length; i += 2 ) {
-                ctx.lineTo( bbox[ i ], bbox[ i + 1 ] );
-            }
-            ctx.closePath();
-            ctx.stroke();
-            ctx.restore();
+            renderer.drawRoundRect( left - viewport.left, top - viewport.top, width, height, radius, color, undefined, this.getDrawProps() );
         }
     }
 };

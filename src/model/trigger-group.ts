@@ -20,11 +20,10 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import type { canvas as zCanvas } from "zcanvas";
+import type { Canvas as zCanvas } from "zcanvas";
 import type { ObjectDef, TriggerDef, GameMessages } from "@/definitions/game";
 import { ActorLabels, TriggerTypes, TriggerTarget, TRIGGER_EXPIRY, SEQUENCE_REPEAT_WINDOW } from "@/definitions/game";
 import Actor from "@/model/actor";
-import type { ActorArgs } from "@/model/actor";
 import type { IPhysicsEngine } from "@/model/physics/engine";
 import Trigger from "@/model/trigger";
 

@@ -20,24 +20,17 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import { sprite } from "zcanvas";
-import type { Viewport } from "zcanvas";
+import { Sprite } from "zcanvas";
+import type { Viewport, IRenderer } from "zcanvas";
 import { BALL_WIDTH, BALL_HEIGHT } from "@/definitions/game";
 import type Actor from "@/model/actor";
-import { degToRad } from "@/utils/math-util";
 import SpriteCache from "@/utils/sprite-cache";
 
 const SPIN_SPEED = 30;
 
-const DEBUG = false;//import.meta.env.MODE !== "production";
-
-export default class BallRenderer extends sprite {
-    private spin: number = 0;
-
+export default class BallRenderer extends Sprite {
     constructor( private actor: Actor ) {
-        super({ bitmap: SpriteCache.BALL, width: BALL_WIDTH, height: BALL_HEIGHT });
-
-        this.spin = 0;
+        super({ resourceId: SpriteCache.BALL.resourceId, width: BALL_WIDTH, height: BALL_HEIGHT });
     }
 
     update(): void {
@@ -46,44 +39,30 @@ export default class BallRenderer extends sprite {
         if ( x === 0 ) {
             x = 0.2; // ball should always spin, even when moving solely on vertical axis
         }
-        this.spin = ( isMoving ? this.spin + ( x * SPIN_SPEED ): this.spin - ( x * SPIN_SPEED )) % 360;
+        const { left, top } = this.actor.bounds;
+
+        this._bounds.left = left;
+        this._bounds.top  = top;
+
+        this.setRotation( isMoving ? this.getRotation() + ( x * SPIN_SPEED ) : this.getRotation() - ( x * SPIN_SPEED ));
     }
 
-    draw( ctx: CanvasRenderingContext2D, viewport: Viewport ): void {
-        this.update();
+    override draw( renderer: IRenderer, viewport: Viewport ): void {
+        this.update(); // needs manual sync as Balls are not part of the main Actor map (see game#update)
 
-        if ( !this._bitmapReady || !this.actor.isInsideViewport( viewport )) {
-            return;
+        if ( !this.isVisible( viewport )) {
+            return; // out of visual bounds
         }
 
-        const { left, top, width, height } = this.actor.bounds;
+        const { left, top, width, height } = this._bounds;
 
         // the ball spins while moving, rotate the canvas prior to rendering as usual
-        ctx.save();
-        const dx = ( left - viewport.left ) + this.actor.halfWidth;
-        const dy = ( top - viewport.top )  + this.actor.halfHeight;
-        ctx.translate( dx, dy );
-        ctx.rotate( degToRad( this.spin ));
-        ctx.translate( -dx, -dy );
 
-        ctx.drawImage(
-            this._bitmap, 0, 0, width, height, left - viewport.left, top - viewport.top, width, height
+        renderer.drawImageCropped(
+            this._resourceId,
+            0, 0, width, height,
+            left - viewport.left, top - viewport.top, width, height,
+            this.getDrawProps(),
         );
-        ctx.restore();
-
-        if ( DEBUG ) {
-            ctx.save();
-            const bbox = this.actor.getOutline();
-            ctx.translate( -viewport.left, -viewport.top );
-            ctx.strokeStyle = "red";
-            ctx.beginPath();
-            ctx.moveTo( bbox[ 0 ], bbox[ 1 ] );
-            for ( let i = 2; i < bbox.length; i += 2 ) {
-                ctx.lineTo( bbox[ i ], bbox[ i + 1 ] );
-            }
-            ctx.closePath();
-            ctx.stroke();
-            ctx.restore();
-        }
     }
 };

@@ -20,51 +20,30 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import { sprite } from "zcanvas";
-import type { Viewport } from "zcanvas";
-import { BALL_WIDTH, BALL_HEIGHT } from "@/definitions/game";
+import { Sprite } from "zcanvas";
+import type { Viewport, IRenderer, StrokeProps } from "zcanvas";
 import type Trigger from "@/model/trigger";
-import { degToRad } from "@/utils/math-util";
-import SpriteCache from "@/utils/sprite-cache";
 
-const SPIN_SPEED = 30;
+export default class TriggerRenderer extends Sprite {
+    private stroke: StrokeProps = { color: "#FFF", size: 2 };
 
-const DEBUG = false;//import.meta.env.MODE !== "production";
-
-export default class TriggerRenderer extends sprite {
     constructor( private actor: Trigger ) {
         super({ width: actor.bounds.width, height: actor.bounds.width });
     }
 
-    draw( ctx: CanvasRenderingContext2D, viewport: Viewport ): void {
-        if ( !this.actor.isInsideViewport( viewport )) {
-            return;
+    override draw( renderer: IRenderer, viewport: Viewport ): void {
+        if ( !this.isVisible( viewport )) {
+            return; // out of visual bounds
         }
 
-        const { left, top, width, height } = this.actor.bounds;
+        const { left, top } = this._bounds;
         const { radius } = this.actor;
 
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(( left - viewport.left ) + radius, ( top - viewport.top ) + radius, radius, 0, 2 * Math.PI );
-        ctx.strokeStyle = this.actor.active ? "#FFF" : "#00AEEF";
-        ctx.lineWidth = 2;
-        ctx.stroke();
+        this.stroke.color = this.actor.active ? "#FFF" : "#00AEEF";
 
-        if ( DEBUG ) {
-            ctx.save();
-            const bbox = this.actor.getOutline();
-            ctx.translate( -viewport.left, -viewport.top );
-            ctx.strokeStyle = "red";
-            ctx.beginPath();
-            ctx.moveTo( bbox[ 0 ], bbox[ 1 ] );
-            for ( let i = 2; i < bbox.length; i += 2 ) {
-                ctx.lineTo( bbox[ i ], bbox[ i + 1 ] );
-            }
-            ctx.closePath();
-            ctx.stroke();
-            ctx.restore();
-        }
-        ctx.restore();
+        renderer.drawCircle(
+            left - viewport.left, top - viewport.top, radius,
+            "transparent", this.stroke
+        );
     }
 };

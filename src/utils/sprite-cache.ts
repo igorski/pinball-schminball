@@ -20,14 +20,14 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-export default {
-    BACKGROUND    : createImagePlaceholder(),
-    BALL          : createImagePlaceholder(),
-    FLIPPER_LEFT  : createImagePlaceholder(),
-    FLIPPER_RIGHT : createImagePlaceholder(),
+export type CachedImageType = {
+    resourceId: string;
+    bitmap: HTMLImageElement | ImageBitmap | undefined;
 };
 
-// @ts-expect-error typeof Image suggested instead of instance...
-function createImagePlaceholder(): Image {
-    return new Image();
-}
+export default class SpriteCache {
+    static BACKGROUND    : CachedImageType = { resourceId: "background",    bitmap: undefined };
+    static BALL          : CachedImageType = { resourceId: "ball",          bitmap: undefined };
+    static FLIPPER_LEFT  : CachedImageType = { resourceId: "flipper_left",  bitmap: undefined };
+    static FLIPPER_RIGHT : CachedImageType = { resourceId: "flipper_right", bitmap: undefined };
+};
