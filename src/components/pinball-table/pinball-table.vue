@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021-2023 - https://www.igorski.nl
+ * Igor Zinken 2021-2024 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -23,6 +23,7 @@
 <template>
     <div>
         <div
+            v-show="gameActive"
             ref="canvasContainer"
             class="canvas-container"
             :class="{
@@ -113,6 +114,10 @@ export default {
             type: Object as PropType<GameDef>,
             required: true,
         },
+        gameActive: {
+            type: Boolean,
+            required: true,
+        },
         useVhs: {
             type: Boolean,
             default: false,
@@ -148,6 +153,7 @@ export default {
             fps      : FRAME_RATE,
             autoSize : false,
             onUpdate : update,
+            backgroundColor: "#000", // disables alpha blending of DOM element
             // debug    : import.meta.env.MODE !== "production",
         });
         this.canvas.insertInPage( this.$refs.canvasContainer );
