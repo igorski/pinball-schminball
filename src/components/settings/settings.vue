@@ -42,22 +42,12 @@
             <Toggle v-model="fullscreen" />
         </div>
     </fieldset>
-    <fieldset class="ps-fieldset ps-fieldset--bordered">
-        <div class="settings-wrapper">
-            <label v-t="'settings.useThrottling'"></label>
-            <Toggle v-model="useThrottling" />
-        </div>
-        <p
-            v-t="'settings.throttleExpl'"
-            class="ps-input-explanation"
-        ></p>
-    </fieldset>
 </template>
 
 <script lang="ts">
 import Bowser from "bowser";
 import Toggle from "@vueform/toggle";
-import { STORED_DISABLE_THROTTLING, STORED_DISABLE_VHS_EFFECT, STORED_FULLSCREEN } from "@/definitions/settings";
+import { STORED_DISABLE_VHS_EFFECT, STORED_FULLSCREEN } from "@/definitions/settings";
 import { getFxMuted, setFxMuted, getMusicMuted, setMusicMuted } from "@/services/audio-service";
 import { isFullscreen, toggleFullscreen } from "@/utils/fullscreen-util";
 import { getFromStorage, setInStorage } from "@/utils/local-storage";
@@ -67,7 +57,6 @@ export default {
         Toggle,
     },
     data: () => ({
-        useThrottling: getFromStorage( STORED_DISABLE_THROTTLING ) !== "true",
         useVHS: getFromStorage( STORED_DISABLE_VHS_EFFECT ) !== "true",
         playSound: !getFxMuted(),
         playMusic: !getMusicMuted(),
@@ -79,9 +68,6 @@ export default {
         }
     },
     watch: {
-        useThrottling( value: boolean ): void {
-            setInStorage( STORED_DISABLE_THROTTLING, ( !value ).toString() );
-        },
         useVHS( value: boolean ): void {
             setInStorage( STORED_DISABLE_VHS_EFFECT, ( !value ).toString() );
         },

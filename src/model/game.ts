@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021-2023 - https://www.igorski.nl
+ * Igor Zinken 2021-2024 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -28,7 +28,6 @@ import {
     GameMessages, GameSounds, TriggerTarget, TriggerTypes, AwardablePoints, ActorLabels, ActorTypes,
 } from "@/definitions/game";
 import Tables from "@/definitions/tables";
-import { STORED_DISABLE_THROTTLING } from "@/definitions/settings";
 import Actor from "@/model/actor";
 import Ball from "@/model/ball";
 import Bumper from "@/model/bumper";
@@ -39,13 +38,11 @@ import TriggerGroup from "@/model/trigger-group";
 import { createEngine } from "@/model/physics/engine";
 import type { IPhysicsEngine, CollisionEvent } from "@/model/physics/engine";
 import { enqueueTrack, setFrequency, playSoundEffect } from "@/services/audio-service";
-import { getFromStorage } from "@/utils/local-storage";
 
 type IRoundEndHandler = ( readyCallback: () => void, timeout: number ) => void;
 type IMessageHandler = ( message: GameMessages, optDuration?: number ) => void;
 
 let engine: IPhysicsEngine;
-let throttleFps: boolean;
 let ball: Ball;
 let flipper: Flipper;
 let table: TableDef;
@@ -76,7 +73,6 @@ export const init = async (
 ): Promise<Size> => {
 
     canvas = canvasRef;
-    throttleFps = getFromStorage( STORED_DISABLE_THROTTLING ) !== "true";
 
     roundEndHandler = roundEndHandlerRef;
     messageHandler  = messageHandlerRef;
@@ -308,9 +304,9 @@ export const update = ( timestamp: DOMHighResTimeStamp, framesSinceLastRender: n
     }
 
     // update physics engine
-    const engineStep = 1000 / Math.min( FRAME_RATE, canvas.getActualFrameRate()) * ( throttleFps ? framesSinceLastRender : 1 );
+    const engineStep = 1000 / Math.min( FRAME_RATE, FRAME_RATE * framesSinceLastRender );
     engine.update( engineStep );
-
+    
     // update Actors
 
     actorMap.forEach( actor => actor.update( timestamp ));
