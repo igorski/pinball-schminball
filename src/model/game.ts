@@ -298,21 +298,21 @@ export const bumpTable = ( game: GameDef ): void => {
  * Should be called when zCanvas invokes update() prior to rendering
  */
 export const update = ( timestamp: DOMHighResTimeStamp, framesSinceLastRender: number ): void => {
-    const interval = /*lastUpdate === 0 ? */1000 / FRAME_RATE;// : timestamp - lastUpdate;
+    const interval = lastUpdate === 0 ? 1000 / FRAME_RATE : timestamp - lastUpdate;
     lastUpdate = timestamp;
 
     ball = balls[ 0 ];
 
-    if ( !ball ) {
+    if ( !ball || paused ) {
         return; // no ball means no game, keep last screen contents indefinitely
     }
 
     // update physics engine simulation
 
-    for ( let i = 0, l = Math.round( framesSinceLastRender ); i < l; ++i ) {
-        engine.update( interval);
-    }
-    //engine.update( interval, framesSinceLastRender );
+    //for ( let i = 0, l = Math.round( framesSinceLastRender ); i < l; ++i ) {
+     //   engine.update( interval);
+   // }
+    engine.update( 1000 / FRAME_RATE, framesSinceLastRender );
 
     // update Actors
 

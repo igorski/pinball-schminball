@@ -119,7 +119,7 @@ export const createEngine = async (
     return {
         engine,
         update( ticks: number, timeScale: number ): void {
-            // engine.timing.timeScale = timeScale;
+            engine.timing.timeScale = timeScale;
             Matter.Engine.update( engine, ticks );
         },
         addBody( actor: Actor, label: string ): Matter.Body {
