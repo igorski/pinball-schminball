@@ -29,10 +29,10 @@ export const BALL_HEIGHT = BALL_WIDTH;
 
 // physics configuration
 
-export const GRAVITY       = 0.75;
+export const GRAVITY       = 0.85;
 export const FLIPPER_FORCE = 0.002666666 * GRAVITY;
 export const LAUNCH_SPEED  = 25 * GRAVITY;
-export const MAX_SPEED     = 60 * GRAVITY;
+export const MAX_SPEED     = 55 * GRAVITY;
 
 // the table will tilt when more than MAX_BUMPS have occurred
 // before each bumps BUMP_TIMEOUT has passed
