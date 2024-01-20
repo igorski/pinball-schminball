@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021-2023 - https://www.igorski.nl
+ * Igor Zinken 2021-2024 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -41,7 +41,7 @@ enum FlipperPositions {
 
 export interface IPhysicsEngine {
     engine: Matter.Engine;
-    update: ( ticks: number ) => void;
+    update: ( ticks: number, timeScale: number ) => void;
     addBody: ( actor: Actor, label: string ) => Matter.Body;
     removeBody: ( body: Matter.Body ) => void;
     updateBodyPosition: ( body: Matter.Body, position: Point ) => void;
@@ -74,7 +74,7 @@ export const createEngine = async (
     engine.positionIterations = 100;
     engine.velocityIterations = 16;
 
-    engine.world.gravity.y = GRAVITY;
+    engine.gravity.y = GRAVITY;
     engine.world.bounds = {
         min: { x: 0, y: 0 },
         max: { x: width, y: height }
@@ -118,7 +118,8 @@ export const createEngine = async (
 
     return {
         engine,
-        update( ticks: number ): void {
+        update( ticks: number, timeScale: number ): void {
+            // engine.timing.timeScale = timeScale;
             Matter.Engine.update( engine, ticks );
         },
         addBody( actor: Actor, label: string ): Matter.Body {
