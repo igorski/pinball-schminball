@@ -74,7 +74,7 @@ export const createEngine = async (
     engine.positionIterations = 100;
     engine.velocityIterations = 16;
 
-    engine.world.gravity.y = GRAVITY;
+    engine.gravity.y = GRAVITY;
     engine.world.bounds = {
         min: { x: 0, y: 0 },
         max: { x: width, y: height }
