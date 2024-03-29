@@ -58,7 +58,6 @@ let canvas: zCanvas;
 let backgroundRenderer: Sprite;
 let roundEndHandler: IRoundEndHandler;
 let messageHandler: IMessageHandler;
-let lastUpdate: DOMHighResTimeStamp;
 let panOffset = 0;
 let viewportWidth = 0;
 let viewportHeight = 0; // cached in scaleCanvas()
@@ -68,6 +67,8 @@ let roundStart = 0;
 let bumpAmount = 0;
 let tilt = false;
 let paused = false;
+
+const ENGINE_INCREMENT = 1000 / FRAME_RATE;
 
 export const init = async (
     canvasRef: zCanvas, game: GameDef, roundEndHandlerRef: IRoundEndHandler, messageHandlerRef: IMessageHandler
@@ -297,10 +298,7 @@ export const bumpTable = ( game: GameDef ): void => {
 /**
  * Should be called when zCanvas invokes update() prior to rendering
  */
-export const update = ( timestamp: DOMHighResTimeStamp /*, framesSinceLastRender: number */ ): void => {
-    const interval = lastUpdate === 0 ? 1000 / FRAME_RATE : timestamp - lastUpdate;
-    lastUpdate = timestamp;
-
+export const update = ( timestamp: DOMHighResTimeStamp, framesSinceLastRender: number ): void => {
     ball = balls[ 0 ];
 
     if ( !ball || paused ) {
@@ -308,8 +306,11 @@ export const update = ( timestamp: DOMHighResTimeStamp /*, framesSinceLastRender
     }
 
     // update physics engine simulation
+    // note we cap max increment to prevent glitches in the physics simulation
+    // at a FRAME_RATE of 60 fps, the increment is 16.66 ms, a double increment of 33.33 ms
+    // should cater for a refresh rate of 30 Hz, which is lower than we expect of modern displays
 
-    engine.update( interval );
+    engine.update( Math.min( ENGINE_INCREMENT * framesSinceLastRender, ENGINE_INCREMENT * 2 ));
 
     // update Actors
 
@@ -436,12 +437,13 @@ function endRound( game: GameDef, timeout = 3500 ): void {
 }
 
 function startRound( game: GameDef ): void {
-    lastUpdate = window.performance.now();
     createBall( table.poppers[ 0 ].left, table.poppers[ 0 ].top - BALL_HEIGHT );
     setFrequency();
+
     if ( game.balls === BALLS_PER_GAME ) {
-        roundStart = lastUpdate;
+        roundStart = window.performance.now();
     }
+
     tilt = false;
     inUnderworld = false;
     game.underworld = false;
