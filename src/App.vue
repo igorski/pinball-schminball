@@ -220,7 +220,7 @@ export default {
         },
         onTutorialCompleted(): void {
             this.showTutorial = false;
-            this.game.paused = false;
+            this.game.paused  = false;
 
             setInStorage( STORED_HAS_VIEWED_TUTORIAL, "true" );
         },

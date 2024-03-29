@@ -156,6 +156,7 @@ export default {
             backgroundColor: "#000", // disables alpha blending of DOM element
             // debug    : import.meta.env.MODE !== "production",
         });
+        this.canvas.pause( this.modelValue.paused );
         this.canvas.insertInPage( this.$refs.canvasContainer );
 
         [

@@ -68,10 +68,12 @@ let bumpAmount = 0;
 let tilt = false;
 let paused = false;
 
+const ENGINE_INCREMENT = 1000 / FRAME_RATE;
+
 export const init = async (
     canvasRef: zCanvas, game: GameDef, roundEndHandlerRef: IRoundEndHandler, messageHandlerRef: IMessageHandler
 ): Promise<Size> => {
-
+    
     canvas = canvasRef;
 
     roundEndHandler = roundEndHandlerRef;
@@ -303,10 +305,13 @@ export const update = ( timestamp: DOMHighResTimeStamp, framesSinceLastRender: n
         return; // no ball means no game, keep last screen contents indefinitely
     }
 
-    // update physics engine
-    const engineStep = 1000 / Math.min( FRAME_RATE, FRAME_RATE * framesSinceLastRender );
-    engine.update( engineStep );
-    
+    // update physics engine simulation
+    // note we cap max increment to prevent glitches in the physics simulation
+    // at a FRAME_RATE of 60 fps, the increment is 16.66 ms, a double increment of 33.33 ms
+    // should cater for a refresh rate of 30 Hz, which is lower than we expect of modern displays
+
+    engine.update( Math.min( ENGINE_INCREMENT * framesSinceLastRender, ENGINE_INCREMENT * 2 ));
+
     // update Actors
 
     actorMap.forEach( actor => actor.update( timestamp ));
@@ -325,14 +330,13 @@ export const update = ( timestamp: DOMHighResTimeStamp, framesSinceLastRender: n
     canvas.panViewport( 0, y > underworldOffset && ( top < underworld || !inUnderworld ) ? underworld - viewportHeight : y );
 };
 
-/* DEBUG methods */
-
-export const setPaused = ( shouldPause: boolean ): void => {
-    paused = shouldPause;
+export const setPaused = ( isPaused: boolean ): void => {
+    paused = isPaused;
+    canvas?.pause( isPaused );
 };
 
 export const panViewport = ( yDelta: number ): void => {
-    canvas.panViewport( 0, canvas.getViewport().top + yDelta );
+    canvas.panViewport( 0, canvas.getViewport()!.top + yDelta );
 };
 
 /* internal methods */
@@ -435,9 +439,11 @@ function endRound( game: GameDef, timeout = 3500 ): void {
 function startRound( game: GameDef ): void {
     createBall( table.poppers[ 0 ].left, table.poppers[ 0 ].top - BALL_HEIGHT );
     setFrequency();
+
     if ( game.balls === BALLS_PER_GAME ) {
         roundStart = window.performance.now();
     }
+
     tilt = false;
     inUnderworld = false;
     game.underworld = false;
