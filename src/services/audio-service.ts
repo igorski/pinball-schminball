@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2023 - https://www.igorski.nl
+ * Igor Zinken 2023-2024 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -38,8 +38,16 @@ let audioContext: AudioContext;
 let filter: BiquadFilterNode;
 let effectsBus: BiquadFilterNode;
 let masterBus: AudioNode;
-let sound: HTMLMediaElement;
-let acSound: MediaElementAudioSourceNode;
+let sound: HTMLMediaElement | undefined;
+let acSound: MediaElementAudioSourceNode | undefined;
+
+/**
+ * Dec 2024 : we could use the SoundCloud API to stream music
+ * directly from there, but all old tokens were invalidated and until
+ * further notice, new API tokens cannot be requested... fall back to local.
+ */
+type MusicSourceType = "soundcloud" | "local";
+const MUSIC_SOURCE = "local" as MusicSourceType;
 
 const SOUND_FX_PATH = "./assets/audio/";
 const SOUND_EFFECTS = [
@@ -106,40 +114,45 @@ export const enqueueTrack = async( trackId: string ): Promise<void> => {
         return;
     }
 
-    // prepare the stream from SoundCloud, we create an inline <audio> tag instead
-    // of using SC stream to overcome silence on mobile devices (looking at you, Apple!)
-    // this will not actually play the track yet (see playEnqueuedTrack())
-
     stop();
 
-    const requestData = {
-        headers: {
-            "Content-Type"  : "application/json; charset=utf-8",
-            "Authorization" : `OAuth ${Config.getSoundCloudClientId()}`
-        }
-    };
+    if ( MUSIC_SOURCE === "soundcloud" ) {
+        // prepare the stream from SoundCloud, we create an inline <audio> tag instead
+        // of using SC stream to overcome silence on mobile devices (looking at you, Apple!)
+        // this will not actually play the track yet (see playEnqueuedTrack())
 
-    let { data } = await axios.get( `https://api.soundcloud.com/tracks/${trackId}`, requestData );
-    if ( data?.access === "playable" && data.stream_url ) {
-        //trackMeta = data;
-        // data.stream_url should be the way to go but this leads to CORS errors when following
-        // a redirect... for now use the /streams endpoint
-        ({ data } = await axios.get( `https://api.soundcloud.com/tracks/${trackId}/streams`, requestData ));
-        if ( data?.http_mp3_128_url ) {
-            sound = createAudioElement( data.http_mp3_128_url, true, masterBus );
-            _startPlayingEnqueuedTrack( trackId );
+        const requestData = {
+            headers: {
+                "Content-Type"  : "application/json; charset=utf-8",
+                "Authorization" : `OAuth ${Config.getSoundCloudClientId()}`
+            }
+        };
+
+        let { data } = await axios.get( `https://api.soundcloud.com/tracks/${trackId}`, requestData );
+        if ( data?.access === "playable" && data.stream_url ) {
+            //trackMeta = data;
+            // data.stream_url should be the way to go but this leads to CORS errors when following
+            // a redirect... for now use the /streams endpoint
+            ({ data } = await axios.get( `https://api.soundcloud.com/tracks/${trackId}/streams`, requestData ));
+            if ( data?.http_mp3_128_url ) {
+                sound = createAudioElement( data.http_mp3_128_url, true, masterBus );
+                _startPlayingEnqueuedTrack( trackId );
+            }
         }
+    } else {
+        sound = createAudioElement( `${SOUND_FX_PATH}music_${trackId}.mp3`, true, masterBus );
+        _startPlayingEnqueuedTrack( trackId );
     }
 };
 
 export const stop = (): void => {
     if ( sound ) {
         if ( audioContext ) {
-            acSound.disconnect();
-            acSound = null;
+            acSound?.disconnect();
+            acSound = undefined;
         }
         sound.pause();
-        sound = null;
+        sound = undefined;
         playingTrackId = null;
     }
     playing = false;
